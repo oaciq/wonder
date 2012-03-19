@@ -78,7 +78,7 @@ public class ERXBasicBrowser extends ERXBrowser {
 
     private final String          _browserName;
     private final String          _version;
-    private final Integer         _majorVersion;
+    private Integer         _majorVersion;
     private final String          _mozillaVersion;
     private final String          _platform;
     private final String          _cpu;
@@ -193,7 +193,7 @@ public class ERXBasicBrowser extends ERXBrowser {
 	        	_majorVersion = Integer.valueOf(majorVersion);
 	        } catch (NumberFormatException e) {
 	        	log.info("could not determine major version from '" + majorVersion + "'", e);
-	        	throw e;
+                _majorVersion = Integer.valueOf(0);
 			}
         }
     }
