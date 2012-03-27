@@ -405,7 +405,8 @@ public class EGSimpleTableParser {
     								log.info(e1);
     							}
     							
-    						case HSSFCell.CELL_TYPE_STRING:
+								//$FALL-THROUGH$
+							case HSSFCell.CELL_TYPE_STRING:
 							default:
 								cell.setCellType(cellType.intValue());
 								cell.setCellValue(new HSSFRichTextString(value != null ? value.toString() : null));
