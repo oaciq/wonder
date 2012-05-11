@@ -563,6 +563,10 @@ public class ERXRestRequestNode implements NSKeyValueCoding, NSKeyValueCodingAdd
 			ERXRestRequestNode childNode = removeChildNamed(name);
 			if (childNode != null) {
 				value = childNode.value();
+				// the code I added
+				if (value == null && childNode.children().count() > 0) {
+					return childNode;
+				}
 			}
 		}
 		return value;
