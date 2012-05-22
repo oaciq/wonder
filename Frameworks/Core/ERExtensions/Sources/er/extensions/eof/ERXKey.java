@@ -2086,6 +2086,16 @@ public class ERXKey<T> {
 		return ERXPrefixQualifierTraversal.prefixQualifierWithKey(qualifier, this);
 	}
 
+	/**
+	 * There aren't any equivalent, but is in the same family than ERXKeyValueQualifier(key, EOQualifier.QualifierOperatorLike, value);
+	 * @param aValue
+	 *            a value that sounds like it
+	 * @return the qualifier
+	 */
+	public EOQualifier soundex(final String aValue) {
+		return ERXQ.soundex(_key, aValue);
+	}
+
 	@Override
 	public String toString() {
 		return _key;

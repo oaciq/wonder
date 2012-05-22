@@ -11,6 +11,7 @@ import com.webobjects.foundation.NSSelector;
 
 import er.extensions.eof.qualifiers.ERXInQualifier;
 import er.extensions.eof.qualifiers.ERXRegExQualifier;
+import er.extensions.eof.qualifiers.ERXSoundexQualifier;
 import er.extensions.eof.qualifiers.ERXToManyQualifier;
 import er.extensions.qualifiers.ERXAndQualifier;
 import er.extensions.qualifiers.ERXFalseQualifier;
@@ -1029,5 +1030,15 @@ public class ERXQ {
 	 */
 	public static String keyPath(String... elements) {
 		return new NSArray<String>(elements).componentsJoinedByString(".");
+	}
+
+	/**
+	 * There aren't any equivalent, but is in the same family than ERXKeyValueQualifier(key, EOQualifier.QualifierOperatorLike, value);
+	 * @param aValue
+	 *            a value that sounds like it
+	 * @return the qualifier
+	 */
+	public static EOQualifier soundex(final String key, final String aValue) {
+		return new ERXSoundexQualifier(key, aValue);
 	}
 }
