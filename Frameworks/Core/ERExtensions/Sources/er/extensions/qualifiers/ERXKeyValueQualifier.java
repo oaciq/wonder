@@ -2,11 +2,18 @@ package er.extensions.qualifiers;
 
 import com.webobjects.eocontrol.EOKeyValueQualifier;
 import com.webobjects.eocontrol.EOQualifier;
+import com.webobjects.eocontrol.EOQualifierVariable;
 import com.webobjects.foundation.NSArray;
+import com.webobjects.foundation.NSDictionary;
+import com.webobjects.foundation.NSKeyValueCoding;
+import com.webobjects.foundation.NSKeyValueCodingAdditions;
 import com.webobjects.foundation.NSMutableArray;
 import com.webobjects.foundation.NSSelector;
+import com.webobjects.foundation._NSStringUtilities;
 
 import er.extensions.eof.ERXQ;
+import er.extensions.foundation.ERXArrayUtilities;
+import er.extensions.foundation.ERXProperties;
 
 /**
  * ERXKeyValueQualifier is a chainable extension of EOKeyValueQualifier.
@@ -14,6 +21,12 @@ import er.extensions.eof.ERXQ;
  * @author mschrag
  */
 public class ERXKeyValueQualifier extends EOKeyValueQualifier implements IERXChainableQualifier {
+	
+	// Lazy static initialization
+	private static class PROPERTIES {																 
+		static boolean shouldEvaluateManyToManyValueObject = ERXProperties.booleanForKeyWithDefault("er.extensions.ERXKeyValueQualifier.manyToMany", false);
+	} 
+	
 	public ERXKeyValueQualifier(String key, NSSelector selector, Object value) {
 		super(key, selector, value);
 		if (key == null) {
@@ -23,7 +36,28 @@ public class ERXKeyValueQualifier extends EOKeyValueQualifier implements IERXCha
 			throw new IllegalArgumentException("A KeyQualifierQualifier must have a selector.");
 		}
 	}
+	
+	@Override
+	public boolean evaluateWithObject(Object object){  
+		if(super.evaluateWithObject(object)){
+			return true;
+		}
 
+		if(PROPERTIES.shouldEvaluateManyToManyValueObject){
+			Object objectValue = NSKeyValueCodingAdditions.Utility.valueForKeyPath(object, _key);
+			if (objectValue instanceof NSMutableArray<?>) {
+				for (Object value : (NSMutableArray<?>) objectValue) {
+					NSDictionary<String, Object> newObject = new NSDictionary<String, Object>(value, _key);
+					if(evaluateWithObject(newObject)){
+						return true;
+					}
+				}
+			}
+		}
+		
+		return false;
+	}
+	
 	public ERXAndQualifier and(EOQualifier... qualifiers) {
 		return ERXChainedQualifierUtils.and(this, qualifiers);
 	}
