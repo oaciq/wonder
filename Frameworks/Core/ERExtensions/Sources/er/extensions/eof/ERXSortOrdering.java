@@ -109,6 +109,11 @@ public class ERXSortOrdering extends EOSortOrdering {
 		return false;
 	}
 
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+
 	/**
 	 * Constructs an ERXSortOrdering (see EOSortOrdering).
 	 * 

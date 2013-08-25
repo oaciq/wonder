@@ -788,6 +788,15 @@ public class DB2Expression extends JDBCExpression {
         public String sortKey() {
             return table1.substring( table1.indexOf( " " ) + 1 );
         }
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#hashCode()
+		 */
+		@Override
+		public int hashCode() {
+			// TODO Auto-generated method stub
+			return super.hashCode();
+		}
     }
     
     /**

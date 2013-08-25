@@ -563,6 +563,10 @@ public class ERXRestRequestNode implements NSKeyValueCoding, NSKeyValueCodingAdd
 			ERXRestRequestNode childNode = removeChildNamed(name);
 			if (childNode != null) {
 				value = childNode.value();
+				// the code I added
+				if (value == null && childNode.children().count() > 0) {
+					return childNode;
+				}
 			}
 		}
 		return value;
@@ -1278,7 +1282,7 @@ public class ERXRestRequestNode implements NSKeyValueCoding, NSKeyValueCodingAdd
 					// we fallback and lookup the class entity ...
 					if (!classDescription.toOneRelationshipKeys().containsObject(keyName) && classDescription instanceof EOEntityClassDescription) {
 						EOClassDescription nonModelClassDescription = ERXRestClassDescriptionFactory.classDescriptionForObject(obj, true);
-						if (!nonModelClassDescription.toManyRelationshipKeys().containsObject(keyName)) {
+						if (!nonModelClassDescription.toOneRelationshipKeys().containsObject(keyName)) {
 							throw new IllegalArgumentException("There is no to-one relationship named '" + key.key() + "' on '" + classDescription.entityName() + "'.");
 						}
 						destinationClassDescription = nonModelClassDescription.classDescriptionForDestinationKey(keyName);
