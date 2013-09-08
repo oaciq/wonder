@@ -1,6 +1,4 @@
 /*
- $Id$
- 
  ERMailTextAttachment.java - Camille Troillard - tuscland@mac.com
  */
 
@@ -14,15 +12,15 @@ public class ERMailTextAttachment extends ERMailFileAttachment {
 
 	public ERMailTextAttachment(String fileName, String content) {
 		super(content);
-		this.setFileName(fileName);
+		_fileName = fileName;
 	}
 
 	@Override
 	protected BodyPart getBodyPart() throws MessagingException {
 		MimeBodyPart bp = new MimeBodyPart();
 
-		bp.setText((String) this.content(), ERMailDelivery.DefaultCharset);
-		bp.setFileName(this.fileName());
+		bp.setText((String) content(), ERMailDelivery.DefaultCharset);
+		bp.setFileName(fileName());
 
 		return bp;
 	}

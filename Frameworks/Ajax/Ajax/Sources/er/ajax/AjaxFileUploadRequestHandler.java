@@ -49,6 +49,7 @@ public class AjaxFileUploadRequestHandler extends WORequestHandler {
 		_maxUploadSize = maxUploadSize;
 	}
 
+	@Override
 	public WOResponse handleRequest(WORequest request) {
 		WOApplication application = WOApplication.application();
 		application.awake();
@@ -62,7 +63,8 @@ public class AjaxFileUploadRequestHandler extends WORequestHandler {
 			int streamLength = -1;
 
 			try {
-				String wosid = request.cookieValueForKey("wosid");
+				String sessionIdKey = WOApplication.application().sessionIdKey();
+				String sessionId = request.cookieValueForKey(sessionIdKey);
 				WOMultipartIterator multipartIterator = request.multipartIterator();
 				if (multipartIterator == null) {
 					response.appendContentString("Already Consumed!");
@@ -71,8 +73,8 @@ public class AjaxFileUploadRequestHandler extends WORequestHandler {
 					WOMultipartIterator.WOFormData formData = null;
 					while ((formData = multipartIterator.nextFormData()) != null) {
 						String name = formData.name();
-						if ("wosid".equals(name)) {
-							wosid = formData.formValue();
+						if (sessionIdKey.equals(name)) {
+							sessionId = formData.formValue();
 						}
 						else if ("id".equals(name)) {
 							uploadIdentifier = formData.formValue();
@@ -84,10 +86,13 @@ public class AjaxFileUploadRequestHandler extends WORequestHandler {
 							break;
 						}
 					}
-					context._setRequestSessionID(wosid);
+					context._setRequestSessionID(sessionId);
 					WOSession session = null;
 					if (context._requestSessionID() != null) {
-						session = WOApplication.application().restoreSessionWithID(wosid, context);
+						session = WOApplication.application().restoreSessionWithID(sessionId, context);
+					}
+					if (session == null) {
+						throw new Exception("No valid session!");
 					}
 					File tempFile = File.createTempFile("AjaxFileUpload", ".tmp", _tempFileFolder);
 					tempFile.deleteOnExit();
@@ -101,9 +106,11 @@ public class AjaxFileUploadRequestHandler extends WORequestHandler {
 						}
 					}
 
-					NSArray<String> contentType = (NSArray<String>)formData.headers().valueForKey("content-type");
-					if (contentType != null) {
-						progress.setContentType(contentType.objectAtIndex(0));
+					if (formData != null) {
+						NSArray<String> contentType = (NSArray<String>)formData.headers().valueForKey("content-type");
+						if (contentType != null) {
+							progress.setContentType(contentType.objectAtIndex(0));
+						}
 					}
 					
 					try {
@@ -131,8 +138,18 @@ public class AjaxFileUploadRequestHandler extends WORequestHandler {
 				}
 			}
 			catch (Throwable t) {
-				log.error(t);
+				log.error("Upload failed",t);
 				response.appendContentString("Failed: " + t.getMessage());
+			}
+			finally {
+				if (uploadInputStream != null) {
+					try {
+						uploadInputStream.close();
+					}
+					catch (IOException e) {
+						// ignore
+					}
+				}
 			}
 			return response;
 		}

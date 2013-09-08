@@ -20,8 +20,13 @@ import com.webobjects.foundation.NSArray;
  * @binding condition A boolean
  * @binding negate A boolean
  */
-
 public class ERXUnreadMarker extends WOComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     public ERXUnreadMarker(WOContext aContext) {
         super(aContext);
@@ -29,10 +34,11 @@ public class ERXUnreadMarker extends WOComponent {
 
     /////////////////////////////////  log4j category  /////////////////////////////////
     public static Logger log = Logger.getLogger(ERXUnreadMarker.class);
-    
-    public boolean synchronizesVariablesWithBindings() { return false; }
+
+    @Override
     public boolean isStateless() { return true; }
 
+    @Override
     public void reset() { super.reset(); initialized=false; }
     
     private boolean initialized=false;

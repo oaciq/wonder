@@ -59,6 +59,14 @@ public class ERXResponse extends WOResponse {
 	public ERXResponse(String content) {
 		setContent(content);
 	}
+	
+	/**
+	 * Convenience constructor for direct actions.
+	 * @param status HTTP status code of the response
+	 */
+	public ERXResponse(int status) {
+		setStatus(status);
+	}
 
 	public ERXResponse(WOContext context) {
 		_context = context;
@@ -124,6 +132,7 @@ public class ERXResponse extends WOResponse {
 
 	/**
 	 * Overridden to insert the partials in the respective area.
+	 * @param originalContext context
 	 */
 	@Override
 	public void _finalizeInContext(WOContext originalContext) {
@@ -197,18 +206,6 @@ public class ERXResponse extends WOResponse {
 	}
 
 	/**
-	 * The original _appendTagAttributeAndValue would skip null values, but not
-	 * blank values, which would produce html like &lt;div style = ""&gt;. This
-	 * implementation also skips blank values.
-	 */
-	@Override
-	public void _appendTagAttributeAndValue(String name, String value, boolean escape) {
-		if (value != null) {
-			super._appendTagAttributeAndValue(name, value, escape);
-		}
-	}
-
-	/**
 	 * Overridden to <b>not</b> call super if trying to download an attachment
 	 * to IE.
 	 * 
@@ -228,7 +225,7 @@ public class ERXResponse extends WOResponse {
 	}
 
 	/**
-	 * @see #disablePageCaching()
+	 * @see #DisablePageCachingKey
 	 * @return <code>true</code> if disablePageCaching() has been called for
 	 *         this response
 	 */
@@ -244,6 +241,7 @@ public class ERXResponse extends WOResponse {
 	 * @param key
 	 *            key to add value under
 	 */
+	@Override
 	public void setUserInfoForKey(Object value, String key) {
 		/**
 		 * require [valid_value] value != null; [valid_key] key != null;
@@ -261,8 +259,9 @@ public class ERXResponse extends WOResponse {
 	 * 
 	 * @param key
 	 *            key to return value from userInfo() for
-	 * @return value from userInfo() for key, or null if not available
+	 * @return value from {@link #userInfo()} for key, or <code>null</code> if not available
 	 */
+	@Override
 	public Object userInfoForKey(String key) {
 		/** require [valid_key] key != null; **/
 		return userInfo() != null ? userInfo().objectForKey(key) : null;

@@ -25,6 +25,13 @@ import er.extensions.eof.ERXConstant;
  * @binding ERXOncePerRequestDisplayCountDict
  */
 public class ERXOncePerRequestConditional extends ERXStatelessComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
+
     /** logging support */
     public static final Logger log = Logger.getLogger(ERXOncePerRequestConditional.class.getName());
     
@@ -62,11 +69,13 @@ public class ERXOncePerRequestConditional extends ERXStatelessComponent {
 	return keyName;
     }
 
+    @Override
     public void reset() {
 	super.reset();
 	keyName = null;
     }
 
+    @Override
     public void awake() {
 	super.awake();
     }
@@ -81,18 +90,21 @@ public class ERXOncePerRequestConditional extends ERXStatelessComponent {
         displayCountDict().setObjectForKey(ERXConstant.integerForInt(count), key);
     }
 
+    @Override
     public void takeValuesFromRequest(WORequest aRequest, WOContext aContext) {
         currentStage = 0;
 	resetDict();
 	super.takeValuesFromRequest(aRequest,aContext);
     }
 
+    @Override
     public WOActionResults invokeAction(WORequest aRequest, WOContext aContext) {
         currentStage = 1;
 	resetDict();
 	return super.invokeAction(aRequest,aContext);
     }
 
+    @Override
     public void appendToResponse(WOResponse aResponse, WOContext aContext) {
         currentStage = 2;
 	resetDict();

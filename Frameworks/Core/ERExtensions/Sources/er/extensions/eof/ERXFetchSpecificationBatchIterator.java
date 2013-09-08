@@ -9,6 +9,7 @@ package er.extensions.eof;
 import java.util.Enumeration;
 import java.util.Iterator;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.log4j.Logger;
 
 import com.webobjects.eoaccess.EOAttribute;
@@ -127,9 +128,9 @@ public class ERXFetchSpecificationBatchIterator implements Iterator, Enumeration
             throw new RuntimeException("ERXFetchSpecificationBatchIterator: Currently only single primary key entities are supported.");
         }
 
-        this.primaryKeyAttributeName = ((EOAttribute)primaryKeyAttributes.lastObject()).name();
+        primaryKeyAttributeName = ((EOAttribute)primaryKeyAttributes.lastObject()).name();
         this.fetchSpecification = (EOFetchSpecification) fetchSpecification.clone();
-        this.primaryKeys = pkeys;
+        primaryKeys = pkeys;
         setEditingContext(ec != null ? ec : ERXEC.newEditingContext());
         setBatchSize(batchSize);
         setFiltersBatches(false);
@@ -297,9 +298,8 @@ public class ERXFetchSpecificationBatchIterator implements Iterator, Enumeration
             NSArray nextBatch = batchWithRange(range);
             currentObjectFetchCount += range.length();
             return nextBatch;
-        } else {
-            throw new IllegalStateException("Iterator is exhausted");
         }
+        throw new IllegalStateException("Iterator is exhausted");
     }
 
     private NSRange _rangeForBatchIndex(int index) {
@@ -366,6 +366,7 @@ public class ERXFetchSpecificationBatchIterator implements Iterator, Enumeration
             if (fetchSpecification.prefetchingRelationshipKeyPaths() != null) {
             	batchFS.setPrefetchingRelationshipKeyPaths(fetchSpecification.prefetchingRelationshipKeyPaths());
             }
+            batchFS.setRefreshesRefetchedObjects(fetchSpecification.refreshesRefetchedObjects());
             batchFS.setRawRowKeyPaths(fetchSpecification.rawRowKeyPaths());
             nextBatch = ec.objectsWithFetchSpecification(batchFS);
 
@@ -428,7 +429,7 @@ public class ERXFetchSpecificationBatchIterator implements Iterator, Enumeration
             log.debug("Fetching primary keys.");
             NSArray primaryKeyDictionaries = editingContext().objectsWithFetchSpecification(pkFetchSpec);
 
-            String pkAttributeName = ((EOAttribute)entity.primaryKeyAttributes().lastObject()).name();
+            String pkAttributeName = entity.primaryKeyAttributes().lastObject().name();
             primaryKeys = (NSArray)primaryKeyDictionaries.valueForKey(pkAttributeName);
             if (performDistinctInMemory) {
             	primaryKeys = ERXArrayUtilities.arrayWithoutDuplicates(primaryKeys);
@@ -493,5 +494,28 @@ public class ERXFetchSpecificationBatchIterator implements Iterator, Enumeration
 	 */
 	public Object nextElement() {
 		return next();
+	}
+	
+	/*
+	 * Return useful debug info including fetchspec info.
+	 * 
+	 *  (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		ToStringBuilder b = new ToStringBuilder(this);
+		b.append("PKs Initialized", primaryKeys == null ? "No" : "Yes");
+		if (primaryKeys != null) {
+			b.append("Count", primaryKeys.count());
+		}
+		b.append("entityName", fetchSpecification.entityName());
+		b.append("qualifier", fetchSpecification.qualifier());
+		b.append("isDeep", fetchSpecification.isDeep());
+		b.append("usesDistinct", fetchSpecification.usesDistinct());
+		b.append("sortOrderings", fetchSpecification.sortOrderings());
+		b.append("hints", fetchSpecification.hints());
+		b.append("prefetchingRelationshipKeyPaths", fetchSpecification.prefetchingRelationshipKeyPaths());
+		return b.toString();
 	}
 }

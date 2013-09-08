@@ -33,6 +33,12 @@ import er.extensions.foundation.ERXSelectorUtilities;
  * @property er.corebusinesslogic.ERCStampedEnterpriseObject.touchReadOnlyEntities
  */
 public abstract class ERCStampedEnterpriseObject extends ERXGenericRecord {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public interface Keys {
 		public static final String CREATED = "created";
@@ -73,6 +79,7 @@ public abstract class ERCStampedEnterpriseObject extends ERXGenericRecord {
 
     public EOEnterpriseObject insertionLogEntry=null;
     
+    @Override
     public void init(EOEditingContext ec) {
         super.init(ec);
         if (this instanceof ERCLogEntryInterface) {
@@ -94,17 +101,20 @@ public abstract class ERCStampedEnterpriseObject extends ERXGenericRecord {
         setLastModified(t);
     }
 
+    @Override
     public void willInsert() {
         super.willInsert();
         touch();
         setCreated(lastModified());
     }
 
+    @Override
     public void willUpdate() {
         super.willUpdate();
         touch();
     }
 
+    @Override
     public void willDelete() {
         // this in theory should not have much effect
         // however EOF seems to have trouble with some cascade configuration
@@ -120,7 +130,6 @@ public abstract class ERCStampedEnterpriseObject extends ERXGenericRecord {
      * issue introduced by looking up the entity() in touch(), so we can roll it back out.
      * 
      * @return whether or not read-only entities should be touched (defaults to false)
-     * @property er.corebusinesslogic.ERCStampedEnterpriseObject.touchReadOnlyEntities
      */
     protected static boolean touchReadOnlyEntities() {
         if (_touchReadOnlyEntities == null) {

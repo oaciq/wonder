@@ -239,6 +239,12 @@ public class ERIndex {
     }
 
     protected static class Command extends Parameter {
+    	/**
+    	 * Do I need to update serialVersionUID?
+    	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+    	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+    	 */
+    	private static final long serialVersionUID = 1L;
 
         protected Command(String name) {
             super(name);
@@ -315,7 +321,7 @@ public class ERIndex {
         }
 
         TransactionHandler handler() {
-            return ERIndex.this._handler;
+            return _handler;
         }
     }
    
@@ -407,7 +413,7 @@ public class ERIndex {
 
     private Directory _indexDirectory;
 
-    private NSDictionary<String, IndexAttribute> _attributes = (NSDictionary<String, IndexAttribute>) NSDictionary.EmptyDictionary;
+    private NSDictionary<String, IndexAttribute> _attributes = NSDictionary.EmptyDictionary;
 
     private final String _name;
 
@@ -444,7 +450,7 @@ public class ERIndex {
     }
     
     protected Analyzer analyzer() {
-        PerFieldAnalyzerWrapper wrapper = new PerFieldAnalyzerWrapper(new StandardAnalyzer());
+        PerFieldAnalyzerWrapper wrapper = new PerFieldAnalyzerWrapper(new StandardAnalyzer(Version.LUCENE_24));
         for (IndexAttribute attribute : attributes()) {
             wrapper.addAnalyzer(attribute.name(), attribute.analyzer());
         }
@@ -801,7 +807,7 @@ public class ERIndex {
     public ERDocument documentForId(int docId, float score) {
     	ERDocument doc = null;
     	try {
-    		Document _doc = this.indexSearcher().doc(docId);
+    		Document _doc = indexSearcher().doc(docId);
     		doc = new ERDocument(_doc, score);
     	} catch (IOException e) {
     		throw NSForwardException._runtimeExceptionForThrowable(e);

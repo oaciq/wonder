@@ -28,17 +28,25 @@ import er.extensions.validation.ERXValidationFactory;
  * @d2wKey smartAttribute
  */
 public class ERD2WEditNumber extends D2WEditNumber {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     public ERD2WEditNumber(WOContext context) { super(context); }
     
     /** Logging support */
     public final static Logger log = Logger.getLogger(ERD2WEditNumber.class);
 
+    @Override
     public void reset() {
         super.reset();
         _numberFormatter = null;
     }
 
+    @Override
     public EOAttribute attribute() {
         return super.attribute() != null ? super.attribute() : (EOAttribute)d2wContext().valueForKey("smartAttribute");
     }
@@ -48,9 +56,10 @@ public class ERD2WEditNumber extends D2WEditNumber {
         if (_numberFormatter == null) {
             _numberFormatter = ERXNumberFormatter.numberFormatterForPattern(formatter());
         }
-        return (java.text.Format)_numberFormatter;
+        return _numberFormatter;
     }
 
+    @Override
     public Object validateTakeValueForKeyPath (Object anObject, String aPath) throws NSValidation.ValidationException {
         Number number = null;
         try {
@@ -66,6 +75,7 @@ public class ERD2WEditNumber extends D2WEditNumber {
         }
         return super.validateTakeValueForKeyPath(convertNumber(number), propertyKey());
     }
+    @Override
     public void validationFailedWithException(Throwable theException,Object theValue, String theKeyPath)  {
         // This is for number formatting exceptions
         String keyPath = theKeyPath.equals("stringValue") ? propertyKey() : theKeyPath;

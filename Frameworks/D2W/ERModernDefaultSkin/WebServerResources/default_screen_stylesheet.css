@@ -983,7 +983,7 @@ span.ErrorLabel {
 
 .BottomBatchNav {
 	padding-top: 10px;
-	width: 570px;
+	width: 610px;
 	overflow: auto;
 	margin: 0 auto;
 }
@@ -1177,13 +1177,6 @@ div.RtActionCell {
 div.RtActionCell li {
 	margin-top: 4px;
 	line-height: 26px;
-}
-
-
-.ERMD2WEditToManyFault {
-	padding-bottom: 5px;
-	width: auto;
-	overflow: hidden;
 }
 
 .RelatedItems {

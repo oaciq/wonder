@@ -1,5 +1,6 @@
 package er.extensions.appserver.navigation;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.webobjects.appserver.WOComponent;
@@ -32,6 +33,12 @@ import er.extensions.localization.ERXLocalizer;
  */
 /* Note that I've purposely not extended the old class, hoping to deprecate or replace it with this one at a later date. */
 public class ERXModernNavigationMenuItem extends ERXStatelessComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     /** logging support */
     public static final Logger log = Logger.getLogger(ERXNavigationMenuItem.class);
@@ -70,6 +77,7 @@ public class ERXModernNavigationMenuItem extends ERXStatelessComponent {
     	return null;
     }
 
+    @Override
     public void reset() {
         _navigationItem = null;
         _navigationState = null;
@@ -123,9 +131,8 @@ public class ERXModernNavigationMenuItem extends ERXStatelessComponent {
                 NSMutableDictionary bindings = navigationItem().queryBindings().mutableClone();
                 bindings.setObjectForKey(context().contextID(), "__cid");
                 return context().directActionURLForActionNamed(navigationItem().directActionName(), bindings);
-            } else {
-                return context().componentActionURL();
             }
+            return context().componentActionURL();
         }
 
         // If the user specified some javascript, put that into the HREF and return it
@@ -133,7 +140,7 @@ public class ERXModernNavigationMenuItem extends ERXStatelessComponent {
 
             // Make sure there are no extra quotations marks - replace them with apostrophes
             String theFunction = (String)valueForBinding("javascriptFunction");
-            return ERXStringUtilities.replaceStringByStringInString("\"", "'", theFunction);
+            return StringUtils.replace(theFunction, "\"", "'");
         }
 
         return null;

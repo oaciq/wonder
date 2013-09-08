@@ -9,7 +9,6 @@ import com.webobjects.appserver.WOActionResults;
 import com.webobjects.appserver.WOApplication;
 import com.webobjects.appserver.WOComponent;
 import com.webobjects.appserver.WOContext;
-import com.webobjects.appserver.WOResponse;
 import com.webobjects.foundation.NSData;
 
 import er.ajax.AjaxFileUpload;
@@ -71,6 +70,8 @@ import er.extensions.foundation.ERXFileUtilities;
 
 public class MTAjaxFileUpload extends WOComponent {
 
+	private static final long serialVersionUID = 1L;
+
 	private static boolean _requestHandlerRegistered = false;
 
 	private String _id;
@@ -103,6 +104,7 @@ public class MTAjaxFileUpload extends WOComponent {
 		return _requestHandlerKey;
 	}
 
+	@Override
 	public boolean synchronizesVariablesWithBindings() {
 		return false;
 	}
@@ -293,7 +295,7 @@ public class MTAjaxFileUpload extends WOComponent {
 			}
 
 			if (hasBinding("data")) {
-				NSData data = new NSData(progress.tempFile().toURL());
+				NSData data = new NSData(progress.tempFile().toURI().toURL());
 				setValueForBinding(data, "data");
 			}
 			
@@ -344,7 +346,7 @@ public class MTAjaxFileUpload extends WOComponent {
 				else {
 					renamedFile = false;
 					progress.setFailure(new Exception ("Could not rename file."));
-					return this.uploadFailed();
+					return uploadFailed();
 				}
 				
 				if (renamedFile) {
@@ -368,7 +370,7 @@ public class MTAjaxFileUpload extends WOComponent {
 		catch (Throwable t) {
 			t.printStackTrace();
 			progress.setFailure(t);
-			return this.uploadFailed();
+			return uploadFailed();
 		}
 		finally {
 			uploadFinished();
@@ -384,7 +386,7 @@ public class MTAjaxFileUpload extends WOComponent {
 	}
 
 	public String srcUrl() {
-		return ERXWOContext._directActionURL(context(), "ERXDirectAction/empty", null, ERXRequest.isRequestSecure(context().request()));
+		return context()._directActionURL("ERXDirectAction/empty", null, ERXRequest.isRequestSecure(context().request()), 0, false);
 	}
 
 }

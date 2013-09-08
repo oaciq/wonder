@@ -36,6 +36,12 @@ import com.ibm.icu.text.Normalizer;
  * @author David Teran
  */
 public class ERXFile extends File {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Creates a new File instance from a parent abstract pathname and a child pathname string.
@@ -122,14 +128,17 @@ public class ERXFile extends File {
         super(uri);
     }
 
+    @Override
     public String getAbsolutePath() {
         return normalizedPath(super.getAbsolutePath());
     }
 
+    @Override
     public String getName() {
         return normalizedPath(super.getName());
     }
 
+    @Override
     public String[] list() {
     	String[] names = super.list();
     	if (names == null) return null;
@@ -139,6 +148,7 @@ public class ERXFile extends File {
     	return names;
     }
 
+    @Override
     public String[] list(FilenameFilter arg0) {
         String[] names = super.list(arg0);
         if (names == null) return null;
@@ -148,6 +158,7 @@ public class ERXFile extends File {
         return names;
     }
 
+    @Override
     public File[] listFiles() {
         File[] files = super.listFiles();
         if (files == null) return null;
@@ -157,6 +168,7 @@ public class ERXFile extends File {
         return files;
     }
 
+    @Override
     public File[] listFiles(FileFilter arg0) {
         File[] files = super.listFiles(arg0);
         if (files == null) return null;
@@ -166,6 +178,7 @@ public class ERXFile extends File {
         return files;
     }
 
+    @Override
     public File[] listFiles(FilenameFilter arg0) {
         File[] files = super.listFiles(arg0);
         if (files == null) return null;
@@ -175,16 +188,19 @@ public class ERXFile extends File {
         return files;
     }
 
+    @Override
     public File getAbsoluteFile() {
         File f = super.getAbsoluteFile();
         ERXFile f1 = new ERXFile(f.getAbsolutePath());
         return f1;
     }
 
+    @Override
     public File getCanonicalFile() throws IOException {
         return super.getCanonicalFile();
     }
 
+    @Override
     public File getParentFile() {
         File f = super.getParentFile();
         if (f == null) {
@@ -194,6 +210,7 @@ public class ERXFile extends File {
         return f1;
     }
 
+    @Override
     public String toString() {
         return super.toString();
     }

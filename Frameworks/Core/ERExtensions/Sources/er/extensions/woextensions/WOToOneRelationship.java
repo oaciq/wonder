@@ -1,33 +1,42 @@
 package er.extensions.woextensions;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.webobjects.appserver.WOContext;
 import com.webobjects.eocontrol.EOEnterpriseObject;
 import com.webobjects.foundation.NSArray;
 import com.webobjects.foundation.NSKeyValueCoding;
 import com.webobjects.foundation.NSMutableArray;
 
-import er.extensions.ERXExtensions;
 import er.extensions.components.ERXArrayChooser;
 import er.extensions.eof.ERXEOControlUtilities;
-import er.extensions.foundation.ERXValueUtilities;
 
 /**
- * Back port from WO 5 WOExtensions. This component is binding compatible, but not source compatible.<br />
+ * Back port from WO 5 WOExtensions. This component is binding compatible, but not source compatible.
+ * 
  * @author ak 
  */
-
 public class WOToOneRelationship extends ERXArrayChooser {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
+
     protected Object _selection;
 
     public WOToOneRelationship(WOContext aContext)  {
         super(aContext);
     }
-    
+
+    @Override
     public void reset() {
         super.reset();
         _selection = null;
     }
 
+    @Override
     public void awake() {
         super.awake();
        _selection = null;
@@ -38,7 +47,7 @@ public class WOToOneRelationship extends ERXArrayChooser {
         Object realSourceObject = realSourceObject();
         
         Object currentValue = NSKeyValueCoding.Utility.valueForKey(realSourceObject, realRelationshipKey);
-        if(!ERXExtensions.safeEquals(value, currentValue)) {
+        if (ObjectUtils.notEqual(value, currentValue)) {
             if(realSourceObject instanceof EOEnterpriseObject) {
                 EOEnterpriseObject eo = (EOEnterpriseObject)realSourceObject;
                 if(value instanceof EOEnterpriseObject) {
@@ -83,6 +92,7 @@ public class WOToOneRelationship extends ERXArrayChooser {
         }
     }
 
+    @Override
     public NSArray currentValues() {
     	Object current = selection();
     	return current == null ? NSArray.EmptyArray : new NSArray(current);
@@ -121,7 +131,8 @@ public class WOToOneRelationship extends ERXArrayChooser {
         }
         return selection;
     }
-    
+
+    @Override
     public NSArray theList() {
         if (_list==null) {
             _list = super.theList();
@@ -134,6 +145,7 @@ public class WOToOneRelationship extends ERXArrayChooser {
         return _list;
     }
 
+    @Override
     protected boolean isSingleSelection() {
         return true;
     }

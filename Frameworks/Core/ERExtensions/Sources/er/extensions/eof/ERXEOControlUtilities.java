@@ -64,7 +64,6 @@ import er.extensions.eof.ERXEOAccessUtilities.DatabaseContextOperation;
 import er.extensions.foundation.ERXArrayUtilities;
 import er.extensions.foundation.ERXDictionaryUtilities;
 import er.extensions.foundation.ERXKeyValueCodingUtilities;
-import er.extensions.foundation.ERXProperties;
 import er.extensions.jdbc.ERXSQLHelper;
 import er.extensions.validation.ERXValidationException;
 import er.extensions.validation.ERXValidationFactory;
@@ -196,12 +195,6 @@ public class ERXEOControlUtilities {
      	if(ec == null) throw new IllegalArgumentException("EO must live in an EC");
      	
         boolean isNewObject = ERXEOControlUtilities.isNewObject(eo);
-        
-        // Check for old EOF bug and do nothing as we can't localInstance
-        // anything here
-        if (ERXProperties.webObjectsVersionAsDouble() < 5.21d && isNewObject) {
-            return eo;
-        }
 
         T localObject = eo;
         
@@ -578,8 +571,7 @@ public class ERXEOControlUtilities {
             if (entity.primaryKeyAttributes().count() != 1) {
                 throw new IllegalStateException("The entity '" + entity.name() + "' has a compound primary key and cannot be used with a single primary key value.");
             }
-            values = new NSDictionary<String, Object>(primaryKeyValue,
-                               ((EOAttribute)entity.primaryKeyAttributes().lastObject()).name());
+            values = new NSDictionary<String, Object>(primaryKeyValue, entity.primaryKeyAttributeNames().lastObject());
         }
         NSArray eos;
         if (prefetchingKeyPaths == null && !refreshRefetchedObjects) {
@@ -691,24 +683,29 @@ public class ERXEOControlUtilities {
 		}
 		return result;
 	}
+    
     /**
      * Returns an {@link com.webobjects.foundation.NSArray NSArray} containing the primary keys from the resulting rows starting
-     * at start and stopping at end using a custom SQL, derived from the SQL
+     * at <i>start</i> and stopping at <i>end</i> using a custom SQL, derived from the SQL
      * which the {@link com.webobjects.eocontrol.EOFetchSpecification EOFetchSpecification} would use normally {@link com.webobjects.eocontrol.EOFetchSpecification#setHints(NSDictionary) setHints()}
      *
-     * @param ec editingcontext to fetch objects into
+     * @param ec editing context to fetch objects into
      * @param spec fetch specification for the fetch
-     * @param start
-     * @param end
+     * @param start the starting row number
+     * @param end the last row number
      *
      * @return primary keys in the given range
      */
-    public static NSArray primaryKeyValuesInRange(EOEditingContext ec, EOFetchSpecification spec, int start, int end) {
+    public static NSArray<NSDictionary<String, Object>> primaryKeyValuesInRange(EOEditingContext ec, EOFetchSpecification spec, int start, int end) {
         EOEntity entity = ERXEOAccessUtilities.entityNamed(ec, spec.entityName());
-        NSArray pkNames = (NSArray) entity.primaryKeyAttributes().valueForKey("name");
-        spec.setFetchesRawRows(true);
-        spec.setRawRowKeyPaths(pkNames);
-    	EOFetchSpecification clonedFetchSpec = (EOFetchSpecification)spec.clone();
+        NSArray<String> pkNames = entity.primaryKeyAttributeNames();
+        EOFetchSpecification clonedFetchSpec = (EOFetchSpecification)spec.clone();
+        clonedFetchSpec.setFetchesRawRows(true);
+        clonedFetchSpec.setRawRowKeyPaths(pkNames);
+        if (clonedFetchSpec instanceof ERXFetchSpecification) {
+            // remove any range setting as we will explicitly set start and end limit
+            ((ERXFetchSpecification)clonedFetchSpec).setFetchRange(null);
+        }
         EOSQLExpression sql = ERXEOAccessUtilities.sqlExpressionForFetchSpecification(ec, clonedFetchSpec, start, end);
         NSDictionary<String, EOSQLExpression> hints = new NSDictionary<String, EOSQLExpression>(sql, EODatabaseContext.CustomQueryExpressionHintKey);
         clonedFetchSpec.setHints(hints);
@@ -1085,7 +1082,7 @@ public class ERXEOControlUtilities {
      * Fetches a shared enterprise object for a given fetch
      * specification from the default shared editing context.
      *
-     * @param fetch specification on the shared object
+     * @param fetchSpec specification on the shared object
      * @param entityName name of the shared entity
      * @return the shared enterprise object fetch by the fetch spec named.
      */
@@ -1097,7 +1094,7 @@ public class ERXEOControlUtilities {
      * Fetches a shared enterprise object from the default shared editing context
      * given the name of a fetch specification.
      *
-     * @param fetchSpec name of the fetch specification on the shared object.
+     * @param fetchSpecName name of the fetch specification on the shared object.
      * @param entityName name of the shared entity
      * @return the shared enterprise object fetch by the fetch spec named.
      */
@@ -1196,7 +1193,7 @@ public class ERXEOControlUtilities {
 
     /**
      * Utility method to generate a new primary key for an object. Calls
-     * {@link #newPrimaryKeyForObjectFromClassProperties(EOEnterpriseObject)} and if that returns null,
+     * {@link #newPrimaryKeyDictionaryForObjectFromClassProperties(EOEnterpriseObject)} and if that returns null,
      * {@link #newPrimaryKeyDictionaryForEntityNamed(EOEditingContext, String)}
      * @return new primary key dictionary or null if a failure occured.
      */
@@ -1325,18 +1322,18 @@ public class ERXEOControlUtilities {
         }
         
         if(string.trim().length()==0) {
-            return (NSDictionary<String, Object>)NSDictionary.EmptyDictionary;
+            return NSDictionary.EmptyDictionary;
         }
         
         EOEntity entity = ERXEOAccessUtilities.entityNamed(ec, entityName);
-        NSArray pks = entity.primaryKeyAttributes();
+        NSArray<EOAttribute> pks = entity.primaryKeyAttributes();
         NSMutableDictionary<String, Object> pk = new NSMutableDictionary<String, Object>();
         try {
             Object rawValue = NSPropertyListSerialization.propertyListFromString(string);
             if(rawValue instanceof NSArray) {
                 int index = 0;
                 for(Enumeration e = ((NSArray)rawValue).objectEnumerator(); e.hasMoreElements();) {
-                    EOAttribute attribute = (EOAttribute)pks.objectAtIndex(index++);
+                    EOAttribute attribute = pks.objectAtIndex(index++);
                     Object value = e.nextElement();
                     if(attribute.adaptorValueType() == EOAttribute.AdaptorDateType && !(value instanceof NSTimestamp)) {
                         value = new NSTimestampFormatter("%Y-%m-%d %H:%M:%S %Z").parseObject((String)value);
@@ -1355,7 +1352,7 @@ public class ERXEOControlUtilities {
                 	
             		rawValue = new NSData((NSMutableData)rawValue);
             	}
-                EOAttribute attribute = (EOAttribute)pks.objectAtIndex(0);
+                EOAttribute attribute = pks.objectAtIndex(0);
                 Object value = rawValue;
                 value = attribute.validateValue(value);
                 pk.setObjectForKey(value, attribute.name());
@@ -1600,7 +1597,7 @@ public class ERXEOControlUtilities {
     	if (isDeep) {
     		EOModelGroup modelGroup = ERXEOAccessUtilities.modelGroup(editingContext);
     		EOEntity rootEntity = modelGroup.entityNamed(entityName);
-    		for (EOEntity subEntity : (NSArray<EOEntity>)rootEntity.subEntities()) {
+    		for (EOEntity subEntity : rootEntity.subEntities()) {
     			entityNames.addObject(subEntity.name());
     		}
     	}
@@ -2506,7 +2503,7 @@ public class ERXEOControlUtilities {
 				String entityName = kgid.entityName();
 				Integer count = counts.objectForKey(entityName);
 				if(count == null) {
-					count = new Integer(0);
+					count = Integer.valueOf(0);
 					counts.setObjectForKey(count, entityName);
 				}
 				counts.setObjectForKey(count+1, entityName);
@@ -2552,7 +2549,7 @@ public class ERXEOControlUtilities {
 	 */
 	private static void ensureSortOrdering(EOEditingContext ec, NSArray<? extends EOGlobalID> gids, NSMutableArray<? extends EOEnterpriseObject> objects) {
 		for (int i = 0; i < objects.size(); i++) {
-			EOEnterpriseObject object = (EOEnterpriseObject) objects.objectAtIndex(i);
+			EOEnterpriseObject object = objects.objectAtIndex(i);
 
 			EOGlobalID gid = gids.objectAtIndex(i);
 
@@ -2561,7 +2558,7 @@ public class ERXEOControlUtilities {
 			}
 
 			for (int j = i + 1; j < objects.size(); j++) {
-				if (gid.equals(ec.globalIDForObject((EOEnterpriseObject) objects.objectAtIndex(j)))) {
+				if (gid.equals(ec.globalIDForObject(objects.objectAtIndex(j)))) {
 					ERXArrayUtilities.swapObjectsAtIndexesInArray(objects, i, j);
 
 					break;

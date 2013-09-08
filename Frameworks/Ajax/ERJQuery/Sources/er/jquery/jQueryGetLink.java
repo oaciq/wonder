@@ -33,11 +33,6 @@ public class jQueryGetLink extends jQueryGet {
     }
     
     @Override
-    public boolean synchronizesVariablesWithBindings() {
-    	return false;
-    }
-    
-    @Override
     public boolean isStateless() {
     	return true;
     }
@@ -85,7 +80,7 @@ public class jQueryGetLink extends jQueryGet {
     
     // actions
     public WOActionResults invokeAction() {
-    	context()._setActionInvoked(true);
+    	context().setActionInvoked(true);
 		if (hasBinding(Bindings.action))  {
 			WOActionResults action = action();
 			if (action instanceof WOComponent)  ((WOComponent) action)._setIsPage(true);	// cache is pageFrag cache

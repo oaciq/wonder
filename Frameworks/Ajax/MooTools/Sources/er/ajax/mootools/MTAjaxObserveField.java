@@ -1,6 +1,7 @@
 package er.ajax.mootools;
 
 import com.webobjects.appserver.WOActionResults;
+import com.webobjects.appserver.WOAssociation;
 import com.webobjects.appserver.WOComponent;
 import com.webobjects.appserver.WOContext;
 import com.webobjects.appserver.WOElement;
@@ -55,7 +56,7 @@ import er.extensions.appserver.ajax.ERXAjaxApplication;
 
 public class MTAjaxObserveField extends AjaxDynamicElement {
 	
-    public MTAjaxObserveField(String name, NSDictionary associations, WOElement children) {
+    public MTAjaxObserveField(String name, NSDictionary<String, WOAssociation> associations, WOElement children) {
 		super(name, associations, children);
 	}
 
@@ -82,11 +83,12 @@ public class MTAjaxObserveField extends AjaxDynamicElement {
 		NSMutableDictionary options = AjaxOption.createAjaxOptionsDictionary(ajaxOptionsArray, component, associations());
 		return options;
 
-	}	    
-	
+	}
+
+	@Override
 	@SuppressWarnings("rawtypes")
 	public void appendToResponse(WOResponse response, WOContext context) {
-		
+
 		super.appendToResponse(response, context);
 		
 		WOComponent component = context.component();
@@ -95,7 +97,7 @@ public class MTAjaxObserveField extends AjaxDynamicElement {
 		NSMutableDictionary options = createAjaxOptions(component);
 		boolean fullSubmit = booleanValueForBinding("fullSubmit", false, component);
 		boolean observeFieldDescendents;
-
+		
 		if (observeFieldID != null) {
 			observeFieldDescendents = false;
 		}
@@ -164,7 +166,7 @@ public class MTAjaxObserveField extends AjaxDynamicElement {
 		if(useSpinner) {
 			Boolean useDefaultSpinnerClass = (Boolean)valueForBinding("defaultSpinnerClass", Boolean.TRUE, context.component());
 			if(useDefaultSpinnerClass) {
-				MTAjaxUtils.addStylesheetResourceInHead(context, context.response(), "MooTools", "scripts/plugins/spinner/spinner.css");
+				AjaxUtils.addStylesheetResourceInHead(context, context.response(), "MooTools", "scripts/plugins/spinner/spinner.css");
 			}
 		}
 		
@@ -180,22 +182,23 @@ public class MTAjaxObserveField extends AjaxDynamicElement {
 		WOActionResults result = null;
 		WOComponent wocomponent = context.component();
 		String nameInContext = nameInContext(context, wocomponent, this);
-		boolean shouldHandleRequest = !context._wasActionInvoked() && context._wasFormSubmitted() && nameInContext.equals(ERXAjaxApplication.ajaxSubmitButtonName(request));
+		boolean shouldHandleRequest = !context.wasActionInvoked() && context.wasFormSubmitted() && nameInContext.equals(ERXAjaxApplication.ajaxSubmitButtonName(request));
 		if (shouldHandleRequest) {
 			String updateContainerID = MTAjaxUpdateContainer.updateContainerID(this, wocomponent);
 			AjaxUpdateContainer.setUpdateContainerID(request, updateContainerID);
-			context._setActionInvoked(true);
+			context.setActionInvoked(true);
 			result = (WOActionResults)valueForBinding("action", wocomponent);
 			if (result == null) {
 				result = handleRequest(request, context);
 			}
-			AjaxUtils.updateMutableUserInfoWithAjaxInfo(context);
+			ERXAjaxApplication.enableShouldNotStorePage();
 		} else {
 			result = invokeChildrenAction(request, context);
 		}
 		return result;
 	}
 
+	@Override
 	public WOActionResults handleRequest(WORequest request, WOContext context) {
 	    WOResponse response = AjaxUtils.createResponse(request, context);
 		return response;

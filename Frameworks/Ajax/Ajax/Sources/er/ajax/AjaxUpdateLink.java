@@ -16,10 +16,8 @@ import com.webobjects.foundation.NSMutableArray;
 import com.webobjects.foundation.NSMutableDictionary;
 
 import er.extensions.appserver.ERXRequest;
-import er.extensions.appserver.ERXWOContext;
 import er.extensions.appserver.ajax.ERXAjaxApplication;
 import er.extensions.components.ERXComponentUtilities;
-import er.extensions.components.conditionals.ERXWOConditional;
 import er.extensions.foundation.ERXMutableURL;
 import er.extensions.foundation.ERXStringUtilities;
 
@@ -174,7 +172,7 @@ public class AjaxUpdateLink extends AjaxDynamicElement {
 
 			String actionUrl = null;
 			if (directActionNameAssociation != null) {
-				actionUrl = context._directActionURL((String) directActionNameAssociation.valueInComponent(component), ERXComponentUtilities.queryParametersInComponent(associations(), component), ERXRequest.isRequestSecure(context.request())).replaceAll("&amp;", "&");
+				actionUrl = context._directActionURL((String) directActionNameAssociation.valueInComponent(component), ERXComponentUtilities.queryParametersInComponent(associations(), component), ERXRequest.isRequestSecure(context.request()), 0, false).replaceAll("&amp;", "&");
 			}
 			else {
 				actionUrl = AjaxUtils.ajaxComponentActionUrl(context);
@@ -252,7 +250,7 @@ public class AjaxUpdateLink extends AjaxDynamicElement {
 				throw new WODynamicElementCreationException("You cannot specify an effect without an updateContainerID.");
 			}
 			
-			StringBuffer effectBuffer = new StringBuffer();
+			StringBuilder effectBuffer = new StringBuilder();
 			effectBuffer.append("function() { new " + AjaxUpdateLink.fullEffectName(effect) + "('" + updateContainerID + "', {  queue:'end'");
 			if (duration != null) {
 				effectBuffer.append(", duration: ");
@@ -304,6 +302,7 @@ public class AjaxUpdateLink extends AjaxDynamicElement {
 		return options;
 	}
 
+	@Override
 	public void appendToResponse(WOResponse response, WOContext context) {
 		WOComponent component = context.component();
 		
@@ -372,12 +371,14 @@ public class AjaxUpdateLink extends AjaxDynamicElement {
 		super.appendToResponse(response, context);
 	}
 
+	@Override
 	protected void addRequiredWebResources(WOResponse res, WOContext context) {
 		addScriptResourceInHead(context, res, "prototype.js");
     	addScriptResourceInHead(context, res, "effects.js");
 		addScriptResourceInHead(context, res, "wonder.js");
 	}
 
+	@Override
 	public WOActionResults handleRequest(WORequest request, WOContext context) {
 		WOComponent component = context.component();
 		boolean disabled = booleanValueForBinding("disabled", false, component);
