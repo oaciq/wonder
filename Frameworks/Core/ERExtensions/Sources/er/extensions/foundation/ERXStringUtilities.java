@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.apache.commons.codec.EncoderException;
+import org.apache.commons.codec.language.Soundex;
 import org.apache.log4j.Logger;
 
 import com.webobjects.appserver.WOApplication;
@@ -1585,6 +1587,19 @@ public class ERXStringUtilities {
     return equals;
   }
 
+  public static boolean soundex(String _str, String _searchString){
+	  boolean equals = false;
+	  Soundex soundex = new Soundex();
+	  try {
+		if (soundex.difference(_str, _searchString) > 3){
+			  equals = true;
+		  }
+	  } catch (EncoderException e) {
+		  throw NSForwardException._runtimeExceptionForThrowable(e);
+	  }
+	  return equals;
+  }
+  
   /**
    * Generate an MD5 hash from a String.
    *
