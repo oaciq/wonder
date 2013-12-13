@@ -15,7 +15,12 @@ import com.webobjects.eocontrol.EOKeyValueUnarchiver;
 import com.webobjects.eocontrol.EOQualifier;
 import com.webobjects.foundation.NSArray;
 import com.webobjects.foundation.NSCoder;
+import com.webobjects.foundation.NSDictionary;
+import com.webobjects.foundation.NSKeyValueCodingAdditions;
+import com.webobjects.foundation.NSMutableArray;
+import com.webobjects.foundation.NSSelector;
 
+import er.extensions.foundation.ERXStringUtilities;
 import er.extensions.qualifiers.ERXKeyValueQualifier;
 
 /**
@@ -72,7 +77,7 @@ public class ERXSoundexQualifier extends ERXKeyValueQualifier implements Cloneab
      * @param value a value
      */
     public ERXSoundexQualifier(final String key, final Object value) {
-        super(key, EOQualifier.QualifierOperatorEqual, value);
+    	super(key, new NSSelector("soundex:"), value);
         setKey(key);
         setValue(value);
     }
@@ -231,4 +236,9 @@ public class ERXSoundexQualifier extends ERXKeyValueQualifier implements Cloneab
 				unarchiver.decodeObjectForKey("value"));
 	}
 
+	@Override
+	public boolean evaluateWithObject(Object object) {
+		String stringValue = (String) NSKeyValueCodingAdditions.Utility.valueForKeyPath(object, key());
+		return ERXStringUtilities.soundex(stringValue, (String) value());
+	}
 }
