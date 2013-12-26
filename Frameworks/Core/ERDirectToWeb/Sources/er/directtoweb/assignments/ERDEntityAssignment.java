@@ -18,9 +18,16 @@ import er.directtoweb.assignments.defaults.ERDDefaultModelAssignment;
 import er.extensions.eof.ERXEOAccessUtilities;
 
 /**
- * @deprecated use a ERDKeyValueAssignment to a ERDDefaultModelAssigmentwith key entityForPageConfiguration instead
+ * @deprecated use a {@link er.directtoweb.assignments.ERDKeyValueAssignment} or a {@link er.directtoweb.assignments.defaults.ERDDefaultModelAssignment} with key entityForPageConfiguration instead
  */
+@Deprecated
 public class ERDEntityAssignment extends Assignment implements ERDComputingAssignmentInterface {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     /** holds the array of keys this assignment depends upon */
     public static final NSArray _DEPENDENT_KEYS=new NSArray(new Object[] {"pageConfiguration", "controllerName"});
@@ -57,7 +64,7 @@ public class ERDEntityAssignment extends Assignment implements ERDComputingAssig
     public ERDEntityAssignment(String key, Object value) { super(key,value); }
 
     /**
-     * Implementation of the {@link ERDComputingAssignmentInterface}. This
+     * Implementation of the {@link er.directtoweb.assignments.ERDComputingAssignmentInterface}. This
      * assignment depends upon the context key: "pageConfiguration". This key 
      * is used when constructing the significant keys for the passed in keyPath.
      * @param keyPath to compute significant keys for. 
@@ -65,6 +72,7 @@ public class ERDEntityAssignment extends Assignment implements ERDComputingAssig
      */
     public NSArray dependentKeys(String keyPath) { return _DEPENDENT_KEYS; }
 
+    @Override
     public Object fire(D2WContext c) {
         Object result = null;
         Object value = value();

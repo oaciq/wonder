@@ -1,7 +1,5 @@
 package er.extensions.eof;
 
-import static org.junit.Assert.*;
-
 import java.math.BigDecimal;
 
 import org.junit.After;
@@ -72,6 +70,7 @@ public class ERXKeyTest extends ERXTestCase {
 	private static final NSArray<Integer> simpleNumbers = new NSArray<Integer>(Integer.valueOf(1),Integer.valueOf(2),Integer.valueOf(3),Integer.valueOf(4),Integer.valueOf(5));
 
 	
+	@Override
 	@Before
 	public void setUp() throws Exception {
 		ec = ERXEC.newEditingContext();
@@ -132,6 +131,7 @@ public class ERXKeyTest extends ERXTestCase {
 		ec.saveChanges();		
 	}
 
+	@Override
 	@After
 	public void tearDown() throws Exception {
 		roles = null;
@@ -139,37 +139,52 @@ public class ERXKeyTest extends ERXTestCase {
 		shinraNonManager = null;
 		shinraNonManagerNames = null;
 		tyrellEmployees = null;
+
 		paychecks = null;
 
-		acme.delete();
-		shinraInc.delete();
-		tyrellCorp.delete();
-		sortCo.delete();
+		if (ERXTestCase.adaptorName().equals("JDBC")) {
+
+			ERXEOAccessUtilities.evaluateSQLWithEntity(ec, ERXEOAccessUtilities.entityNamed(ec, "Company"), "delete from Company");
+			ERXEOAccessUtilities.evaluateSQLWithEntity(ec, ERXEOAccessUtilities.entityNamed(ec, "Employee"), "delete from Employee");
+                	ERXEOAccessUtilities.evaluateSQLWithEntity(ec, ERXEOAccessUtilities.entityNamed(ec, "EmployeeHI"), "delete from EmployeeHI");
+                	ERXEOAccessUtilities.evaluateSQLWithEntity(ec, ERXEOAccessUtilities.entityNamed(ec, "EmployeeVI"), "delete from EmployeeVI");
+                	ERXEOAccessUtilities.evaluateSQLWithEntity(ec, ERXEOAccessUtilities.entityNamed(ec, "EmployeeRole"), "delete from EmployeeRole");
+			ERXEOAccessUtilities.evaluateSQLWithEntity(ec, ERXEOAccessUtilities.entityNamed(ec, "Paycheck"), "delete from Paycheck");
+			ERXEOAccessUtilities.evaluateSQLWithEntity(ec, ERXEOAccessUtilities.entityNamed(ec, "Role"), "delete from Role");
+
+		}
+
+		if (ERXTestCase.adaptorName().equals("Memory")) {
+
+			shinraInc.delete();
+			tyrellCorp.delete();
+			sortCo.delete();
 		
-		moe.delete();
-		larry.delete();
-		curly.delete();
-		tyrell.delete();
-		deckard.delete();
-		rachael.delete();
-		rufus.delete();
-		rude.delete();
-		elena.delete();
-		sephiroth.delete();
-		aaBb.delete();
-		Abba.delete();
+			moe.delete();
+			larry.delete();
+			curly.delete();
+			tyrell.delete();
+			deckard.delete();
+			rachael.delete();
+			rufus.delete();
+			rude.delete();
+			elena.delete();
+			sephiroth.delete();
+			aaBb.delete();
+			Abba.delete();
+
+			paycheck5000.delete();
+			paycheck10000.delete();
+			paycheck15000.delete();
 		
-		paycheck5000.delete();
-		paycheck10000.delete();
-		paycheck15000.delete();
-		
-		headHunter.delete();
-		bigBoss.delete();
-		accountant.delete();
-		doctor.delete();
-		barber.delete();
-		
-		ec.saveChanges();
+			headHunter.delete();
+			bigBoss.delete();
+			accountant.delete();
+			doctor.delete();
+			barber.delete();
+
+			ec.saveChanges();
+		}
 	}
 
 	@Test

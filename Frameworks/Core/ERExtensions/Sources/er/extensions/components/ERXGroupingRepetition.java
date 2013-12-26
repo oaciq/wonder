@@ -58,6 +58,12 @@ import com.webobjects.foundation.NSMutableDictionary;
  */
 
 public class ERXGroupingRepetition extends ERXStatelessComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     public ERXGroupingRepetition(WOContext aContext) {
         super(aContext);
@@ -143,7 +149,6 @@ public class ERXGroupingRepetition extends ERXStatelessComponent {
     /**
      * @param splitArrays
      * @param section
-     * @return
      */
     private Object keyForSection(Object section) {
         Object sectionKey = NULL;
@@ -175,6 +180,7 @@ public class ERXGroupingRepetition extends ERXStatelessComponent {
         setValueForBinding(_itemsPerSection.objectForKey(keyForSection(_sectionItem)), "subList");
     }
     
+    @Override
     public void reset() {
         _sections=null;
         _splitArrays=null;

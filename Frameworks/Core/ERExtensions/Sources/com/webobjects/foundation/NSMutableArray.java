@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.Vector;
 /**
+ * <span class="en">
  * Bugfix reimplementation of NSMutableArray. To be able to use this class, the framework this class resides in must be
  * before JavaFoundation.framework in your classpath. <br />
  * It fixes a lot of issues:
@@ -19,16 +20,36 @@ import java.util.Vector;
  * <li>fixes a bug when the actual objects were handed out replaceObjectAtIndex()
  * <li>fixes a bug when the iterator method wasn't firing a fault in <code>_EOCheapCopyMutableArray</code>
  * </ul>
+ * 
  * Once these issues are resolved in a WO distribution, this class will go away and the Apple 
  * supplied will will be used again without changes in code on your side. <br />
+ * 
+ * @param <E> type of array contents
+ * </span>
+ * 
+ * <span class="ja">
+ * NSMutableArray のバッグフィックス再実装。
+ * このクラスを使用する為には現フレームワークのクラスパスが JavaFoundation.framework の前にある必要があります。<br>
+ * 
+ * 次の問題を対応しています:
+ * <ul>
+ * <li>正しいコレクション・メソッドの実装：<code>anArray.add(anObject)</code> が可能
+ * <li>大きなレコード・セットの場合でのスピード改良で EOF が早くなるのです
+ * <li>実際のオブジェクトが replaceObjectAtIndex() の外で処理されるバッグフィックス
+ * <li><code>_EOCheapCopyMutableArray</code> でのフォルトはトリーガされない問題のバッグフィックス
+ * </ul>
+ * 
+ * @param <E> type of array contents
+ * </span>
+ * 
  * @author ak
  */
 public class NSMutableArray <E> extends NSArray<E> implements RandomAccess {
 
-	@SuppressWarnings({ "hiding", "unchecked" })
+  static final long serialVersionUID = -3909373569895711876L;
+  
 	public static final Class _CLASS = _NSUtilitiesExtra._classWithFullySpecifiedNamePrime("com.webobjects.foundation.NSMutableArray");
     
-    static final long serialVersionUID = -3909373569895711876L;
 
     public static final Object ERX_MARKER = "Wonder";
 
@@ -80,6 +101,7 @@ public class NSMutableArray <E> extends NSArray<E> implements RandomAccess {
       super(list, range, ignoreNull);
     }
 
+	@Override
 	protected void _initializeWithCapacity(int capacity) {
 		_capacity = capacity;
 		_objectsCache = null;
@@ -115,6 +137,7 @@ public class NSMutableArray <E> extends NSArray<E> implements RandomAccess {
     	// no op
     }
     
+    @Override
     protected void _setCount(int count) {
     	_count = count;
     }
@@ -185,9 +208,9 @@ public class NSMutableArray <E> extends NSArray<E> implements RandomAccess {
     }
 
     /**
-     * @deprecated Method replaceObjectAtIndex is deprecated
+     * @deprecated use {@link #replaceObjectAtIndex(Object, int)}
      */
-
+    @Deprecated
     public void replaceObjectAtIndex(int index, E object) {
         replaceObjectAtIndex(object, index);
     }
@@ -374,14 +397,17 @@ public class NSMutableArray <E> extends NSArray<E> implements RandomAccess {
         }
     }
 
+    @Override
     public Object clone() {
         return new NSMutableArray<E>(this);
     }
 
+    @Override
     public NSArray<E> immutableClone() {
         return new NSArray<E>(this);
     }
 
+    @Override
     public NSMutableArray<E> mutableClone() {
         return (NSMutableArray<E>) clone();
     }
@@ -425,8 +451,11 @@ public class NSMutableArray <E> extends NSArray<E> implements RandomAccess {
 
     /**
      * Clears the objectsNoCopy too. It's wrong not to clear it.
+     * 
+     * @param object the replacement object
+     * @param index index of object to replace
+     * @return object that has been replaced
      */
-
     public E replaceObjectAtIndex(E object, int index) {
         if (object == null) {
             throw new IllegalArgumentException("Attempt to insert null into an  " + getClass().getName() + ".");
@@ -445,8 +474,9 @@ public class NSMutableArray <E> extends NSArray<E> implements RandomAccess {
 
     /**
      * Much faster implementation of the remove method for larger arrays.
+     * 
+     * @param otherObjects objects to remove
      */
-
     public void removeObjects(Object... otherObjects) {
         if (otherObjects != null) {
             int count = count();
@@ -484,6 +514,7 @@ public class NSMutableArray <E> extends NSArray<E> implements RandomAccess {
     /**
      * Bugfix for the broken implementation in NSArray.
      */
+    @Override
     public <T> T[] toArray(T[] array) {
     	int i = size();
     	if (array.length < i) {
@@ -502,6 +533,7 @@ public class NSMutableArray <E> extends NSArray<E> implements RandomAccess {
 
     //AK: from here on only java.util.List stuff
 
+    @Override
     public E set(int index, E element) {
     	E old = objectAtIndex(index);
     	if(element != old) {
@@ -510,20 +542,24 @@ public class NSMutableArray <E> extends NSArray<E> implements RandomAccess {
     	return old;
     }
 
+    @Override
     public void add(int index, E element) {
         insertObjectAtIndex(element, index);
     }
 
+    @Override
     public boolean add(E element) {
         addObject(element);
         return true;
     }
 
+    @Override
     public boolean addAll(Collection<? extends E> collection) {
         addObjects((E[]) collection.toArray());
         return true;
     }
 
+    @Override
     public boolean addAll(int index, Collection<? extends E> collection) {
         boolean modified = false;
         if(collection == this) {
@@ -537,10 +573,12 @@ public class NSMutableArray <E> extends NSArray<E> implements RandomAccess {
         return modified;
     }
 
+    @Override
     public E remove(int index) {
         return removeObjectAtIndex(index);
     }
 
+    @Override
     public boolean remove(Object o) {
     	boolean modified = false;
     	int index = indexOf(o);
@@ -551,10 +589,12 @@ public class NSMutableArray <E> extends NSArray<E> implements RandomAccess {
     	return modified;
     }
 
+    @Override
     public void clear() {
         removeAllObjects();
     }
 
+    @Override
     public boolean retainAll(Collection<?> c) {
         boolean modified = false;
         Iterator<?> e = iterator();
@@ -567,20 +607,24 @@ public class NSMutableArray <E> extends NSArray<E> implements RandomAccess {
         return modified;
     }
 
+    @Override
     public boolean removeAll(Collection<?> collection) {
         int count = count();
         removeObjects(collection.toArray());
         return count != count();
     }
 
+    @Override
     public Iterator<E> iterator() {
         return new Itr();
     }
 
+    @Override
     public ListIterator<E> listIterator() {
         return listIterator(0);
     }
 
+    @Override
     public ListIterator<E> listIterator(final int index) {
         if (index < 0 || index > size())
             throw new IndexOutOfBoundsException("Index: " + index);
@@ -691,8 +735,9 @@ public class NSMutableArray <E> extends NSArray<E> implements RandomAccess {
         }
     }
 
-	@SuppressWarnings("cast")
-	public List<E> subList(int fromIndex, int toIndex) {
+    @SuppressWarnings("cast")
+    @Override
+    public List<E> subList(int fromIndex, int toIndex) {
         return (this instanceof RandomAccess ? new RandomAccessSubList<E>(this,
                 fromIndex, toIndex) : new SubList<E>(this, fromIndex, toIndex));
     }
@@ -707,6 +752,13 @@ public class NSMutableArray <E> extends NSArray<E> implements RandomAccess {
 }
 
 class SubList<E> extends NSMutableArray<E> {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
+
     NSMutableArray<E> l;
     int offset;
     int size;
@@ -726,28 +778,33 @@ class SubList<E> extends NSMutableArray<E> {
         expectedModCount = l.modCount;
     }
 
+    @Override
     public E set(int index, E element) {
         rangeCheck(index);
         checkForComodification();
         return l.set(index + offset, element);
     }
 
+    @Override
     public E get(int index) {
         rangeCheck(index);
         checkForComodification();
         return l.get(index + offset);
     }
 
+    @Override
     public int size() {
         checkForComodification();
         return size;
     }
-    
+
+    @Override
     public boolean add(E element) {
     	add(size(), element);
     	return true;
     }
 
+    @Override
     public void add(int index, E element) {
         if (index < 0 || index > size)
             throw new IndexOutOfBoundsException();
@@ -770,6 +827,7 @@ class SubList<E> extends NSMutableArray<E> {
     	return false;
     }
 
+    @Override
     public E remove(int index) {
         rangeCheck(index);
         checkForComodification();
@@ -780,6 +838,7 @@ class SubList<E> extends NSMutableArray<E> {
         return result;
     }
 
+    @Override
     protected void removeRange(int fromIndex, int toIndex) {
         checkForComodification();
         l.removeRange(fromIndex + offset, toIndex + offset);
@@ -788,10 +847,12 @@ class SubList<E> extends NSMutableArray<E> {
         modCount++;
     }
 
+    @Override
     public boolean addAll(Collection<? extends E> c) {
         return addAll(size, c);
     }
 
+    @Override
     public boolean addAll(int index, Collection<? extends E> c) {
         if (index < 0 || index > size)
             throw new IndexOutOfBoundsException("Index: " + index + ", Size: "
@@ -808,11 +869,13 @@ class SubList<E> extends NSMutableArray<E> {
         return true;
     }
 
+    @Override
     public Iterator<E> iterator() {
         return listIterator();
     }
 
 
+    @Override
     public ListIterator<E> listIterator(final int index) {
         checkForComodification();
         if (index < 0 || index > size)
@@ -872,6 +935,7 @@ class SubList<E> extends NSMutableArray<E> {
         };
     }
 
+    @Override
     public List<E> subList(int fromIndex, int toIndex) {
         return new SubList<E>(this, fromIndex, toIndex);
     }
@@ -890,10 +954,18 @@ class SubList<E> extends NSMutableArray<E> {
 }
 
 class RandomAccessSubList<E> extends SubList<E> implements RandomAccess {
+    /**
+     * Do I need to update serialVersionUID?
+     * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+     * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+     */
+    private static final long serialVersionUID = 1L;
+
     RandomAccessSubList(NSMutableArray<E> list, int fromIndex, int toIndex) {
         super(list, fromIndex, toIndex);
     }
 
+    @Override
     public List<E> subList(int fromIndex, int toIndex) {
         return new RandomAccessSubList<E>(this, fromIndex, toIndex);
     }

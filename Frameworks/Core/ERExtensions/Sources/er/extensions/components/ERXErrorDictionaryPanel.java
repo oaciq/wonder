@@ -8,13 +8,14 @@ package er.extensions.components;
 
 import java.util.Enumeration;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.webobjects.appserver.WOContext;
 import com.webobjects.appserver.WOResponse;
 import com.webobjects.foundation.NSArray;
 import com.webobjects.foundation.NSMutableArray;
 import com.webobjects.foundation.NSMutableDictionary;
 
-import er.extensions.ERXExtensions;
 import er.extensions.eof.ERXEnterpriseObject;
 import er.extensions.localization.ERXLocalizer;
 
@@ -33,6 +34,12 @@ import er.extensions.localization.ERXLocalizer;
  */
 
 public class ERXErrorDictionaryPanel extends ERXStatelessComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     protected NSMutableDictionary errorMessages;
     protected NSMutableArray errorKeyOrder;
@@ -83,12 +90,10 @@ public class ERXErrorDictionaryPanel extends ERXStatelessComponent {
     private final static String eliminable = "Could not save your changes: null";
     private final static String couldNotSave = "Could not save your changes: ";
     public static String massageErrorMessage(String initialMessage, String displayErrorKey) {
-        String result=ERXExtensions.substituteStringByStringInString("EOValidationException:",
-                                                                    "",
-                                                                    initialMessage);
-        if (displayErrorKey!=null) result=ERXExtensions.substituteStringByStringInString(ERXEnterpriseObject.KEY_MARKER,
-                                                                                        displayErrorKey,
-                                                                                        result);
+        String result = StringUtils.replace(initialMessage, "EOValidationException:", "");
+        if (displayErrorKey!=null) {
+        	result = StringUtils.replace(result, ERXEnterpriseObject.KEY_MARKER, displayErrorKey);
+        }
         
         if (result!=null) {
             if (result.endsWith("is not allowed to be null.") ||
@@ -126,6 +131,7 @@ public class ERXErrorDictionaryPanel extends ERXStatelessComponent {
 
     public Object value;
 
+    @Override
     public void reset() {
         super.reset();
         errorMessages = null;
@@ -133,6 +139,7 @@ public class ERXErrorDictionaryPanel extends ERXStatelessComponent {
         extraErrorMessage = null;
     }
 
+    @Override
     public void appendToResponse(WOResponse r, WOContext c) {
         // this is a little silly but has the advantage of minimizing impact
         // on other pieces of code

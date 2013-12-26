@@ -10,7 +10,6 @@ import com.webobjects.appserver.WOContext;
 import com.webobjects.directtoweb.D2WEditToOneRelationship;
 import com.webobjects.eoaccess.EORelationship;
 import com.webobjects.eoaccess.EOUtilities;
-import com.webobjects.eocontrol.EOEnterpriseObject;
 
 import er.extensions.foundation.ERXUtilities;
 
@@ -20,7 +19,6 @@ import er.extensions.foundation.ERXUtilities;
  * @d2wKey restrictedChoiceKey keypath off the component that returns the list of objects to display
  * @d2wKey restrictingFetchSpecification name of the fetchSpec to use for the list of objects.
  * @d2wKey sortKey
- * @d2wKey isMandatory
  * @d2wKey numCols
  * @d2wKey propertyKey
  * @d2wKey size
@@ -36,12 +34,19 @@ import er.extensions.foundation.ERXUtilities;
  * @d2wKey goingVertically
  */
 public class ERD2WEditToOneRelationship extends D2WEditToOneRelationship {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     public ERD2WEditToOneRelationship(WOContext context) {
         super(context);
     }
     
     // Validation Support
+    @Override
     public void validationFailedWithException (Throwable e, Object value, String keyPath) {
         parent().validationFailedWithException(e,value,keyPath);
     }
@@ -52,7 +57,7 @@ public class ERD2WEditToOneRelationship extends D2WEditToOneRelationship {
             return valueForKeyPath(restrictedChoiceKey);
         String fetchSpecName=(String)d2wContext().valueForKey("restrictingFetchSpecification");
         if(fetchSpecName != null) {
-            EORelationship relationship = ERXUtilities.relationshipWithObjectAndKeyPath((EOEnterpriseObject)object(),
+            EORelationship relationship = ERXUtilities.relationshipWithObjectAndKeyPath(object(),
                                                                                         (String)d2wContext().valueForKey("propertyKey"));
             return EOUtilities.objectsWithFetchSpecificationAndBindings(object().editingContext(), relationship.destinationEntity().name(),fetchSpecName,null);
         }

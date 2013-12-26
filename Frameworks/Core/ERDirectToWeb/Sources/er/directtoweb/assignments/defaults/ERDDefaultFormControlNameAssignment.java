@@ -8,7 +8,6 @@ import com.webobjects.foundation.NSArray;
 import com.webobjects.foundation.NSDictionary;
 
 import er.directtoweb.assignments.ERDAssignment;
-import er.directtoweb.assignments.ERDComputingAssignmentInterface;
 import er.extensions.foundation.ERXDictionaryUtilities;
 import er.extensions.foundation.ERXStringUtilities;
 
@@ -26,6 +25,13 @@ import er.extensions.foundation.ERXStringUtilities;
  *
  */
 public class ERDDefaultFormControlNameAssignment extends ERDAssignment {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
+
 	/** logging support */
     public final static Logger log = Logger.getLogger(ERDDefaultFormControlNameAssignment.class);
 	
@@ -35,7 +41,7 @@ public class ERDDefaultFormControlNameAssignment extends ERDAssignment {
     });
 
     /**
-     * Implementation of the {@link ERDComputingAssignmentInterface}. This array
+     * Implementation of the {@link er.directtoweb.assignments.ERDComputingAssignmentInterface}. This array
      * of keys is used when constructing the
      * significant keys for the passed in keyPath.
      * @param keyPath to compute significant keys for.

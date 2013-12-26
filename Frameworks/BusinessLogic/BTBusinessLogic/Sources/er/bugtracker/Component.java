@@ -40,13 +40,13 @@ public class Component extends _Component {
 	public int level(int safe) {
 		if (safe > 10)
 			return -1;
-		Component parent = (Component) parent();
+		Component parent = parent();
 		return parent == null ? 0 : 1 + parent.level(safe + 1);
 	}
 
 	public String indentedDescription() {
 		int level = level();
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		if (level == -1)
 			sb.append("***");
 		else

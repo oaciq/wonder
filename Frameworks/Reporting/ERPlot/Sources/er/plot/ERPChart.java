@@ -48,7 +48,13 @@ import er.extensions.foundation.ERXAssert;
  * @author ak
  */
 public abstract class ERPChart extends ERXStatelessComponent {
-    
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
+
     /** logging support */
     protected static final Logger log = Logger.getLogger(ERPChart.class);
     protected static final int DEFAULT_SIZE = 400;
@@ -150,7 +156,7 @@ public abstract class ERPChart extends ERXStatelessComponent {
         if(_configuration == null) {
             _configuration = (NSDictionary<String,Object>)valueForBinding("configuration");
             if(_configuration == null) {
-                _configuration = (NSDictionary<String, ?>) NSDictionary.EmptyDictionary;
+                _configuration = NSDictionary.EmptyDictionary;
             }
         }
         return _configuration;

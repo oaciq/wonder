@@ -35,6 +35,12 @@ import er.directtoweb.assignments.ERDComputingAssignmentInterface;
  */
 
 public class ERDDelayedConditionalAssignment extends ERDDelayedAssignment implements ERDComputingAssignmentInterface  {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     /** logging support */
     public final static Logger log = Logger.getLogger("er.directtoweb.rules.DelayedConditionalAssignment");
@@ -67,7 +73,7 @@ public class ERDDelayedConditionalAssignment extends ERDDelayedAssignment implem
 
     public NSArray _dependentKeys;
     /**
-     * Implementation of the {@link ERDComputingAssignmentInterface}. This
+     * Implementation of the {@link er.directtoweb.assignments.ERDComputingAssignmentInterface}. This
      * assignment depends upon all of the qualifier keys from the formed
      * qualifier of the value of this assignment. This array of keys is 
      * used when constructing the significant keys for the passed in keyPath.
@@ -78,9 +84,9 @@ public class ERDDelayedConditionalAssignment extends ERDDelayedAssignment implem
         if (_dependentKeys==null) {
             NSDictionary conditionAssignment;
             try {
-               conditionAssignment = (NSDictionary)this.value();
+               conditionAssignment = (NSDictionary)value();
             } catch (ClassCastException e) {
-                log.error("expected a NSDictionary object but received "+this.value(), e);
+                log.error("expected a NSDictionary object but received "+value(), e);
                 throw e;
             }
             String qualFormat =
@@ -100,9 +106,10 @@ public class ERDDelayedConditionalAssignment extends ERDDelayedAssignment implem
      * This method is called whenever the propertyKey is requested,
      * but the value in the cache is actually a rule.
      */
+    @Override
     public Object fireNow(D2WContext c) {
         Object result = null;
-        NSDictionary conditionAssignment = (NSDictionary)this.value();
+        NSDictionary conditionAssignment = (NSDictionary)value();
         String qualFormat =
             (String)conditionAssignment.objectForKey("qualifierFormat");
         NSArray args = (NSArray)conditionAssignment.objectForKey("args");

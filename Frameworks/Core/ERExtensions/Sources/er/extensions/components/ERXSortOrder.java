@@ -45,6 +45,12 @@ import er.extensions.woextensions.WOSortOrder;
  */
 
 public class ERXSortOrder extends WOSortOrder {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     public ERXSortOrder(WOContext context) {
         super(context);
@@ -62,7 +68,9 @@ public class ERXSortOrder extends WOSortOrder {
     public final static int SortedAscending = 1;
     public final static int SortedDescending = 2;
 
+    @Override
     public boolean synchronizesVariablesWithBindings() { return false; }
+    @Override
     public void reset() {
         super.reset();
         _currentState = Reset;
@@ -138,6 +146,7 @@ public class ERXSortOrder extends WOSortOrder {
         return src;
     }
     
+    @Override
     public String frameworkName() {
         return hasCustomImageNameForCurrentState() ? 
                 (hasBinding("frameworkName") ?
@@ -163,6 +172,7 @@ public class ERXSortOrder extends WOSortOrder {
     }
 
     // FIXME: Should post a notification even if d2wContext isn't bound.
+    @Override
     public WOComponent toggleClicked() {
         super.toggleClicked();
         if (log.isDebugEnabled()) log.debug("toggleClicked "+valueForBinding("d2wContext"));
@@ -174,8 +184,7 @@ public class ERXSortOrder extends WOSortOrder {
         return null;
     }
     
-    
-
+    @Override
     public String helpString() {
        return ERXLocalizer.currentLocalizer().localizedTemplateStringForKeyWithObject("ERXSortOrder.sortBy", this);
     }
@@ -186,9 +195,8 @@ public class ERXSortOrder extends WOSortOrder {
         if (nsarray != null && nsarray.count() > 0) {
             EOSortOrdering eosortordering = (EOSortOrdering)nsarray.objectAtIndex(0);
             return eosortordering;
-        } else {
-            return null;
         }
+        return null;
     }
 
     protected NSSelector _primaryKeySortOrderingSelector() {

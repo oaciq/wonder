@@ -21,9 +21,16 @@ import com.webobjects.foundation.NSDictionary;
  * @d2wKey keyMappingsForComparisonObject
  */
 public class ERD2WKeyMapper extends ERD2WStatelessComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     public ERD2WKeyMapper(WOContext context) { super(context); }
     
+    @Override
     public void reset() {
         super.reset();
         _mappedKey=null;
@@ -51,6 +58,7 @@ public class ERD2WKeyMapper extends ERD2WStatelessComponent {
         return (mk==null || mk.length()>0) && propertyKey()!=null;
     }
     
+    @Override
     public void appendToResponse(WOResponse r, WOContext c) {
         if (renderMe()) {
             String originalKey=propertyKey();
@@ -60,6 +68,7 @@ public class ERD2WKeyMapper extends ERD2WStatelessComponent {
         }
     }
 
+    @Override
     public void takeValuesFromRequest(WORequest q, WOContext c) {
         // no form in here -- so do nothing -- do not call super
     }

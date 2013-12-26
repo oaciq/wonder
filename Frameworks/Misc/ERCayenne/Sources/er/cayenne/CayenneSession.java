@@ -13,6 +13,12 @@ import er.extensions.appserver.ERXSession;
  *
  */
 public class CayenneSession extends ERXSession {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private ObjectContext objectContext;
 
@@ -25,7 +31,7 @@ public class CayenneSession extends ERXSession {
 
 	/**
 	 * Returns the ObjectContext that is tied to the lifespan of the Session. Created on first access.
-	 * @return
+	 * @return a org.apache.cayenne.ObjectContext object
 	 */
 	public ObjectContext defaultObjectContext() {
 		if (objectContext == null) {

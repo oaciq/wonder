@@ -33,6 +33,8 @@ import java.util.Vector;
 
 import org.apache.commons.codec.EncoderException;
 import org.apache.commons.codec.language.Soundex;
+import org.apache.commons.lang.CharEncoding;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.webobjects.appserver.WOApplication;
@@ -57,6 +59,7 @@ import com.webobjects.foundation.NSTimestamp;
 
 import er.extensions.appserver.ERXMessageEncoding;
 import er.extensions.eof.ERXConstant;
+import er.extensions.formatters.ERXSimpleHTMLFormatter;
 
 /**
  * Collection of {@link java.lang.String String} utilities. Contains
@@ -84,106 +87,136 @@ public class ERXStringUtilities {
      * a single entry for English.
      */
     private static NSArray _defaultTargetDisplayLanguages = new NSArray(DEFAULT_TARGET_DISPLAY_LANGUAGE);
-    
-    /**
-     * Java port of the distance algorithm.
-     *
-     * The code below comes from the following post on http://mail.python.org
-     * Fuzzy string matching
-     *   Magnus L. Hetland mlh@idt.ntnu.no
-     *   27 Aug 1999 15:51:03 +0200
-     *
-     *  Explanation of the distance algorithm...
-     *
-     *  The algorithm:
-     *
-     *  def distance(a,b):
-     *   c = {}
-     *  n = len(a); m = len(b)
-     *
-     *  for i in range(0,n+1):
-     *  c[i,0] = i
-     *  for j in range(0,m+1):
-     *  c[0,j] = j
-     *
-     *  for i in range(1,n+1):
-     *  for j in range(1,m+1):
-     *  x = c[i-1,j]+1
-     *  y = c[i,j-1]+1
-     *  if a[i-1] == b[j-1]:
-     *    z = c[i-1,j-1]
-     *  else:
-     *    z = c[i-1,j-1]+1
-     *  c[i,j] = min(x,y,z)
-     *  return c[n,m]
-     *
-     *  It calculates the following: Given two strings, a and b, and three
-     *  operations, adding, subtracting and exchanging single characters, what
-     *  is the minimal number of steps needed to translate a into b?
-     *
-     *  The method is based on the following idea:
-     *
-     *  We want to find the distance between a[:x] and b[:y]. To do this, we
-     *  first calculate
-     *
-     *  1) the distance between a[:x-1] and b[:y], adding the cost of a
-     *  subtract-operation, used to get from a[:x] to a[:z-1];
-     *
-     *  2) the distance between a[:x] and b[:y-1], adding the cost of an
-     *  addition-operation, used to get from b[:y-1] to b[:y];
-     *
-     *  3) the distance between a[:x-1] and b[:y-1], adding the cost of a
-     *  *possible* exchange of the letter b[y] (with a[x]).
-     *
-     *  The cost of the subtraction and addition operations are 1, while the
-     *  exchange operation has a cost of 1 if a[x] and b[y] are different, and
-     *  0 otherwise.
-     *
-     *  After calculating these costs, we choose the least one of them
-     * (since we want to use the best solution.)
-     *
-     *  Instead of doing this recursively, i.e. calculating ourselves "back"
-     *  from the final value, we build a cost-matrix c containing the optimal
-     *  costs, so we can reuse them when calculating the later values. The
-     *  costs c[i,0] (from string of length n to empty string) are all i, and
-     *  correspondingly all c[0,j] (from empty string to string of length j)
-     *  are j.
-     *
-     *  Finally, the cost of translating between the full strings a and b
-     *  (c[n,m]) is returned.
-     *
-     *  I guess that ought to cover it...
-     * --------------------------
-     * @param a first string
-     * @param b second string
-     * @return the distance between the two strings
-     */
+
+	/**
+	 * Returns the <a
+	 * href="http://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein
+	 * distance</a> between {@code a} and {@code b} as a {@code double}. (This
+	 * method is being retained for backwards compatibility, and will be removed
+	 * at some future point. New code should use
+	 * {@link #levenshteinDistance(String, String)}.)
+	 * 
+	 * @param a
+	 *            first string
+	 * @param b
+	 *            second string
+	 * @return Levenshtein distance between {@code a} and {@code b}
+	 * @deprecated Use {@link #levenshteinDistance(String, String)}, which
+	 *             correctly returns an {@code int} result
+	 */
+    @Deprecated
     public static double distance(String a, String b) {
-        int n = a.length();
-        int m = b.length();
-        int c[][] = new int[n+1][m+1];
-        for(int i = 0; i<=n; i++){
-            c[i][0] = i;
-        }
-        for(int j = 0; j<=m; j++){
-            c[0][j] = j;
-        }
-        for(int i = 1; i<=n; i++){
-            for(int j = 1; j<=m; j++){
-                int x = c[i-1][j] + 1;
-                int y = c[i][j-1] + 1;
-                int z = 0;
-                if(a.charAt(i-1) == b.charAt(j-1))
-                    z = c[i-1][j-1];
-                else
-                    z = c[i-1][j-1] + 1;
-                int temp = Math.min(x,y);
-                c[i][j] = Math.min(z, temp);
-            }
-        }
-        return c[n][m];
+    	return levenshteinDistance(a, b);
     }
 
+	/**
+	 * <p>
+	 * Returns the <a
+	 * href="http://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein
+	 * distance</a> between {@code a} and {@code b}. This code is based on <a
+	 * href
+	 * ="http://mail.python.org/pipermail/python-list/1999-August/006031.html"
+	 * >some Python code posted to a mailing list</a> by Magnus L. Hetland
+	 * &lt;mlh@idt.ntnu.no&gt;, and assumed to be in the public domain.
+	 * </p>
+	 * 
+	 * <h3>Algorithm</h3>
+	 * 
+	 * <pre>
+	 * <code>def distance(a,b):
+	 *   c = {}
+	 *   n = len(a); m = len(b)
+	 * 
+	 *   for i in range(0,n+1):
+	 *     c[i,0] = i
+	 *   for j in range(0,m+1):
+	 *     c[0,j] = j
+	 * 
+	 *   for i in range(1,n+1):
+	 *     for j in range(1,m+1):
+	 *       x = c[i-1,j]+1
+	 *       y = c[i,j-1]+1
+	 *       if a[i-1] == b[j-1]:
+	 *         z = c[i-1,j-1]
+	 *       else:
+	 *         z = c[i-1,j-1]+1
+	 *       c[i,j] = min(x,y,z)
+	 *   return c[n,m]</code>
+	 * </pre>
+	 * 
+	 * <p>
+	 * It calculates the following: Given two strings, {@code a} and {@code b},
+	 * and three operations, adding, subtracting and exchanging single
+	 * characters, what is the minimal number of steps needed to translate
+	 * {@code a} into {@code b}? The method is based on the following idea. We
+	 * want to find the distance between {@code a[:x]} and {@code b[:y]}. To do
+	 * this, we first calculate:
+	 * </p>
+	 * 
+	 * <ol>
+	 * <li>the distance between {@code a[:x-1]} and {@code b[:y]}, adding the
+	 * cost of a subtract-operation, used to get from {@code a[:x]} to
+	 * {@code a[:z-1]};</li>
+	 * <li>the distance between {@code a[:x]} and {@code b[:y-1]}, adding the
+	 * cost of an addition-operation, used to get from {@code b[:y-1]} to
+	 * {@code b[:y]};</li>
+	 * <li>the distance between {@code a[:x-1]} and {@code b[:y-1]}, adding the
+	 * cost of a <em>possible</em> exchange of the letter {@code b[y]} (with
+	 * {@code a[x]}).</li>
+	 * </ol>
+	 * 
+	 * <p>
+	 * The cost of the subtraction and addition operations are 1, while the
+	 * exchange operation has a cost of 1 if {@code a[x]} and {@code b[y]} are
+	 * different, and 0 otherwise. After calculating these costs, we choose the
+	 * least one of them (since we want to use the best solution.)
+	 * </p>
+	 * 
+	 * <p>
+	 * Instead of doing this recursively, i.e. calculating ourselves "back" from
+	 * the final value, we build a cost-matrix {@code c} containing the optimal
+	 * costs, so we can reuse them when calculating the later values. The costs
+	 * {@code c[i,0]} (from string of length {@code n} to empty string) are all
+	 * {@code i}, and correspondingly all {@code c[0,j]} (from empty string to
+	 * string of length {@code j}) are {@code j}. Finally, the cost of
+	 * translating between the full strings {@code a} and {@code b} (
+	 * {@code c[n,m]}) is returned.
+	 * </p>
+	 * 
+	 * @param a
+	 *            first string
+	 * @param b
+	 *            second string
+	 * @return the distance between the two strings
+	 * @deprecated use {@link StringUtils#getLevenshteinDistance(String, String)} instead
+	 */
+	@Deprecated
+	public static int levenshteinDistance(String a, String b) {
+		int n = a.length();
+		int m = b.length();
+		int c[][] = new int[n + 1][m + 1];
+		for (int i = 0; i <= n; i++) {
+			c[i][0] = i;
+		}
+		for (int j = 0; j <= m; j++) {
+			c[0][j] = j;
+		}
+		for (int i = 1; i <= n; i++) {
+			for (int j = 1; j <= m; j++) {
+				int x = c[i - 1][j] + 1;
+				int y = c[i][j - 1] + 1;
+				int z = 0;
+				if (a.charAt(i - 1) == b.charAt(j - 1))
+					z = c[i - 1][j - 1];
+				else
+					z = c[i - 1][j - 1] + 1;
+				int temp = Math.min(x, y);
+				c[i][j] = Math.min(z, temp);
+			}
+		}
+		return c[n][m];
+	}
+    
     /** holds the base adjustment for fuzzy matching */
     // FIXME: Not thread safe
     // MOVEME: Needs to go with the fuzzy matching stuff
@@ -202,7 +235,7 @@ public class ERXStringUtilities {
 
     /**
      * Fuzzy matching is useful for catching user entered typos. For example
-     * if a user is search for a company named 'Aple' within your application
+     * if a user is searching for a company named 'Aple' within your application
      * they aren't going to find it. Thus the idea of fuzzy matching, meaning you
      * can define a threshold of 'how close can they be' type of thing.
      *
@@ -228,35 +261,35 @@ public class ERXStringUtilities {
                                      ERXFuzzyMatchCleaner cleaner,
                                      NSArray sortOrderings ){
         String eoKey = "eo";
-        NSMutableArray results = new NSMutableArray();
+        NSMutableArray<NSMutableDictionary<String, Object>> results = new NSMutableArray<NSMutableDictionary<String, Object>>();
         EOFetchSpecification fs = new EOFetchSpecification( entityName, null, null );
         fs.setFetchesRawRows( true );
-        NSArray pks = EOUtilities.entityNamed( ec, entityName ).primaryKeyAttributeNames();
-        NSMutableArray keyPaths = new NSMutableArray(pks);
+        NSArray<String> pks = EOUtilities.entityNamed( ec, entityName ).primaryKeyAttributeNames();
+        NSMutableArray<String> keyPaths = new NSMutableArray<String>(pks);
         keyPaths.addObject( propertyKey );
         if( synonymsKey != null ) 
             keyPaths.addObject( synonymsKey );
         //we use only the strictly necessary keys.
         fs.setRawRowKeyPaths( keyPaths );
-        NSArray rawRows = ec.objectsWithFetchSpecification( fs );
+        NSArray<NSDictionary<String, Object>> rawRows = ec.objectsWithFetchSpecification( fs );
         if(name == null)
             name = "";
         name = name.toUpperCase();
         String cleanedName = cleaner.cleanStringForFuzzyMatching(name);
         for(Enumeration e = rawRows.objectEnumerator(); e.hasMoreElements(); ){
-            NSMutableDictionary dico = ((NSDictionary)e.nextElement()).mutableClone();
+            NSMutableDictionary<String, Object> dico = ((NSDictionary)e.nextElement()).mutableClone();
             Object value = dico.valueForKey(propertyKey);
             boolean trySynonyms = true;
             //First try to match with the name of the eo
             if( value!=null && value instanceof String){
                 String comparedString = ((String)value).toUpperCase();
                 String cleanedComparedString = cleaner.cleanStringForFuzzyMatching(comparedString);
-                if( (distance(name, comparedString) <=
+                if( (levenshteinDistance(name, comparedString) <=
                      Math.min((double)name.length(), (double)comparedString.length())*adjustement ) ||
-                    (distance(cleanedName, cleanedComparedString) <=
+                    (levenshteinDistance(cleanedName, cleanedComparedString) <=
                      Math.min((double)cleanedName.length(), (double)cleanedComparedString.length())*adjustement)){
-                    dico.setObjectForKey( new Double(distance(name, comparedString)), _DISTANCE );
-                    NSDictionary pkValues = new NSDictionary( dico.objectsForKeys( pks, NSKeyValueCoding.NullValue ), pks );
+                    dico.setObjectForKey( Double.valueOf(levenshteinDistance(name, comparedString)), _DISTANCE );
+                    NSDictionary<String, Object> pkValues = new NSDictionary<String, Object>(dico.objectsForKeys(pks, NSKeyValueCoding.NullValue ), pks);
                     dico.setObjectForKey( EOUtilities.faultWithPrimaryKey( ec, entityName, pkValues ), eoKey );
                     results.addObject( dico );
                     trySynonyms = false;
@@ -270,12 +303,12 @@ public class ERXStringUtilities {
                     Vector v = (Vector)plist;
                     for(int i = 0; i< v.size(); i++){
                         String comparedString = ((String)v.elementAt(i)).toUpperCase();
-                        if((distance(name, comparedString) <=
+                        if((levenshteinDistance(name, comparedString) <=
                             Math.min((double)name.length(), (double)comparedString.length())*adjustement) ||
-                           (distance(cleanedName, comparedString) <=
+                           (levenshteinDistance(cleanedName, comparedString) <=
                             Math.min((double)cleanedName.length(), (double)comparedString.length())*adjustement)){
-                            dico.setObjectForKey( new Double(distance(name, comparedString)), _DISTANCE );
-                            NSDictionary pkValues = new NSDictionary( dico.objectsForKeys( pks, NSKeyValueCoding.NullValue ), pks );
+                            dico.setObjectForKey( Double.valueOf(levenshteinDistance(name, comparedString)), _DISTANCE );
+                            NSDictionary<String, Object> pkValues = new NSDictionary<String, Object>(dico.objectsForKeys(pks, NSKeyValueCoding.NullValue ), pks);
                             dico.setObjectForKey( EOUtilities.faultWithPrimaryKey( ec, entityName, pkValues ), eoKey );
                             results.addObject( dico );
                             break;
@@ -285,16 +318,23 @@ public class ERXStringUtilities {
             }
         }
         if( sortOrderings != null ) {
-            results = (NSMutableArray)EOSortOrdering.sortedArrayUsingKeyOrderArray(results, sortOrderings);
+            results = (NSMutableArray<NSMutableDictionary<String, Object>>) EOSortOrdering.sortedArrayUsingKeyOrderArray(results, sortOrderings);
         }
-        return (NSArray) results.valueForKey( eoKey );        
+        return (NSArray) results.valueForKey( eoKey );
     }
     
-    /** @deprecated use 
-        <code>fuzzyMatch(String name, String entityName, String propertyKey,
-                         String synonymsKey, EOEditingContext ec,
-                         ERXFuzzyMatchCleaner cleaner, NSArray sortOrderings )</code>
-        instead*/
+    /**
+     * @param name
+     * @param entityName
+     * @param propertyKey
+     * @param synonymsKey
+     * @param ec
+     * @param cleaner
+     * @param comparisonString
+     * @return an array of objects that match in a fuzzy manner the name passed in.
+     * @deprecated use {@link #fuzzyMatch(String, String, String, String, EOEditingContext, ERXFuzzyMatchCleaner, NSArray)}
+     */
+    @Deprecated
     public static NSArray fuzzyMatch(String name,
                                      String entityName,
                                      String propertyKey,
@@ -406,7 +446,7 @@ public class ERXStringUtilities {
      * @param s string to caclulate an Integer from
      * @return parsed Integer from the string or null
      *		if the string is not correctly formed.
-     * @see ERXConstant#integerForString(String)
+     * @see er.extensions.eof.ERXConstant#integerForString(String)
      */
     public static Integer integerWithString(String s) {
         try {
@@ -415,10 +455,60 @@ public class ERXStringUtilities {
         	// ignore
         }
         return null;
-    } 
+    }
+    
+    /**
+     * Tests if a given string object can be parsed into
+     * an integer.
+     * @param s string to be parsed
+     * @return <code>true</code> if the string is not <code>null</code>
+     *      and can be parsed to an int
+     */
+    public static boolean stringIsParseableInteger(String s) {
+        try {
+            Integer.parseInt(s);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Wrapper for {@link Integer#valueOf(String)} that catches
+     * the NumberFormatException.
+     * 
+     * @param s string to convert to an Integer
+     * @return Integer or <code>null</code> if the string could
+     *      not be parsed
+     */
+    public static Integer safeInteger(String s) {
+    	try {
+            return Integer.valueOf(s);
+        } catch (NumberFormatException e) {
+        	// ignore
+        }
+        return null;
+    }
+    
+    /**
+     * Wrapper for {@link Long#valueOf(String)} that catches
+     * the NumberFormatException.
+     * 
+     * @param s string to convert to a Long
+     * @return Long or <code>null</code> if the string could
+     *      not be parsed
+     */
+    public static Long safeLong(String s) {
+    	try {
+            return Long.valueOf(s);
+        } catch (NumberFormatException e) {
+        	// ignore
+        }
+        return null;
+    }
 
     /**
-     * Retrives a given string for a given name, extension
+     * Retrieves a given string for a given name, extension
      * and bundle.
      * @param name of the resource
      * @param extension of the resource, example: txt or rtf
@@ -432,12 +522,17 @@ public class ERXStringUtilities {
         }
         path = bundle.resourcePathForLocalizedResourceNamed(name + (extension == null || extension.length() == 0 ? "" : "." + extension), null);
         if(path != null) {
+        	InputStream stream = null;
             try {
-                InputStream stream = bundle.inputStreamForResourcePath(path);
+                stream = bundle.inputStreamForResourcePath(path);
                 byte bytes[] = ERXFileUtilities.bytesFromInputStream(stream);
                 return new String(bytes);
             } catch (IOException e) {
                 log.warn("IOException when stringFromResource(" + name + "." + extension + " in bundle " + bundle.name());
+            } finally {
+            	if (stream != null) {
+            		try { stream.close(); } catch (IOException e) {}
+            	}
             }
         }
         return null;
@@ -495,23 +590,23 @@ public class ERXStringUtilities {
      * @return display name for the given key
      */
     public static String displayNameForKey(String key) {
-        StringBuffer finalString = null;
+        StringBuilder finalString = null;
         if (!stringIsNullOrEmpty(key) && !key.trim().equals("")) {
-            finalString = new StringBuffer();
+            finalString = new StringBuilder();
             String lastHop=key.indexOf(".") == -1 ? key : key.endsWith(".") ? "" : key.substring(key.lastIndexOf(".") + 1);
-            StringBuffer tempString = new StringBuffer();
+            StringBuilder tempString = new StringBuilder();
             char[] originalArray = lastHop.toCharArray();
             originalArray[0] = Character.toUpperCase(originalArray[0]);
             Character tempChar = null;
             Character nextChar = null;
             for(int i=0;i<(originalArray.length-1);i++){
-                tempChar = new Character(originalArray[i]);
-                nextChar = new Character(originalArray[i+1]);
+                tempChar = Character.valueOf(originalArray[i]);
+                nextChar = Character.valueOf(originalArray[i+1]);
                 if(Character.isUpperCase(originalArray[i]) &&
                    Character.isLowerCase(originalArray[i+1])) {
                     finalString.append(tempString.toString());
                     if (i>0) finalString.append(' ');
-                    tempString = new StringBuffer();
+                    tempString = new StringBuilder();
                 }
                 tempString.append(tempChar.toString());
             }
@@ -522,10 +617,10 @@ public class ERXStringUtilities {
     }
 
     /** 
-     * Locate the the first numeric character in the given string. 
+     * Locate the the first numeric character in the given string.
+     * 
      * @param str string to scan
-     *
-     * @return position in int. -1 for not found. 
+     * @return position in string or -1 if no numeric found 
      */ 
     public static int indexOfNumericInString(String str) {
         return indexOfNumericInString(str, 0);
@@ -533,10 +628,11 @@ public class ERXStringUtilities {
         
     /** 
      * Locate the the first numeric character 
-     * after <code>fromIndex</code> in the given string. 
+     * after <code>fromIndex</code> in the given string.
+     * 
      * @param str string to scan
-     *
-     * @return position in int. -1 for not found. 
+     * @param fromIndex index position from where to start
+     * @return position in string or -1 if no numeric found
      */ 
     public static int indexOfNumericInString(String str, int fromIndex) {
         if (str == null)  throw new IllegalArgumentException("String cannot be null.");
@@ -558,7 +654,7 @@ public class ERXStringUtilities {
      * a certain character. Useful for determining
      * if you need to add an '&' to the end of a
      * form value string.
-     * @param separator character to add to potentially
+     * @param separator character to potentially
      *		add to the StringBuffer.
      * @param not character to test if the given
      *		StringBuffer ends in it.
@@ -571,17 +667,37 @@ public class ERXStringUtilities {
     }
 
     /**
+     * Utility method to append a character to a
+     * StringBuilder if the last character is not
+     * a certain character. Useful for determining
+     * if you need to add an '&' to the end of a
+     * form value string.
+     * @param separator character to potentially
+     *		add to the StringBuilder.
+     * @param not character to test if the given
+     *		StringBuilder ends in it.
+     * @param sb StringBuilder to test and potentially
+     *		append to.
+     */
+    public static void appendSeparatorIfLastNot(char separator, char not, StringBuilder sb) {
+        if (sb.length() > 0 && sb.charAt(sb.length() - 1) != not)
+            sb.append(separator);
+    }
+
+    /**
      * Replaces a given string by another string in a string.
      * @param old string to be replaced
      * @param newString to be inserted
      * @param buffer string to have the replacement done on it
      * @return string after having all of the replacement done.
+     * @deprecated use {@link StringUtils#replace(String, String, String)} instead
      */
+    @Deprecated
     public static String replaceStringByStringInString(String old, String newString, String buffer) {
         int begin, end;
         int oldLength = old.length();
         int length = buffer.length();
-        StringBuffer convertedString = new StringBuffer(length + 100);
+        StringBuilder convertedString = new StringBuilder(length + 100);
 
         begin = 0;
         while(begin < length)
@@ -611,7 +727,9 @@ public class ERXStringUtilities {
      * @param replacementString the string with which to replace stringToReplace.
      * @return sourceString with stringToReplace replaced with replacementString if it
      *         existed in sourceString.  otherwise, sourceString is returned.
+     * @deprecated use {@link StringUtils#replaceOnce(String, String, String)} instead
      */
+    @Deprecated
     public static String stringByReplacingFirstOccurrenceOfStringWithString(final String sourceString, final String stringToReplace, final String replacementString) {
         final int indexOfMatch = sourceString.indexOf(stringToReplace);
         final String result;
@@ -620,7 +738,7 @@ public class ERXStringUtilities {
             final int sourceStringLength = sourceString.length();
             final int stringToReplaceLength = stringToReplace.length();
             final int replacementStringLength = replacementString.length();
-            final StringBuffer buffer = new StringBuffer(sourceStringLength - stringToReplaceLength + replacementStringLength);
+            final StringBuilder buffer = new StringBuilder(sourceStringLength - stringToReplaceLength + replacementStringLength);
             
             buffer.append(sourceString.substring(0, indexOfMatch));
             buffer.append(replacementString);
@@ -636,11 +754,13 @@ public class ERXStringUtilities {
     }    
 
     /**
-     * Removes the spaces in a given String
-     * @return string removing all spaces in it.
+     * Removes the spaces in a given string.
+     * 
+     * @param aString string to remove spaces from
+     * @return string without spaces
      */
-    public static String escapeSpace(String aString){
-        NSArray parts = NSArray.componentsSeparatedByString(aString," ");
+    public static String escapeSpace(String aString) {
+        NSArray<String> parts = NSArray.componentsSeparatedByString(aString, " ");
         return parts.componentsJoinedByString("");
     }
 
@@ -672,28 +792,27 @@ public class ERXStringUtilities {
 
         // If the string has no different char, then return the string as is,
         // otherwise create a lowercase version in a char array.
-        if (different == -1)
+        if (different == -1) {
             return str;
-        else {
-            char[] chars = new char[len];
-            str.getChars(0, len, chars, 0);
-            // (Note we start at different, not at len.)
-            for(int j = different; j >= 0; j--) {
-                chars[j] = Character.toLowerCase(chars[j]);
-            }
-
-            return new String(chars);
         }
+        char[] chars = new char[len];
+        str.getChars(0, len, chars, 0);
+        // (Note we start at different, not at len.)
+        for(int j = different; j >= 0; j--) {
+            chars[j] = Character.toLowerCase(chars[j]);
+        }
+
+        return new String(chars);
     }
 
     /**
      * String multiplication.
-     * @param n the number of times to concatinate a given string
-     * @param s string to be multipled
+     * @param n the number of times to concatenate a given string
+     * @param s string to be multiplied
      * @return multiplied string
      */
     public static String stringWithNtimesString(int n, String s) {
-        StringBuffer sb=new StringBuffer();
+    	StringBuilder sb = new StringBuilder(n);
         for (int i=0; i<n; i++) sb.append(s);
         return sb.toString();
     }
@@ -751,7 +870,7 @@ public class ERXStringUtilities {
     public static String escapeNonXMLChars(String str) {
         if (str == null) return null;
 
-        StringBuffer result = new StringBuffer(str.length());
+        StringBuilder result = new StringBuilder(str.length());
         for (int i = 0; i < str.length(); i++) {
         	char c = str.charAt(i);
         	switch(c) {
@@ -894,7 +1013,7 @@ public class ERXStringUtilities {
     	String close = "]]>";
     	String escape = "]]]]><![CDATA[>";
 
-    	StringBuffer sb = new StringBuffer("<![CDATA[");
+    	StringBuilder sb = new StringBuilder("<![CDATA[");
     	
     	do {
         	end = pcdata.indexOf(close, start);
@@ -913,14 +1032,13 @@ public class ERXStringUtilities {
         Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
         if (block != null  &&  Character.UnicodeBlock.BASIC_LATIN.equals(block)) 
             return String.valueOf(c);
-        else 
-            return toHexString(c);
+        return toHexString(c);
     }
 
     public static String escapeNonBasicLatinChars(String str) {
         if (str == null) return null;
 
-        StringBuffer result = new StringBuffer(str.length());
+        StringBuilder result = new StringBuilder(str.length());
         for (int i = 0; i < str.length(); i++) 
             result.append(escapeNonBasicLatinChars(str.charAt(i)));
             
@@ -956,7 +1074,7 @@ public class ERXStringUtilities {
         targetString = null;
       }
       else {
-        StringBuffer targetBuffer = null;
+    	StringBuilder targetBuffer = null;
         int lastMatch = 0;
         int length = _sourceString.length();
         for (int sourceIndex = 0; sourceIndex < length; sourceIndex++) {
@@ -969,7 +1087,7 @@ public class ERXStringUtilities {
           }
           if (escape) {
             if (targetBuffer == null) {
-              targetBuffer = new StringBuffer(length + 100);
+              targetBuffer = new StringBuilder(length + 100);
             }
             if (sourceIndex - lastMatch > 0) {
               targetBuffer.append(_sourceString.substring(lastMatch, sourceIndex));
@@ -990,8 +1108,8 @@ public class ERXStringUtilities {
     }
 
     public static String toHexString(char c) {
-        StringBuffer result = new StringBuffer("\u005C\u005Cu9999".length());
-        String u = Long.toHexString((int) c).toUpperCase();
+    	StringBuilder result = new StringBuilder("\u005C\u005Cu9999".length());
+        String u = Long.toHexString(c).toUpperCase();
         switch (u.length()) {
             case 1:   result.append("\u005C\u005Cu000");  break;
             case 2:   result.append("\u005C\u005Cu00");   break;
@@ -1005,7 +1123,7 @@ public class ERXStringUtilities {
     public static String toHexString(String str) {
         if (str == null) return null;
 
-        StringBuffer result = new StringBuffer("\u005C\u005Cu9999".length() * str.length());
+        StringBuilder result = new StringBuilder("\u005C\u005Cu9999".length() * str.length());
         for (int i = 0; i < str.length(); i++) 
             result.append(toHexString(str.charAt(i)));
 
@@ -1019,7 +1137,7 @@ public class ERXStringUtilities {
      */
     public static String byteArrayToHexString(byte[] block) {
         int len = block.length;
-        StringBuffer buf = new StringBuffer(2 * len);
+        StringBuilder buf = new StringBuilder(2 * len);
         for (int i = 0; i < len; ++i) {
             int high = ((block[i] & 0xf0) >> 4);
             int low  =  (block[i] & 0x0f);
@@ -1030,8 +1148,10 @@ public class ERXStringUtilities {
     }
     
     /**
-     * Converts a even-length, hex-encoded String to a byte array. 
-     * @param hexString
+     * Converts a even-length, hex-encoded String to a byte array.
+     * 
+     * @param hexString hex string to convert
+     * @return byte array of given hex string
      */
     public static byte[] hexStringToByteArray(String hexString) {
     	int length = hexString.length();
@@ -1079,8 +1199,7 @@ public class ERXStringUtilities {
     public static String removeExtraDotsFromVersionString(String version) {
         int floatingPointIndex = version.indexOf("."); 
         if (floatingPointIndex >= 0  &&  floatingPointIndex + 1 < version.length()) {
-            String minorVersion = ERXStringUtilities.replaceStringByStringInString(".", "", 
-                                        version.substring(floatingPointIndex + 1));
+            String minorVersion = StringUtils.replace(version.substring(floatingPointIndex + 1), ".", "");
             version = version.substring(0, floatingPointIndex + 1) + minorVersion;
         }
         return version;
@@ -1098,7 +1217,7 @@ public class ERXStringUtilities {
     public static String capitalize(String value) {
         String capital = null;
         if (value != null && value.length() > 0) {
-            StringBuffer buffer = new StringBuffer(value);
+        	StringBuilder buffer = new StringBuilder(value);
 
             buffer.setCharAt(0, Character.toUpperCase(value.charAt(0)));
             capital = buffer.toString();            
@@ -1116,7 +1235,7 @@ public class ERXStringUtilities {
         if (value != null) {
         	int length = value.length();
         	if (length > 0) {
-	            StringBuffer buffer = new StringBuffer(value);
+        		StringBuilder buffer = new StringBuilder(value);
 	            for (int i = 0; i < length; i ++) {
 	            	char ch = value.charAt(i);
 	            	if (i == 0 || i == length - 1 || (i < length - 1 && Character.isUpperCase(value.charAt(i + 1)))) {
@@ -1147,7 +1266,7 @@ public class ERXStringUtilities {
     public static String capitalizeAllWords(String value) {
         String capitalize = null;
         if (value != null && value.length() > 0) {
-            StringBuffer buffer = new StringBuffer();
+        	StringBuilder buffer = new StringBuilder();
             boolean first = true;
             for (StringTokenizer tokenizer = new StringTokenizer(value); tokenizer.hasMoreElements();) {
                 String token = tokenizer.nextToken();
@@ -1170,7 +1289,7 @@ public class ERXStringUtilities {
      * @return the StringWithoutUnderscores
      */
     public static String underscoreToCamelCase(String underscoreString, boolean capitalize) {
-    	StringBuffer camelCase = new StringBuffer();
+    	StringBuilder camelCase = new StringBuilder();
     	String[] underscoreStrings = underscoreString.split("_");
     	for (int i = 0; i < underscoreStrings.length; i ++) {
     		String word;
@@ -1186,12 +1305,14 @@ public class ERXStringUtilities {
     }
     
     /**
-     * Converts ThisIsATest to this_is_a_test
-     * @param camelString the StringWithCaps
+     * Converts a string in camel case to an underscore representation.
+     * 
+     * @param camelString string to convert
+     * @param lowercase if all uppercase characters should be converted to lowercase
      * @return the string_with_underscores
      */
     public static String camelCaseToUnderscore(String camelString, boolean lowercase) {
-    	StringBuffer underscore = new StringBuffer();
+    	StringBuilder underscore = new StringBuilder();
     	boolean lastCharacterWasWordBreak = false;
     	boolean lastCharacterWasCapital = false;
     	int length = camelString.length();
@@ -1453,6 +1574,7 @@ public class ERXStringUtilities {
           * encoding.
           * @param in stream to read
           * @return string representation of the stream.
+     * @throws IOException if things go wrong
       */
      public static String stringFromInputStream(InputStream in) throws IOException {
          return new String(ERXFileUtilities.bytesFromInputStream(in));
@@ -1464,14 +1586,16 @@ public class ERXStringUtilities {
        * @param in stream to read
        * @param encoding to be used, null will use the default
        * @return string representation of the stream.
+      * @throws IOException if things go wrong
    */
      public static String stringFromInputStream(InputStream in, String encoding) throws IOException {
          return new String(ERXFileUtilities.bytesFromInputStream(in), encoding);
      }
 
   
-      /** Returns a String by invoking toString() on each object from the array. After each toString() call
-       * the separator is appended to the buffer
+      /**
+       * Returns a String by invoking toString() on each object from the array. After each toString() call
+       * the separator is appended to the buffer.
        * 
        * @param array an object array from which to get a nice String representation
        * @param separator a separator which is displayed between the objects toString() value
@@ -1479,7 +1603,7 @@ public class ERXStringUtilities {
        * @return a string representation from the array
        */
     public static String toString(Object[] array, String separator) {
-          StringBuffer buf = new StringBuffer();
+    	StringBuilder buf = new StringBuilder();
           for (int i = 0; i < array.length; i++) {
               Object o = array[i];
               buf.append(o.toString());
@@ -1489,7 +1613,10 @@ public class ERXStringUtilities {
       }
 
     /**
-     * creates a readable debug string for some data types (dicts, arrays, adaptorOperations, databaseOperations)
+     * Creates a readable debug string for some data types (dicts, arrays, adaptorOperations, databaseOperations).
+     * 
+     * @param object the object to dump
+     * @return string representation of the given object
      */
     public static String dumpObject(Object object) {
 		StringBuffer sb = new StringBuffer(4000);
@@ -1497,7 +1624,8 @@ public class ERXStringUtilities {
 		return sb.toString();
 	}
 
-	/** Checks if any of the characters specified in characters is contained in the string
+	/**
+	 * Checks if any of the characters specified in characters is contained in the string
 	 * specified by source.
 	 * 
 	 * @param source the String which might contain characters
@@ -1514,14 +1642,15 @@ public class ERXStringUtilities {
 		return false;
 	}
 
-	/** removes any character which is not in characters from the source string
+	/**
+	 * Removes any character which is not in characters from the source string.
 	 * 
 	 * @param source the string which will be modified
 	 * @param characters the characters that are allowed to be in source
 	 * @return a new string only with characters from the characters argument
 	 */
 	public static String removeExceptCharacters(String source, String characters) {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		int l = source.length();
 		for (int i = 0; i < l; i++) {
 			char c = source.charAt(i);
@@ -1532,14 +1661,15 @@ public class ERXStringUtilities {
 		return buf.toString();
 	}
 	
-	/** removes any character which is in characters from the source string
+	/**
+	 * Removes any character which is in characters from the source string.
 	 * 
 	 * @param source the string which will be modified
 	 * @param characters the characters that are not allowed to be in source
 	 * @return a new string without any characters from the characters argument
 	 */
 	public static String removeCharacters(String source, String characters) {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		int l = source.length();
 		for (int i = 0; i < l; i++) {
 			char c = source.charAt(i);
@@ -1616,7 +1746,7 @@ public class ERXStringUtilities {
 	else {
 	  	try {
 	  		if(encoding == null) {
-	  			encoding = "UTF-8";
+	  			encoding = CharEncoding.UTF_8;
 	  		}
 			bytes = ERXFileUtilities.md5(new ByteArrayInputStream(str.getBytes(encoding)));
 		}
@@ -1727,7 +1857,7 @@ public class ERXStringUtilities {
     private static void dumpDictionary(StringBuffer sb, NSDictionary dict, int level) {
     	sb.append("{\n");
     	for(Enumeration e = dict.keyEnumerator(); e.hasMoreElements();) {
-    		String key = (String) e.nextElement();
+    		Object key = e.nextElement();
     		Object value = dict.objectForKey(key);
     		indent(sb, level+1);
     		sb.append(key).append(" = ");
@@ -1868,9 +1998,9 @@ public class ERXStringUtilities {
 	public static String stringFromDictionary(NSDictionary dict) {
 		NSArray orderedKeys = dict.allKeys();
 		orderedKeys = ERXArrayUtilities.sortedArraySortedWithKey(orderedKeys, "toString.toLowerCase");
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		for (Enumeration keys = orderedKeys.objectEnumerator(); keys.hasMoreElements();) {
-			Object key = (Object) keys.nextElement();
+			Object key = keys.nextElement();
 			Object value = dict.objectForKey(key);
 			String stringValue = NSPropertyListSerialization.stringFromPropertyList(value);
 			String stringKey = NSPropertyListSerialization.stringFromPropertyList(key);
@@ -1933,12 +2063,12 @@ public class ERXStringUtilities {
      */
     public static String safeIdentifierName(String source, String prefix, char replacement)
     {
-    	StringBuffer b;
+    	StringBuilder b;
     	// Add prefix if source does not start with valid character
         if (source == null || source.length() == 0 || Character.isJavaIdentifierStart(source.charAt(0))) {
-            b = new StringBuffer(source);
+            b = new StringBuilder(source);
         } else {
-        	b = new StringBuffer(prefix);
+        	b = new StringBuilder(prefix);
         	b.append(source);
         }
     	
@@ -2011,7 +2141,7 @@ public class ERXStringUtilities {
      * @param string string to convert
      */
     public static byte[] toUTF8Bytes(String string) {
-    	return toBytes(string, "UTF-8");
+    	return toBytes(string, CharEncoding.UTF_8);
     }
 
     /**
@@ -2037,7 +2167,7 @@ public class ERXStringUtilities {
      * @param bytes string to convert
      */
     public static String fromUTF8Bytes(byte bytes[]) {
-    	return fromBytes(bytes, "UTF-8");
+    	return fromBytes(bytes, CharEncoding.UTF_8);
     }
 
     /**
@@ -2071,7 +2201,7 @@ public class ERXStringUtilities {
     		return string;
     	}
     	
-        StringBuffer buffer = new StringBuffer(string);
+    	StringBuilder buffer = new StringBuilder(string);
         for (int i = string.length(); i < paddedLength; i++) {
             buffer.append(padChar);
         }
@@ -2093,7 +2223,7 @@ public class ERXStringUtilities {
     		return string;
     	}
     	
-        StringBuffer buffer = new StringBuffer();
+    	StringBuilder buffer = new StringBuilder();
         for (int i = string.length(); i < paddedLength; i++) {
             buffer.append(padChar);
         }
@@ -2118,7 +2248,7 @@ public class ERXStringUtilities {
     		result = contentToInsert;
     	}
     	else {
-			StringBuffer sb = new StringBuffer(destinationString.length() + contentToInsert.length());
+			StringBuilder sb = new StringBuilder(destinationString.length() + contentToInsert.length());
 			sb.append(destinationString.substring(0, insertOffset));
 			sb.append(contentToInsert);
 			sb.append(destinationString.substring(insertOffset));
@@ -2140,7 +2270,7 @@ public class ERXStringUtilities {
     }
     
     /**
-     * Removes line breaks and quotes the string if neccessary
+     * Removes line breaks and quotes the string if necessary
      * 
      * @param s
      * 
@@ -2195,7 +2325,7 @@ public class ERXStringUtilities {
 			throw new IllegalArgumentException("Neither the string nor the quote symbol are allowed to be null");
 		}
 
-		s = new StringBuffer().append(quoteSymbol).append(s).append(quoteSymbol).toString();
+		s = new StringBuilder().append(quoteSymbol).append(s).append(quoteSymbol).toString();
 		return s;
 	}
 	
@@ -2246,14 +2376,82 @@ public class ERXStringUtilities {
 				stripped = stripped.replaceAll("&#8482;", "(TM)");
 			stripped = stripped.trim();
 			}
- 		}
- 		return stripped;
- 	}
-
-
+		}
+		return stripped;
+	}
+	
+    /**
+     * Removes all of the HTML tags from a given string.
+     * Note: this is a very simplistic implementation
+     * and will most likely not work with complex HTML.
+     * Note: for actual conversion of HTML tags into regular
+     * strings have a look at {@link ERXSimpleHTMLFormatter}
+     * @param s html string
+     * @return string with all of its html tags removed
+     */
+    // FIXME: this is so simplistic it will break if you sneeze
+    public static String removeHTMLTagsFromString(String s) {
+        StringBuffer result=new StringBuffer();
+        if (s != null && s.length()>0) {
+            int position=0;
+            while (position<s.length()) {
+                int indexOfOpeningTag=s.indexOf("<",position);
+                if (indexOfOpeningTag!=-1) {
+                    if (indexOfOpeningTag!=position)
+                        result.append(s.substring(position, indexOfOpeningTag));
+                    position=indexOfOpeningTag+1;
+                } else {
+                    result.append(s.substring(position, s.length()));
+                    position=s.length();
+                }
+                int indexOfClosingTag=s.indexOf(">",position);
+                if (indexOfClosingTag!=-1) {
+                    position= indexOfClosingTag +1;
+                } else {
+                    result.append(s.substring(position, s.length()));
+                    position=s.length();
+                }
+            }
+        }
+        return StringUtils.replace(result.toString(), "&nbsp;"," ");
+    }
+    
+    /**
+     * Returns the value stripped from HTML tags if <b>escapeHTML</b> is false.
+     * This makes sense because it is not terribly useful to have half-finished tags in your code.
+     * Note that the "length" of the resulting string is not very exact.
+     * FIXME: we could remove extra whitespace and character entities here
+     * @return value stripped from tags.
+     */
+    public static String strippedValue(String value, int length) {
+        if(value == null || value.length() < 1)
+            return null;
+        StringTokenizer tokenizer = new StringTokenizer(value, "<", false);
+        int token = value.charAt(0) == '<' ? 0 : 1;
+        String nextPart = null;
+        StringBuffer result = new StringBuffer();
+        int currentLength = result.length();
+        while (tokenizer.hasMoreTokens() && currentLength < length && currentLength < value.length()) {
+            if(token == 0)
+                nextPart = tokenizer.nextToken(">");
+            else {
+                nextPart = tokenizer.nextToken("<");
+                if(nextPart.length() > 0  && nextPart.charAt(0) == '>')
+                    nextPart = nextPart.substring(1);
+            }
+            if (nextPart != null && token != 0) {
+                result.append(nextPart);
+                currentLength += nextPart.length();
+            }
+            token = 1 - token;
+        }
+        return result.toString();
+    }
+	
 	/**
-	 * @deprecated  Replaced by stripHtml(str, false)
+	 * @deprecated use {@link #stripHtml(String, boolean)}
 	 */
+	@Deprecated
 	public static String stripHtml(String str) {
 		return stripHtml(str, false);
 	}
@@ -2526,4 +2724,101 @@ public class ERXStringUtilities {
 		return sum % 10 == 0;
 	}
 
+	/**
+	* Returns a string trimmed about at the max lenght you define without truncating the last word and adding "..." (if necessary)
+	* 
+	* @param trimmingString the string you would like to trim
+	* @param maxLenght the max lenght you need
+	* @return the string trimmed
+	*/
+	public static String wordSafeTrimmedString(String trimmingString, int maxLenght) {
+		String cuttedString = trimmingString;
+		if ( ( trimmingString != null ) && ( trimmingString.length() > maxLenght ) ) {
+			trimmingString = stripHtml(trimmingString,false);
+			if( trimmingString.length() > maxLenght) {
+				int space = trimmingString.indexOf(" ",(maxLenght - 20));
+				try {
+					cuttedString = trimmingString.substring(0, space)+" ...";
+				} catch ( Exception e ) {
+					//GIVE UP
+				}
+			}
+		}
+		return cuttedString;
+	}
+
+	/**
+	 * <span class="en">
+	 * 	trim leading 0 from a (Number) String 
+	 *
+	 * 	@param str - the String
+	 * 
+	 * 	@return Result String
+	 * </span>
+	 * 
+	 * <span class="ja">
+	 * 	半角数字の前の0を取る処理。
+	 *
+	 * 	@param str - 処理対象の文字列
+	 * 
+	 * 	@return 処理済みの文字列
+	 * </span>
+	 */
+	@SuppressWarnings("javadoc")
+	public static String trimZeroInFrontOfNumbers(String str){
+		// 文字有無確認
+		if(stringIsNullOrEmpty(str)) 
+			return str;
+
+		// 不必要番号削除処理
+		int loopIdxMax =  str.length() -1;
+		StringBuilder retStr = new StringBuilder(loopIdxMax +1);
+		char targetChar;
+		boolean alladdFlg = false;
+		for(int loopIdx = 0; loopIdx < loopIdxMax; loopIdx++){
+			targetChar = str.charAt(loopIdx);
+			if(alladdFlg || ((targetChar >= '1') && (targetChar <= '9')) ){
+				retStr.append ( targetChar );	// 文字コードが0以外なら残りを全て保存
+				alladdFlg = true;
+			}
+		}
+		retStr.append (str.charAt(loopIdxMax));	// 最後のコードを追加
+
+		return retStr.toString();
+	}
+
+    /**
+     * Given an initial string and an array of substrings, 
+     * Removes any occurrences of any of the substrings
+     * from the initial string. Used in conjunction with
+     * fuzzy matching.
+     * @param newString initial string from which to remove other strings
+     * @param toBeCleaneds array of substrings to be removed from the initial string.
+     * @return cleaned string.
+     */
+    // FIXME: Should use a StringBuffer instead of creating strings all over the place.
+    public static String cleanString(String newString, NSArray<String> toBeCleaneds) {
+        String result=newString;
+        if (newString!=null) {
+            for(Enumeration e = toBeCleaneds.objectEnumerator(); e.hasMoreElements();){
+                String toBeCleaned = (String)e.nextElement();
+                if(newString.toUpperCase().indexOf(toBeCleaned)>-1){
+                    result=newString.substring(0, newString.toUpperCase().indexOf(toBeCleaned));
+                }
+            }
+        }
+        return result;
+    }
+	
+	public static boolean isBlank(String value) {
+		boolean isBlank = false;
+		if (value == null || value.trim().length() == 0) {
+			isBlank = true;
+		}
+		return isBlank;
+	}
+	
+	public static boolean isNotBlank(String value) {
+		return ! isBlank(value);
+	}
 }

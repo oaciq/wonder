@@ -2,8 +2,6 @@ package er.extensions.components;
 
 import com.webobjects.appserver.WOContext;
 
-import er.extensions.components.ERXRssPage;
-
 /**
  * Simple podcast RSS feed provider. The actual item goes into the component content. Based on ERXRssPage.
  * Some of the attributes are iTunes specific (see http://www.apple.com/itunes/podcasts/specs.html)
@@ -35,7 +33,13 @@ import er.extensions.components.ERXRssPage;
  * @author ak (original author of ERXRssPage)
  */
 public class ERXPodcastRssPage extends ERXRssPage {
-			
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
+
     public ERXPodcastRssPage(WOContext context) {
         super(context);
     }

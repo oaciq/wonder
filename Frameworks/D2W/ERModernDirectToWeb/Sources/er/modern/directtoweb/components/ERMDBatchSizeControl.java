@@ -37,7 +37,7 @@ public class ERMDBatchSizeControl extends ERDCustomComponent {
 	
 	private String _itemsString;
 	private String _showString;
-	private ERXLocalizer _localizer;
+	private transient ERXLocalizer _localizer;
 	private String _updateContainerID;
 	private String _separatorString;
 	private String _batchSizeFieldID;
@@ -104,6 +104,7 @@ public class ERMDBatchSizeControl extends ERDCustomComponent {
 	 * <p>
 	 * Defaults to ERXLocalizer.currentLocalizer()
 	 */
+    @Override
     public ERXLocalizer localizer() {
 		if (_localizer == null) {
 			_localizer = (ERXLocalizer)objectValueForBinding(Keys.localizer, ERXLocalizer.currentLocalizer());

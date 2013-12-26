@@ -1,9 +1,3 @@
-//
-// ERXEOEncodingUtilities.java
-// Project ERExtensions
-//
-// Created by max on Sun Sep 29 2002
-//
 package er.extensions.eof;
 
 import java.util.Enumeration;
@@ -29,7 +23,6 @@ import com.webobjects.foundation.NSTimestampFormatter;
 import er.extensions.crypting.ERXCrypto;
 import er.extensions.foundation.ERXArrayUtilities;
 import er.extensions.foundation.ERXProperties;
-import er.extensions.foundation.ERXUtilities;
 
 /**
  * 
@@ -102,15 +95,16 @@ public class ERXEOEncodingUtilities {
         return EntityNameSeparator;
     }
 
-    /** @deprecated use <code>decodeEnterpriseObjectsFromFormValues</code> instead */
+    /** @deprecated use {@link #decodeEnterpriseObjectsFromFormValues(EOEditingContext, NSDictionary)} */
+    @Deprecated
     public static NSArray enterpriseObjectsFromFormValues(EOEditingContext ec, NSDictionary formValues) {
         return decodeEnterpriseObjectsFromFormValues(ec, formValues);
     }
     
     /**
      * Returns enterprise objects grouped by entity name. 
-     * The specific encoding is
-     * specified in the method: <code>encodeEnterpriseObjectsPrimaryKeyForUrl
+     * The specific encoding is specified in the method: <code>encodeEnterpriseObjectsPrimaryKeyForUrl</code>.
+     * 
      * @param ec    the editing context to fetch the objects from
      * @param formValues    dictionary where the values are an
      *		encoded representation of the primary key values in either
@@ -153,19 +147,19 @@ public class ERXEOEncodingUtilities {
     public static NSArray enterpriseObjectsForEntityNamedFromFormValues(EOEditingContext ec, String entityName, NSDictionary formValues) {
         NSArray formValueObjects = decodeEnterpriseObjectsFromFormValues(ec, formValues);
         NSDictionary groups = ERXArrayUtilities.arrayGroupedByKeyPath(formValueObjects, "entityName");
-	EOEntity entity = ERXEOAccessUtilities.entityNamed(ec, entityName);        
-	NSMutableArray entityGroup = new NSMutableArray();
+        EOEntity entity = ERXEOAccessUtilities.entityNamed(ec, entityName);
+        NSMutableArray entityGroup = new NSMutableArray();
         if (entity != null && entity.isAbstractEntity()) {
-            for (Enumeration e = ERXUtilities.allSubEntitiesForEntity(entity, false).objectEnumerator(); e.hasMoreElements();) {
+            for (Enumeration e = ERXEOAccessUtilities.allSubEntitiesForEntity(entity, false).objectEnumerator(); e.hasMoreElements();) {
                 EOEntity subEntity = (EOEntity)e.nextElement();
                 NSArray aGroup = (NSArray)groups.objectForKey(subEntity.name());
                 if (aGroup != null)
                     entityGroup.addObjectsFromArray(aGroup);
             }
         } else {
-            entityGroup.addObjectsFromArray((NSArray)groups.objectForKey(entityName));            
+            entityGroup.addObjectsFromArray((NSArray)groups.objectForKey(entityName));
         }
-        return entityGroup != null ? entityGroup : NSArray.EmptyArray;
+        return entityGroup;
     }
     
     /**
@@ -199,7 +193,7 @@ public class ERXEOEncodingUtilities {
     		synchronized(ERXEOEncodingUtilities.class) {
     			if(_encodedEntityNames == null) {
     				_encodedEntityNames = new NSMutableDictionary ();
-    				NSArray models = (NSArray)EOModelGroup.defaultGroup ().models ();
+    				NSArray models = EOModelGroup.defaultGroup().models();
     				for (Enumeration en = models.objectEnumerator ();
     				en.hasMoreElements ();) {
     					NSArray entities = ((EOModel)en.nextElement ()).entities ();
@@ -349,7 +343,7 @@ public class ERXEOEncodingUtilities {
 
             // Add the result to the list of encoded objects
             encoded.addObject(encodedEntityName + separator + (encrypt ? "E" : "") + c++ + "=" +
-                              (encrypt ? ERXCrypto.blowfishEncode(pk) : pk));
+                              (encrypt ? ERXCrypto.crypterForAlgorithm(ERXCrypto.BLOWFISH).encrypt(pk) : pk));
         }
 
         // Return the result as an url-encoded string
@@ -421,7 +415,7 @@ public class ERXEOEncodingUtilities {
             throw new NSForwardException(ex);
         }
         NSArray values = isEncrypted
-            ? NSArray.componentsSeparatedByString( ERXCrypto.blowfishDecode(value).trim(), AttributeValueSeparator )
+            ? NSArray.componentsSeparatedByString( ERXCrypto.crypterForAlgorithm(ERXCrypto.BLOWFISH).decrypt(value).trim(), AttributeValueSeparator )
             : NSArray.componentsSeparatedByString( value, AttributeValueSeparator );  
         int attrCount = pkAttributeNames.count();
         NSMutableDictionary result = new NSMutableDictionary( attrCount );

@@ -6,9 +6,9 @@
  * included with this distribution in the LICENSE.NPL file.  */
 package er.extensions.components;
 
-import java.util.StringTokenizer;
-
 import com.webobjects.appserver.WOContext;
+
+import er.extensions.foundation.ERXStringUtilities;
 
 /**
  * This stateless component is useful for displaying a
@@ -43,6 +43,12 @@ import com.webobjects.appserver.WOContext;
  *		prevent half-open tags
  */
 public class ERXFixedLengthString extends ERXStatelessComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     /**
      * flag to indicate if characters were trimmed from the end of
@@ -72,6 +78,7 @@ public class ERXFixedLengthString extends ERXStatelessComponent {
     /**
      * Resets cached instance variables.
      */
+    @Override
     public void reset() {
         super.reset();
         valueWasTrimmed = false;
@@ -124,36 +131,14 @@ public class ERXFixedLengthString extends ERXStatelessComponent {
      * Returns the value stripped from HTML tags if <b>escapeHTML</b> is false.
      * This makes sense because it is not terribly useful to have half-finished tags in your code.
      * Note that the "length" of the resulting string is not very exact.
-     * FIXME: we could remove extra whitespace and character entities here
-     * MOVEME: should go to ERXStringUtilities
+     * 
+     * @see er.extensions.foundation.ERXStringUtilities#strippedValue(String, int)
+     * 
      * @return value stripped from tags.
      */
-
     public String strippedValue() {
         String value=(String)valueForBinding("value");
-        if(value == null || value.length() < 1)
-            return null;
-        StringTokenizer tokenizer = new StringTokenizer(value, "<", false);
-        int token = value.charAt(0) == '<' ? 0 : 1;
-        String nextPart = null;
-        StringBuffer result = new StringBuffer();
-        int l=length();
-        int currentLength = result.length();
-        while (tokenizer.hasMoreTokens() && currentLength < l && currentLength < value.length()) {
-            if(token == 0)
-                nextPart = tokenizer.nextToken(">");
-            else {
-                nextPart = tokenizer.nextToken("<");
-                if(nextPart.length() > 0  && nextPart.charAt(0) == '>')
-                    nextPart = nextPart.substring(1);
-            }
-            if (nextPart != null && token != 0) {
-                result.append(nextPart);
-                currentLength += nextPart.length();
-            }
-            token = 1 - token;
-        }
-        return result.toString();
+        return ERXStringUtilities.strippedValue(value, length());
     }
     
     /**

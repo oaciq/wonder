@@ -30,8 +30,8 @@ import er.extensions.foundation.ERXStringUtilities;
  * (the google search term for "why does my app lock up").<br />
  * <br>
  * To use the Number constants, you need to add an entry <code>ERXConstantClassName=Test.Status</code> to the attribute's userInfo 
- * in question and your EO's class description needs to be a {@link er.extensions.eof.ERXEntityClassDescription}, also
- * you must enable the {@link er.extension.ERXJDBCAdaptor}.<br />
+ * in question and your EO's class description needs to be a {@link ERXEntityClassDescription}, also
+ * you must enable the {@link er.extensions.jdbc.ERXJDBCAdaptor}.<br />
  * <br>
  * The String and Byte based constants can be used with a custom class type:<pre><code>
  * 
@@ -217,6 +217,13 @@ public abstract class ERXConstant {
     
 	public static class NumberConstant extends Number implements Constant {
 		/**
+		 * Do I need to update serialVersionUID?
+		 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+		 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+		 */
+		private static final long serialVersionUID = 1L;
+
+		/**
 		 * Holds the value.
 		 */
 		private int _value;
@@ -253,6 +260,7 @@ public abstract class ERXConstant {
 		/**
 		 * Number interface implementation, returns the value.
 		 */
+		@Override
 		public final double doubleValue() {
 			return intValue();
 		}
@@ -260,6 +268,7 @@ public abstract class ERXConstant {
 		/**
 		 * Number interface implementation, returns the value.
 		 */
+		@Override
 		public final float floatValue() {
 			return intValue();
 		}
@@ -267,6 +276,7 @@ public abstract class ERXConstant {
 		/**
 		 * Number interface implementation, returns the value.
 		 */
+		@Override
 		public final int intValue() {
 			return _value;
 		}
@@ -274,6 +284,7 @@ public abstract class ERXConstant {
 		/**
 		 * Number interface implementation, returns the value.
 		 */
+		@Override
 		public final long longValue() {
 			return intValue();
 		}
@@ -281,6 +292,7 @@ public abstract class ERXConstant {
 		/**
 		 * Returns the value.
 		 */
+		@Override
 		public final int hashCode() {
 			return _value;
 		}
@@ -294,17 +306,19 @@ public abstract class ERXConstant {
 			return name() + " (" + intValue() +  ")";
 		}
 		
+		@Override
 		public String toString() {
 			return getClass().getName() + ": " + userPresentableDescription();
 		}
 
-		public Object value() {
+		public Number value() {
 			return integerForInt(intValue());
 		}
 		
 		/**
 		 * Overridden to compare by value.
 		 */
+		@Override
 		public final boolean equals(Object otherObject) {
 			if(otherObject == null) {
 				return false;
@@ -366,7 +380,7 @@ public abstract class ERXConstant {
 			return _sortOrder;
 		}
 		
-		public Object value() {
+		public String value() {
 			return _value;
 		}
 		
@@ -374,6 +388,7 @@ public abstract class ERXConstant {
 			return name() + " (" + value() +  ")";
 		}
 		
+		@Override
 		public String toString() {
 			return getClass().getName() + ": " + userPresentableDescription();
 		}
@@ -404,6 +419,10 @@ public abstract class ERXConstant {
 			this((NSData)NSPropertyListSerialization.propertyListFromString(value.toString()),name);
 		}
 		
+		public ByteConstant(byte value[], String name) {
+			this(new NSData(value),name);
+		}
+		
 		public ByteConstant(NSData value, String name) {
 			_value = value;
 			_name = name;
@@ -419,7 +438,7 @@ public abstract class ERXConstant {
 			return _sortOrder;
 		}
 		
-		public Object value() {
+		public NSData value() {
 			return _value;
 		}
 		
@@ -427,6 +446,7 @@ public abstract class ERXConstant {
 			return name();
 		}
 		
+		@Override
 		public String toString() {
 			return getClass().getName() + ": " + userPresentableDescription();
 		}

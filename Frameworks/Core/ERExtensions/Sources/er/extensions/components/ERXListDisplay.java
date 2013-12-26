@@ -30,6 +30,12 @@ import er.extensions.localization.ERXLocalizer;
  */
 
 public class ERXListDisplay extends WOComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     public ERXListDisplay(WOContext aContext) {
         super(aContext);
@@ -39,8 +45,8 @@ public class ERXListDisplay extends WOComponent {
     protected NSArray list;
     protected String finalSeparator;
     protected String separator;
-    
-    public boolean synchronizesVariablesWithBindings() { return false; }
+
+    @Override
     public boolean isStateless() { return true; }
 
     public boolean escapeHTML() {
@@ -102,7 +108,8 @@ public class ERXListDisplay extends WOComponent {
         }
         return separator;
     }
-    
+
+    @Override
     public void reset() {
         super.reset();
         list = null;

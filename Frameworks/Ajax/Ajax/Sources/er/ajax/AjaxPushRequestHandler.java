@@ -67,6 +67,7 @@ public class AjaxPushRequestHandler extends WORequestHandler {
 	 * 
 	 * @param request the request
 	 */
+	@Override
 	public WOResponse handleRequest(WORequest request) {
 		String sessionID = request.sessionID();
 		String name = request.requestHandlerPath();
@@ -147,7 +148,7 @@ public class AjaxPushRequestHandler extends WORequestHandler {
 	public static void push(String sessionID, String name, String message) {
 		ERXKeepAliveResponse response = responseForSessionIDNamed(sessionID, name);
 		if (response != null) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append(message.length());
 			sb.append(':');
 			response.push(sb.toString());
@@ -166,7 +167,7 @@ public class AjaxPushRequestHandler extends WORequestHandler {
 	public static void push(String sessionID, String name, NSData message) {
 		ERXKeepAliveResponse response = responseForSessionIDNamed(sessionID, name);
 		if (response != null) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append(message.length());
 			sb.append(':');
 			response.push(sb.toString());
