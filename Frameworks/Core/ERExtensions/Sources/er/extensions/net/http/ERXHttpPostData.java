@@ -133,5 +133,6 @@ public class ERXHttpPostData extends ERXHttpDataObjectBase{
     // shut down the connection manager to ensure
     // immediate deallocation of all system resources
     httpclient.getConnectionManager().shutdown();
+    httpclient.close();
   }
 }
