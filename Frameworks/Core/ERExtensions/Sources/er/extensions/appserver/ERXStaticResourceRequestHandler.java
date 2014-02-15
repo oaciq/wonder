@@ -6,15 +6,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 
+import org.apache.commons.lang.CharEncoding;
 import org.apache.log4j.Logger;
 
 import com.webobjects.appserver.WOApplication;
+import com.webobjects.appserver.WODynamicURL;
 import com.webobjects.appserver.WORequest;
 import com.webobjects.appserver.WORequestHandler;
 import com.webobjects.appserver.WOResourceManager;
 import com.webobjects.appserver.WOResponse;
 import com.webobjects.appserver._private.WODeployedBundle;
-import com.webobjects.appserver._private.WODynamicURL;
 import com.webobjects.foundation.NSBundle;
 import com.webobjects.foundation.NSDictionary;
 import com.webobjects.foundation.NSNotificationCenter;
@@ -65,7 +66,7 @@ public class ERXStaticResourceRequestHandler extends WORequestHandler {
 		_useRequestHandlerPath = true;
 	}
 
-	protected WOResponse _generateResponseForInputStream(InputStream is, int length, String type) {
+	protected WOResponse _generateResponseForInputStream(InputStream is, long length, String type) {
 		WOResponse response = application.createResponseInContext(null);
 		if (is != null) {
 			if (length != 0) {
@@ -95,17 +96,18 @@ public class ERXStaticResourceRequestHandler extends WORequestHandler {
 		return _documentRoot;
 	}
 
+	@Override
 	public WOResponse handleRequest(WORequest request) {
 		WOResponse response = null;
 		FileInputStream is = null;
-		int length = 0;
+		long length = 0;
 		String contentType = null;
 		String uri = request.uri();
 		if (uri.charAt(0) == '/') {
 			WOResourceManager rm = application.resourceManager();
 			String documentRoot = documentRoot();
 			File file = null;
-			StringBuffer sb = new StringBuffer(documentRoot.length() + uri.length());
+			StringBuilder sb = new StringBuilder(documentRoot.length() + uri.length());
 			String wodataKey = request.stringFormValueForKey("wodata");
 			if(uri.startsWith("/cgi-bin") && wodataKey != null) {
 				uri = wodataKey;
@@ -132,7 +134,7 @@ public class ERXStaticResourceRequestHandler extends WORequestHandler {
 						if (requestHandlerPath == null || requestHandlerPath.length() == 0) {
 							sb.append(uri);
 						} else {
-							sb.append("/");
+							sb.append('/');
 							sb.append(requestHandlerPath);
 						}
 					}
@@ -150,10 +152,10 @@ public class ERXStaticResourceRequestHandler extends WORequestHandler {
 				if (request.userInfo() != null && !request.userInfo().containsKey("HttpServletRequest")) {
 					/* PATH_INFO is already decoded by the servlet container */
 					path = path.replace('+', ' ');
-					path = URLDecoder.decode(path, "UTF-8");
+					path = URLDecoder.decode(path, CharEncoding.UTF_8);
 				}
 				file = new File(path);
-				length = (int) file.length();
+				length = file.length();
 				is = new FileInputStream(file);
 				
 				contentType = rm.contentTypeForResourceNamed(path);

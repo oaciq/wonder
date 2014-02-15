@@ -33,14 +33,23 @@ import er.extensions.eof.ERXEOControlUtilities;
  * @d2wKey displayNameForLinkToViewList
  */
 public class ERDLinkToViewList extends ERDCustomEditComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     public ERDLinkToViewList(WOContext context) { super(context); }
     
     public static final Logger log = Logger.getLogger(ERDLinkToViewList.class);
 
+    @Override
     public boolean isStateless() { return true; }
+    @Override
     public boolean synchronizesVariablesWithBindings() { return false; }
 
+    @Override
     public void reset() {
         super.reset();
         _list = null;

@@ -13,16 +13,21 @@ import com.webobjects.eocontrol.EOKeyValueUnarchiver;
 import com.webobjects.foundation.NSArray;
 
 import er.directtoweb.assignments.ERDAssignment;
-import er.directtoweb.assignments.ERDComputingAssignmentInterface;
 import er.directtoweb.assignments.ERDLocalizableAssignmentInterface;
 import er.extensions.foundation.ERXStringUtilities;
 
 /**
  * Beautify the propertyKey name in a better way.<br />
- * @deprecated use ERDDefaultDisplayNameAssignment
+ * @deprecated use {@link er.directtoweb.assignments.defaults.ERDDefaultDisplayNameAssignment}
  */
-
+@Deprecated
 public class ERDDefaultPropertyNameAssignment extends ERDAssignment implements ERDLocalizableAssignmentInterface {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     /** logging support */
     static final Logger log = Logger.getLogger(ERDDefaultPropertyNameAssignment.class);
@@ -58,7 +63,7 @@ public class ERDDefaultPropertyNameAssignment extends ERDAssignment implements E
     public ERDDefaultPropertyNameAssignment (String key, Object value) { super(key,value); }
 
     /**
-     * Implementation of the {@link ERDComputingAssignmentInterface}. This
+     * Implementation of the {@link er.directtoweb.assignments.ERDComputingAssignmentInterface}. This
      * assignment depends upon the context key: "propertyKey". This array 
      * of keys is used when constructing the 
      * significant keys for the passed in keyPath.

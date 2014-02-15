@@ -6,8 +6,10 @@
  * included with this distribution in the LICENSE.NPL file.  */
 package er.extensions.validation;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.log4j.Logger;
 
+import com.webobjects.appserver.WOMessage;
 import com.webobjects.eoaccess.EOAttribute;
 import com.webobjects.eoaccess.EOEntity;
 import com.webobjects.eoaccess.EOUtilities;
@@ -15,8 +17,8 @@ import com.webobjects.eocontrol.EOEnterpriseObject;
 import com.webobjects.foundation.NSArray;
 import com.webobjects.foundation.NSKeyValueCoding;
 import com.webobjects.foundation.NSValidation;
+import com.webobjects.foundation.NSValidation.ValidationException;
 
-import er.extensions.ERXExtensions;
 import er.extensions.localization.ERXLocalizer;
 
 /**
@@ -26,6 +28,12 @@ import er.extensions.localization.ERXLocalizer;
  * information about resolving templates in the {@link ERXValidationFactory ERXValidationFactory}.
  */
 public class ERXValidationException extends NSValidation.ValidationException implements NSKeyValueCoding {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     /** logging support */
     public static final Logger log = Logger.getLogger(ERXValidationException.class);
@@ -69,7 +77,7 @@ public class ERXValidationException extends NSValidation.ValidationException imp
      * for creating custom validation exceptions the 
      * {@link ERXValidationFactory} should be used.
      *
-     * @param type of the exception, should be one of the constaints
+     * @param type of the exception, should be one of the constraints
      *		defined in this class.
      * @param object that is throwing the exception
      * @param key property key that failed validation
@@ -84,7 +92,7 @@ public class ERXValidationException extends NSValidation.ValidationException imp
      * for creating custom validation exceptions the
      * {@link ERXValidationFactory} should be used.
      *
-     * @param type of the exception, should be one of the constaints
+     * @param type of the exception, should be one of the constraints
      *		defined in this class.
      * @param object that is throwing the exception
      * @param key property key that failed validation
@@ -115,7 +123,7 @@ public class ERXValidationException extends NSValidation.ValidationException imp
     protected String targetLanguage;
     
     /** caches any set additionalExceptions */
-    protected NSArray additionalExceptions;
+    protected NSArray<ValidationException> additionalExceptions;
     
     /** holds a reference to the context of the exception */
     protected volatile NSKeyValueCoding _context;
@@ -134,9 +142,6 @@ public class ERXValidationException extends NSValidation.ValidationException imp
         return message;
     }
 
-    /**
-     * 
-     */
     protected String _getMessage() {
         if(message == null) {
             return type;
@@ -177,7 +182,7 @@ public class ERXValidationException extends NSValidation.ValidationException imp
     }
 
     /**
-     * Convience method to determine if this exception
+     * Convenience method to determine if this exception
      * was a custom thrown exception instead of a model
      * thrown exception. A custom exception would be
      * an exception that you throw in your validateFoo
@@ -209,8 +214,8 @@ public class ERXValidationException extends NSValidation.ValidationException imp
 
 
     /**
-     * Overrides super implementation to allow for setable object value.
-     * @return object object for this exception.
+     * Overrides super implementation to allow for settable object value.
+     * @return object for this exception.
      */
     @Override
 	public Object object() {
@@ -229,7 +234,7 @@ public class ERXValidationException extends NSValidation.ValidationException imp
     /**
      * Cover method for getting the attribute corresponding
      * to the <b>propertyKey</b> and <b>entity</b> off of
-     * the objet.
+     * the object.
      * @return EOAttribute corresponding to the propertyKey
      *		and entity.
      */
@@ -266,6 +271,19 @@ public class ERXValidationException extends NSValidation.ValidationException imp
      * @return failed validation value.
      */
     public Object value() { return value; }
+    
+    /**
+     * Provides an escaped value to use in validation template string.
+     * @return escaped value
+     * @see #value()
+     * @see WOMessage#stringByEscapingHTMLString(String)
+     */
+    public String escapedValue() {
+    	if(value() != null) {
+    		return WOMessage.stringByEscapingHTMLString(value().toString());
+    	}
+    	return null;
+    }
 
     /**
      * Sets the value that failed validation.
@@ -291,7 +309,7 @@ public class ERXValidationException extends NSValidation.ValidationException imp
      * Sets the target language to use when rendering the validation
      * message. Only set a target language if you want to override
      * the current language of the thread.
-     * @param aValue name fo the language to render the validation
+     * @param aValue name of the language to render the validation
      *		exception in.
      */
     public void setTargetLanguage(String aValue) {  targetLanguage = aValue; }
@@ -306,7 +324,7 @@ public class ERXValidationException extends NSValidation.ValidationException imp
 
     /**
      * Sets the delegate for the current validation exception.
-     * The delegate can intervine to provide a different template
+     * The delegate can intervene to provide a different template
      * for the validation exception or resolve the template in a
      * different manner.
      * @param obj delegate to be used for this validation exception.
@@ -344,11 +362,10 @@ public class ERXValidationException extends NSValidation.ValidationException imp
     public void setContext(NSKeyValueCoding context) { _context = context; }
 
     /**
-     * Sets the array of additional exceptions that has
-     * occurried.
+     * Sets the array of additional exceptions.
      * @param exceptions array of additional exceptions
      */
-    public void setAdditionalExceptions(NSArray exceptions) {
+    public void setAdditionalExceptions(NSArray<ValidationException> exceptions) {
         additionalExceptions = exceptions;
     }
 
@@ -360,7 +377,7 @@ public class ERXValidationException extends NSValidation.ValidationException imp
      * @return array of additional exceptions
      */
     @Override
-	public NSArray additionalExceptions() {
+	public NSArray<ValidationException> additionalExceptions() {
         if (additionalExceptions == null) {
             additionalExceptions = super.additionalExceptions();
             if (additionalExceptions == null)
@@ -408,6 +425,7 @@ public class ERXValidationException extends NSValidation.ValidationException imp
         return ERXValidation.localizedDisplayNameForKey(eoObject() != null ? eoObject().classDescription() : null, key, localizer);
     }
 
+    @Override
     public int hashCode() {
     	return (type() == null ? 1 : type().hashCode()) * (key() == null ? 1 : key().hashCode()) * (object() == null ? 1 : object().hashCode()) * (value() == null ? 1 : value().hashCode()) * (additionalExceptions() == null ? 1 : additionalExceptions().hashCode()); 
     }
@@ -417,16 +435,15 @@ public class ERXValidationException extends NSValidation.ValidationException imp
      * @return description of the validation exception
      */
     @Override
-	public boolean equals(Object anotherObject) {
+    public boolean equals(Object anotherObject) {
         if(anotherObject != null && anotherObject instanceof ERXValidationException) {
             ERXValidationException ex = (ERXValidationException)anotherObject;
-            return ERXExtensions.safeEquals(type(), ex.type()) && ERXExtensions.safeEquals(key(), ex.key()) && ERXExtensions.safeEquals(object(), ex.object())
-                && ERXExtensions.safeEquals(value(), ex.value()) && ERXExtensions.safeEquals(additionalExceptions(), ex.additionalExceptions());
+            return ObjectUtils.equals(type(), ex.type()) && ObjectUtils.equals(key(), ex.key()) && ObjectUtils.equals(object(), ex.object())
+                && ObjectUtils.equals(value(), ex.value()) && ObjectUtils.equals(additionalExceptions(), ex.additionalExceptions());
         }
         return super.equals(anotherObject);
     }
-    
-    
+
     /**
      * Returns the formatted description of the validation exception
      * without calling <code>getMessage</code>.
@@ -438,7 +455,7 @@ public class ERXValidationException extends NSValidation.ValidationException imp
             return "<" + getClass().getName() + " object: " + object() + "; propertyKey: " + propertyKey() + "; type: " + type() + "; additionalExceptions: " + additionalExceptions() + ">";
         }
         catch (Throwable t) {
-            return "<" + getClass().getName() + " object of type " + ((this.object() == null) ? "null" : this.object().getClass().getSimpleName()) + "; propertyKey: " + propertyKey() + "; type: " + type() + "; additionalExceptions: " + additionalExceptions() + ">";
+            return "<" + getClass().getName() + " object of type " + ((object() == null) ? "null" : object().getClass().getSimpleName()) + "; propertyKey: " + propertyKey() + "; type: " + type() + "; additionalExceptions: " + additionalExceptions() + ">";
         }
     }
 }

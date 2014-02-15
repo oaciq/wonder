@@ -22,7 +22,6 @@ import com.webobjects.foundation.NSSet;
 
 import er.extensions.foundation.ERXArrayUtilities;
 
-// ported from WebScript - Corrected nil context problem.
 /**
  * Works around a webscript bug.<br />
  * 
@@ -47,14 +46,20 @@ import er.extensions.foundation.ERXArrayUtilities;
  * @binding itemID optional ID for each checkbox element
  * @binding disabled
  */
-
 public class ERXCheckboxMatrix extends ERXNonSynchronizingComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
+
     /** logging support */
     public final static Logger log = Logger.getLogger(ERXCheckboxMatrix.class);
 
     
-    private static final Integer DEFAULT_PADDING = new Integer(0);
-    private static final Integer DEFAULT_SPACING = new Integer(0);
+    private static final Integer DEFAULT_PADDING = Integer.valueOf(0);
+    private static final Integer DEFAULT_SPACING = Integer.valueOf(0);
 
     public ERXCheckboxMatrix(WOContext aContext) {
         super(aContext);
@@ -65,8 +70,10 @@ public class ERXCheckboxMatrix extends ERXNonSynchronizingComponent {
     public int index;
     public String wrapperElementID;
 
+    @Override
     public boolean isStateless() { return true; }
 
+    @Override
     public void reset() {
         invalidateCaches();
     }
@@ -113,6 +120,7 @@ public class ERXCheckboxMatrix extends ERXNonSynchronizingComponent {
         setSelections(new NSArray(v, r, true));
     }
 
+    @Override
     public void takeValueForKey(Object value, String key)
     {
         try {
@@ -185,10 +193,12 @@ public class ERXCheckboxMatrix extends ERXNonSynchronizingComponent {
         wrapperElementID=null;
     }
 
+    @Override
     public void sleep() {
         invalidateCaches();
     }
 
+    @Override
     public void appendToResponse(WOResponse aResponse, WOContext aContext) {
         // ** By setting these to nil, we allow the dictionary to change after the action and before the next cycle of this component (if the component is 	on a page which is recycled)
         invalidateCaches();

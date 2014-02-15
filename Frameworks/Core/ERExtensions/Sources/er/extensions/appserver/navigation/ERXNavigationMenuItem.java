@@ -6,6 +6,7 @@
 //
 package er.extensions.appserver.navigation;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.webobjects.appserver.WOComponent;
@@ -25,6 +26,12 @@ import er.extensions.localization.ERXLocalizer;
 /** Please read "Documentation/Navigation.html" to fnd out how to use the navigation components.*/
 
 public class ERXNavigationMenuItem extends ERXStatelessComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     /** logging support */
     public static final Logger log = Logger.getLogger(ERXNavigationMenuItem.class);
@@ -60,6 +67,7 @@ public class ERXNavigationMenuItem extends ERXStatelessComponent {
     	return null;
     }
     
+    @Override
     public void reset() {
         _navigationItem = null;
         _navigationState = null;
@@ -108,9 +116,8 @@ public class ERXNavigationMenuItem extends ERXStatelessComponent {
         		NSMutableDictionary bindings = navigationItem().queryBindings().mutableClone();
         		bindings.setObjectForKey(context().contextID(), "__cid");
         		return context().directActionURLForActionNamed(navigationItem().directActionName(), bindings);
-        	} else {
-        		return context().componentActionURL();
-            }
+        	}
+        	return context().componentActionURL();
         }
 
         // If the user specified some javascript, put that into the HREF and return it
@@ -118,7 +125,7 @@ public class ERXNavigationMenuItem extends ERXStatelessComponent {
 
             // Make sure there are no extra quotations marks - replace them with apostrophes
             String theFunction = (String)valueForBinding("javascriptFunction");
-            return ERXStringUtilities.replaceStringByStringInString("\"", "'", theFunction);
+            return StringUtils.replace(theFunction, "\"", "'");
         }
 
         return null;
@@ -127,11 +134,11 @@ public class ERXNavigationMenuItem extends ERXStatelessComponent {
     public WOComponent menuItemSelected() {
         WOComponent anActionResult = null;
 
-        if ((navigationItem().action() != null) && (navigationItem().action() != "")) {
+        if (!ERXStringUtilities.stringIsNullOrEmpty(navigationItem().action())) {
             anActionResult = (WOComponent)valueForKeyPath(navigationItem().action());
-        } else if ((navigationItem().pageName() != null) && (navigationItem().pageName() != "")) {
-            anActionResult = (WOComponent)(pageWithName(navigationItem().pageName()));
-        } else if ((navigationItem().directActionName() != null) && (navigationItem().directActionName() != "")) {
+        } else if (!ERXStringUtilities.stringIsNullOrEmpty(navigationItem().pageName())) {
+            anActionResult = pageWithName(navigationItem().pageName());
+        } else if (!ERXStringUtilities.stringIsNullOrEmpty(navigationItem().directActionName())) {
             // FIXME: Need to support directAction classes
             if(_linkDirectlyToDirectActions) {
                 ERXDirectAction da = new ERXDirectAction(context().request());
@@ -250,7 +257,7 @@ public class ERXNavigationMenuItem extends ERXStatelessComponent {
 
 	public boolean omitLabelSpanTag() {
 		if (_omitLabelSpanTag == null) {
-			_omitLabelSpanTag = new Boolean(!ERXProperties.booleanForKeyWithDefault("er.extensions.ERXNavigationManager.includeLabelSpanTag", false));
+			_omitLabelSpanTag = Boolean.valueOf(!ERXProperties.booleanForKeyWithDefault("er.extensions.ERXNavigationManager.includeLabelSpanTag", false));
 		}
 		return _omitLabelSpanTag;
 	}

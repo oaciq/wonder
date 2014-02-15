@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.amazon.s3.AWSAuthConnection;
 import com.amazon.s3.Response;
 import com.silvasoftinc.s3.S3StreamObject;
@@ -107,8 +109,6 @@ public class ERS3AttachmentProcessor extends
 
 			attachment._setPendingUploadFile(uploadedFile, pendingDelete);
 
-			// performUpload(uploadedFile, bucket, key, attachment.mimeType(),
-			// configurationName);
 		} catch (RuntimeException e) {
 			attachment.delete();
 			if (pendingDelete) {
@@ -150,6 +150,10 @@ public class ERS3AttachmentProcessor extends
 						e);
 			}
 
+		} else if(request.isSecure()) {
+			// The attachment is not proxied. So, the URL must be fixed if the request is secure.
+			attachmentUrl = StringUtils.replaceOnce(attachmentUrl, "http://", "https://");
+			attachmentUrl = StringUtils.replaceOnce(attachmentUrl, ":80/", "/");
 		}
 
 		return attachmentUrl;
@@ -294,8 +298,7 @@ public class ERS3AttachmentProcessor extends
 				}
 
 				try {
-					ERS3AttachmentProcessor.this
-							.performUpload(uploadedFile, originalFileName,
+					performUpload(uploadedFile, originalFileName,
 									bucket, key, mimeType, attachment);
 
 					_editingContext.lock();
@@ -305,15 +308,15 @@ public class ERS3AttachmentProcessor extends
 					} finally {
 						_editingContext.unlock();
 					}
-					if (ERS3AttachmentProcessor.this.delegate() != null) {
-						ERS3AttachmentProcessor.this.delegate()
+					if (delegate() != null) {
+						delegate()
 								.attachmentAvailable(
 										ERS3AttachmentProcessor.this,
 										attachment);
 					}
 				} catch (Throwable t) {
-					if (ERS3AttachmentProcessor.this.delegate() != null) {
-						ERS3AttachmentProcessor.this.delegate()
+					if (delegate() != null) {
+						delegate()
 								.attachmentNotAvailable(
 										ERS3AttachmentProcessor.this,
 										attachment,
@@ -327,8 +330,8 @@ public class ERS3AttachmentProcessor extends
 					}
 				}
 			} else {
-				if (ERS3AttachmentProcessor.this.delegate() != null) {
-					ERS3AttachmentProcessor.this.delegate()
+				if (delegate() != null) {
+					delegate()
 							.attachmentNotAvailable(
 									ERS3AttachmentProcessor.this,
 									attachment,

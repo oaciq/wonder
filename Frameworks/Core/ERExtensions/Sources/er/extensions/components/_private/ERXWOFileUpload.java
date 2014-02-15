@@ -1,4 +1,5 @@
 package er.extensions.components._private;
+
 import org.apache.log4j.Logger;
 
 import com.webobjects.appserver.WOContext;
@@ -6,9 +7,9 @@ import com.webobjects.appserver.WOElement;
 import com.webobjects.appserver.WORequest;
 import com.webobjects.appserver.WOResponse;
 import com.webobjects.appserver._private.WODynamicElementCreationException;
+import com.webobjects.appserver._private.WOFileUpload;
 import com.webobjects.foundation.NSDictionary;
 
-import er.extensions.appserver.ERXBrowser;
 import er.extensions.appserver.ERXBrowserFactory;
 import er.extensions.appserver.ERXSession;
 import er.extensions.appserver.ERXWOContext;
@@ -16,13 +17,15 @@ import er.extensions.appserver.ERXWOContext;
 /**
  * Enhanced WOFileUpload.
  * <ul>
- *  <li> throws an IllegalArgumentException when it is embedded in a WOForm that does not have enctype=multipart/form-data
- *  <li> catches "ran out of data" IllegalStateException in superclass when the user backtracked.
+ *  <li>throws an IllegalArgumentException when it is embedded in a WOForm that does not have enctype=multipart/form-data
+ *  <li>catches "ran out of data" IllegalStateException in superclass when the user backtracked.
  *</ul>
+ *
  * @author ak on Wed Oct 09 2002
- * @project ERExtensions
+ * @deprecated use {@link WOFileUpload} as parent class
  */
-
+// CHECKME is that class obsolete as the cause of its presence was a bug fixed in WO 5.2 or should some logic be maintained?
+@Deprecated
 public class ERXWOFileUpload extends com.webobjects.appserver._private.WOFileUpload {
 
     /** logging support */
@@ -56,9 +59,8 @@ public class ERXWOFileUpload extends com.webobjects.appserver._private.WOFileUpl
     		boolean doThrow = !wocontext.hasSession() || !(wocontext.session() instanceof ERXSession) || !((ERXSession)wocontext.session()).didBacktrack();
     		if(doThrow) {
     			throw ex;
-    		} else {
-    			log.info("Ignoring a problem when reading the form values as the user backtracked: " + ex);
     		}
+    		log.info("Ignoring a problem when reading the form values as the user backtracked: " + ex);
     	}
     }
     

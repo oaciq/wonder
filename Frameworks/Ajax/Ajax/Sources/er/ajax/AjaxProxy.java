@@ -16,6 +16,7 @@ import com.webobjects.foundation.NSMutableDictionary;
 
 import er.ajax.json.JSONBridge;
 import er.extensions.appserver.ERXResponseRewriter;
+import er.extensions.appserver.ERXWOContext;
 
 /**
  * Handles javascript-java communication (client-server) between the javascript world running in a web browser and the
@@ -87,6 +88,13 @@ import er.extensions.appserver.ERXResponseRewriter;
  *          Tous droits réservés.
  */
 public class AjaxProxy extends AjaxComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger log = Logger.getLogger(AjaxProxy.class);
 
 	public AjaxProxy(WOContext context) {
@@ -96,27 +104,22 @@ public class AjaxProxy extends AjaxComponent {
 	/**
 	 * Overridden because the component is stateless
 	 */
+	@Override
 	public boolean isStateless() {
 		return true;
 	}
 
 	/**
-	 * Overridden because the component does not synch with the bindings.
-	 */
-	public boolean synchronizesVariablesWithBindings() {
-		return false;
-	}
-
-	/**
 	 * Adds the jsonrpc.js script to the head in the response if not already present and also adds a javascript proxy
-	 * for the supplied bridge under the name "JSONRPC_<variableName>".
+	 * for the supplied bridge under the name "JSONRPC_&lt;variableName&gt;".
 	 * 
-	 * @param res
+	 * @param res the response to write into
 	 */
+	@Override
 	protected void addRequiredWebResources(WOResponse res) {
 		addScriptResourceInHead(res, "jsonrpc.js");
 
-		NSMutableDictionary userInfo = AjaxUtils.mutableUserInfo(context().response());
+		NSMutableDictionary userInfo = ERXWOContext.contextDictionary();
 		String name = (String) valueForBinding("name");
 		String key = "JSONRPC_" + name;
 		Object oldValue = userInfo.objectForKey(key);
@@ -151,6 +154,7 @@ public class AjaxProxy extends AjaxComponent {
 	}
 
 	/** Ask the an JSONRPCBridge object to handle the json request. */
+	@Override
 	public WOActionResults handleRequest(WORequest request, WOContext context) {
 		WOResponse response = AjaxUtils.createResponse(request, context);
 

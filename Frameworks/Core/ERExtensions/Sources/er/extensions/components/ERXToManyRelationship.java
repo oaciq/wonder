@@ -41,6 +41,12 @@ import er.extensions.woextensions.WOToManyRelationship;
  */
 
 public class ERXToManyRelationship extends WOToManyRelationship {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     /** logging support */
     public static final Logger log = Logger.getLogger(ERXToManyRelationship.class);
@@ -51,6 +57,7 @@ public class ERXToManyRelationship extends WOToManyRelationship {
         super(context);
     }
     
+    @Override
     public NSArray selections() {
         if (_selections == null && canGetValueForBinding("selectedObjects")) {
             NSArray selectedObjects = (NSArray)valueForBinding("selectedObjects");
@@ -60,6 +67,7 @@ public class ERXToManyRelationship extends WOToManyRelationship {
         return super.selections();
     }
 
+    @Override
     public EODataSource dataSource() {
         if (_dataSource==null) {
             _dataSource = super.dataSource();
@@ -72,6 +80,7 @@ public class ERXToManyRelationship extends WOToManyRelationship {
         return _dataSource;
     }
 
+    @Override
     public boolean isBrowser() {
         return !(isCheckBox() || isJSEditor()); // Browser is the default.
     }

@@ -1,9 +1,9 @@
 /*
-© Copyright 2006- 2007 Apple Computer, Inc. All rights reserved.
+Â© Copyright 2006- 2007 Apple Computer, Inc. All rights reserved.
 
-IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc. (ÒAppleÓ) in consideration of your agreement to the following terms, and your use, installation, modification or redistribution of this Apple software constitutes acceptance of these terms.  If you do not agree with these terms, please do not use, install, modify or redistribute this Apple software.
+IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc. ("Apple") in consideration of your agreement to the following terms, and your use, installation, modification or redistribution of this Apple software constitutes acceptance of these terms.  If you do not agree with these terms, please do not use, install, modify or redistribute this Apple software.
 
-In consideration of your agreement to abide by the following terms, and subject to these terms, Apple grants you a personal, non-exclusive license, under AppleÕs copyrights in this original Apple software (the ÒApple SoftwareÓ), to use, reproduce, modify and redistribute the Apple Software, with or without modifications, in source and/or binary forms; provided that if you redistribute the Apple Software in its entirety and without modifications, you must retain this notice and the following text and disclaimers in all such redistributions of the Apple Software.  Neither the name, trademarks, service marks or logos of Apple Computer, Inc. may be used to endorse or promote products derived from the Apple Software without specific prior written permission from Apple.  Except as expressly stated in this notice, no other rights or licenses, express or implied, are granted by Apple herein, including but not limited to any patent rights that may be infringed by your derivative works or by other works in which the Apple Software may be incorporated.
+In consideration of your agreement to abide by the following terms, and subject to these terms, Apple grants you a personal, non-exclusive license, under Apple's copyrights in this original Apple software (the "Apple Software"), to use, reproduce, modify and redistribute the Apple Software, with or without modifications, in source and/or binary forms; provided that if you redistribute the Apple Software in its entirety and without modifications, you must retain this notice and the following text and disclaimers in all such redistributions of the Apple Software.  Neither the name, trademarks, service marks or logos of Apple Computer, Inc. may be used to endorse or promote products derived from the Apple Software without specific prior written permission from Apple.  Except as expressly stated in this notice, no other rights or licenses, express or implied, are granted by Apple herein, including but not limited to any patent rights that may be infringed by your derivative works or by other works in which the Apple Software may be incorporated.
 
 The Apple Software is provided by Apple on an "AS IS" basis.  APPLE MAKES NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION THE IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, REGARDING THE APPLE SOFTWARE OR ITS USE AND OPERATION ALONE OR IN COMBINATION WITH YOUR PRODUCTS. 
 
@@ -18,7 +18,7 @@ import com.webobjects.foundation.NSLog;
 import com.webobjects.foundation.NSTimestamp;
 import com.webobjects.foundation.NSTimestampFormatter;
 
-public class StatsUtilities extends Object  {
+public class StatsUtilities {
     public static NSTimestampFormatter dateFormatter = new NSTimestampFormatter("%Y:%m:%d:%H:%M:%S %Z");
 
     static public Integer totalTransactionsForApplication(MApplication anApp) {
@@ -34,13 +34,13 @@ public class StatsUtilities extends Object  {
             if (aStatsDict != null) {
                 try {
                     String aValue = (String) aStatsDict.valueForKey("transactions");
-                    aTotalTrans = aTotalTrans + (new Integer(aValue)).intValue();
+                    aTotalTrans = aTotalTrans + Integer.parseInt(aValue);
                 } catch (Throwable ex) {
                     // do nothing
                 }
             }
         }
-        return new Integer(aTotalTrans);
+        return Integer.valueOf(aTotalTrans);
     }
 
 
@@ -57,13 +57,13 @@ public class StatsUtilities extends Object  {
             if (aStatsDict != null) {
                 try {
                     String aValue = (String) aStatsDict.valueForKey("activeSessions");
-                    aTotalActiveSessions = aTotalActiveSessions + (new Integer(aValue)).intValue();
+                    aTotalActiveSessions = aTotalActiveSessions + Integer.parseInt(aValue);
                 } catch (Throwable ex) {
                     // do nothing
                 }
             }
         }
-        return new Integer(aTotalActiveSessions);
+        return Integer.valueOf(aTotalActiveSessions);
     }
 
 
@@ -82,11 +82,11 @@ public class StatsUtilities extends Object  {
             if (aStatsDict != null) {
                 try {
                     String aValue = (String)aStatsDict.valueForKey("transactions");
-                    Integer aTrans = new Integer(aValue);
+                    Integer aTrans = Integer.valueOf(aValue);
 
                     if (aTrans.intValue() > 0) {
                         aValue = (String)aStatsDict.valueForKey("avgTransactionTime");
-                        Float aTime = new Float(aValue);
+                        Float aTime = Float.valueOf(aValue);
                         aTotalTime = aTotalTime + (aTrans.intValue() * aTime.floatValue());
                         aTotalTrans = aTotalTrans + (aTrans.intValue());
                     }
@@ -100,7 +100,7 @@ public class StatsUtilities extends Object  {
             aTotalAvg = aTotalTime / aTotalTrans;
         }
 
-        return new Float(aTotalAvg);
+        return Float.valueOf(aTotalAvg);
     }
 
 
@@ -119,11 +119,11 @@ public class StatsUtilities extends Object  {
             if (aStatsDict != null) {
                 try {
                     String aValue = (String)aStatsDict.valueForKey("transactions");
-                    Integer aTrans = new Integer(aValue);
+                    Integer aTrans = Integer.valueOf(aValue);
 
                      if (aTrans.intValue() > 0) {
                          String idleString = (String)aStatsDict.valueForKey("averageIdlePeriod");
-                         Float aTime = new Float(idleString);
+                         Float aTime = Float.valueOf(idleString);
                          aTotalTime = aTotalTime + (aTrans.intValue() * aTime.floatValue());
                          aTotalTrans = aTotalTrans + (aTrans.intValue());
                      }
@@ -137,7 +137,7 @@ public class StatsUtilities extends Object  {
             aTotalAvg = aTotalTime / aTotalTrans;
         }
 
-        return new Float(aTotalAvg);
+        return Float.valueOf(aTotalAvg);
     }
 
     static public Float actualTransactionsPerSecondForApplication(MApplication anApp) {
@@ -156,7 +156,7 @@ public class StatsUtilities extends Object  {
             if (aStatsDict != null) {
                 aStartDate = (String)aStatsDict.valueForKey("startedAt");
                 try {
-                    aTrans = new Integer( (String) aStatsDict.valueForKey("transactions") );
+                    aTrans = Integer.valueOf((String) aStatsDict.valueForKey("transactions"));
                 } catch (Throwable ex) {
                     aTrans = null;
                 }
@@ -167,7 +167,7 @@ public class StatsUtilities extends Object  {
                     try {
                         // Important! This relies on the fact that the stats will deliver startdate based on GMT, since new NSTimestamp is also base on GMT!
                         aDate = (NSTimestamp)StatsUtilities.dateFormatter.parseObject(aStartDate);
-                        aRunningTime = (float) aDate.timeIntervalSinceTimestamp(new NSTimestamp());
+                        aRunningTime = (aDate.getTime() - System.currentTimeMillis()) / 1000;
                     } catch (java.text.ParseException ex) {
                         aRunningTime = (float) 0.0;
                         NSLog.err.appendln("Format error in StatsUtilities: " + aStartDate);
@@ -181,7 +181,6 @@ public class StatsUtilities extends Object  {
             }
             anOverallRate = anOverallRate + anInstRate;
         }
-        return new Float(anOverallRate);
+        return Float.valueOf(anOverallRate);
     }
-    
 }

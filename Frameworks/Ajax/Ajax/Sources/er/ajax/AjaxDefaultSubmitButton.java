@@ -4,12 +4,12 @@ import com.webobjects.appserver.WOComponent;
 import com.webobjects.appserver.WOContext;
 import com.webobjects.appserver.WOElement;
 import com.webobjects.appserver.WOResponse;
-
 import com.webobjects.foundation.NSDictionary;
 import com.webobjects.foundation.NSMutableDictionary;
 
 import er.extensions.appserver.ERXBrowser;
 import er.extensions.appserver.ERXBrowserFactory;
+import er.extensions.components._private.ERXWOForm;
 
 /**
  * Invisible form submit button that can be included as the first element in an Ajax submitted form so that hitting
@@ -61,6 +61,7 @@ public class AjaxDefaultSubmitButton extends AjaxSubmitButton
         super(name, associations, children);
     }
 
+    @Override
     public void appendToResponse(WOResponse response, WOContext context) {
         WOComponent component = context.component();
 
@@ -128,10 +129,10 @@ public class AjaxDefaultSubmitButton extends AjaxSubmitButton
         AjaxUpdateLink.addEffect(options, (String) valueForBinding("afterEffect", component), afterEffectID, (String) valueForBinding("afterEffectDuration", component));
 
         AjaxOptions.appendToBuffer(options, onClickBuffer, context);
-        onClickBuffer.append(")");
+        onClickBuffer.append(')');
         String onClick = (String) valueForBinding("onClick", component);
         if (onClick != null) {
-          onClickBuffer.append(";");
+          onClickBuffer.append(';');
           onClickBuffer.append(onClick);
         }
 
@@ -140,7 +141,7 @@ public class AjaxDefaultSubmitButton extends AjaxSubmitButton
         }
 
         if (onClickBefore != null) {
-            onClickBuffer.append("}");
+            onClickBuffer.append('}');
         }
         onClickBuffer.append("; return false;");
         
@@ -166,20 +167,30 @@ public class AjaxDefaultSubmitButton extends AjaxSubmitButton
         	appendTagAttributeToResponse(response, "class", valueForBinding("class", component));
         }
         
-        // Force in a default style to hide the button
-        String style;
-        ERXBrowser browser = ERXBrowserFactory.factory().browserMatchingRequest(context.request());
-        boolean useDisplayNone = !(browser.isSafari() && browser.version().compareTo("3.0.3") > 0);
-        if (useDisplayNone) {
-        	style = "position: absolute; left: -10000px; display: none;";
-        } else {
-        	style = "position: absolute; left: -10000px; visibility: hidden;";
-        }
-        appendTagAttributeToResponse(response, "style", style);
+        appendTagAttributeToResponse(response, "style", "position:absolute;left:-10000px");
         appendTagAttributeToResponse(response, "id", valueForBinding("id", component));
         appendTagAttributeToResponse(response, "onclick", onClickBuffer.toString());
 
         response.appendContentString(" />");
-    }
 
+        // fix for IE < 9 that deactivates the standard submit routine of the form and
+        // triggers the onClick handler of this submit element instead if the return key
+        // is pressed within a textfield, radiobutton, checkbox or select
+        ERXBrowser browser = ERXBrowserFactory.factory().browserMatchingRequest(context.request());
+        if (browser.isIE() && browser.majorVersion().compareTo(Integer.valueOf(9)) < 0) {
+            if (!hasBinding("formName")) {
+                formName = ERXWOForm.formName(context, "");
+            }
+            AjaxUtils.appendScriptHeader(response);
+            response.appendContentString("\nEvent.observe(document." + formName + ", 'keypress', function(e){");
+            response.appendContentString("if(e.keyCode==13){"); // return key
+            response.appendContentString("var shouldFire=false;var t=e.target;var tn=t.tagName.toLowerCase();");
+            response.appendContentString("if(tn==='select'){shouldFire=true;}");
+            response.appendContentString("else if(tn==='input'){var ty=t.type.toLowerCase();");
+            response.appendContentString("if(ty==='text' || ty==='radio' || ty==='checkbox'){shouldFire=true;}}");
+            response.appendContentString("if(shouldFire){$$('[name=" + name + "]')[0].fireEvent('onClick');e.returnValue=false;}");
+            response.appendContentString("}});");
+            AjaxUtils.appendScriptFooter(response);
+        }
+    }
 }

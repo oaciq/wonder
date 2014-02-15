@@ -40,15 +40,23 @@ import er.extensions.foundation.ERXValueUtilities;
  * @d2wKey contextDictionary
  */
 public class ERDDebuggingHelp extends WOComponent implements ERXDebugMarker.DebugPageProvider {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
+
 	protected NSDictionary _contextDictionary;
 	public String currentKey;
 	
     public ERDDebuggingHelp(WOContext context) { super(context); }
 
+    @Override
     public boolean synchronizesVariablesWithBindings() { return false; }
     
     public boolean showHelp() {
-        return ERDirectToWeb.d2wDebuggingEnabled(session()) || ERXValueUtilities.booleanValue(valueForBinding("condition"));
+        return (session() != null && ERDirectToWeb.d2wDebuggingEnabled(session())) || ERXValueUtilities.booleanValue(valueForBinding("condition"));
     }
     public boolean d2wComponentNameDebuggingEnabled() {
         return ERDirectToWeb.d2wComponentNameDebuggingEnabled(session());

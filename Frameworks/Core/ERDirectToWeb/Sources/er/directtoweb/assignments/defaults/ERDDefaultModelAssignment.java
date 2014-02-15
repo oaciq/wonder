@@ -22,7 +22,6 @@ import com.webobjects.foundation.NSArray;
 import com.webobjects.foundation.NSDictionary;
 
 import er.directtoweb.assignments.ERDAssignment;
-import er.directtoweb.assignments.ERDComputingAssignmentInterface;
 import er.extensions.eof.ERXConstant;
 import er.extensions.eof.ERXEOAccessUtilities;
 import er.extensions.foundation.ERXDictionaryUtilities;
@@ -45,6 +44,12 @@ import er.extensions.foundation.ERXDictionaryUtilities;
  */
 
 public class ERDDefaultModelAssignment extends ERDAssignment {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     /** logging support */
     public final static Logger log = Logger.getLogger(ERDDefaultModelAssignment.class);
@@ -66,7 +71,7 @@ public class ERDDefaultModelAssignment extends ERDAssignment {
     });
 
     /**
-     * Implementation of the {@link ERDComputingAssignmentInterface}. This array
+     * Implementation of the {@link er.directtoweb.assignments.ERDComputingAssignmentInterface}. This array
      * of keys is used when constructing the
      * significant keys for the passed in keyPath.
      * @param keyPath to compute significant keys for.
@@ -120,7 +125,7 @@ public class ERDDefaultModelAssignment extends ERDAssignment {
     public Object smartDefaultRows(D2WContext c) {
         int i = attributeWidthAsInt(c);
         int j = smartDefaultAttributeWidthAsInt(c);
-        int k = j == 0 ? i : (int)((double)(i / j) + 0.5D);
+        int k = j == 0 ? i : (int)(i / j + 0.5D);
         if(k > 8) k = 8;
         return String.valueOf(k);
     }
@@ -214,7 +219,7 @@ public class ERDDefaultModelAssignment extends ERDAssignment {
         return result;
     }
 
-    private EOEntity _dummyEntity;
+    private transient EOEntity _dummyEntity;
     /** Utility to create a fake entity that can be used for tasks such as error/confirm. */
     // CHECKME ak We may have to insert the entity into the default model group
     protected EOEntity dummyEntity() {

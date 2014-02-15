@@ -22,6 +22,12 @@ import er.extensions.foundation.ERXValueUtilities;
 /** Please read "Documentation/Navigation.html" to fnd out how to use the navigation components.i
  */
 public class ERXNavigationMenu extends ERXStatelessComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     /** logging support */
     public static final Logger log = Logger.getLogger(ERXNavigationMenu.class);
@@ -46,6 +52,7 @@ public class ERXNavigationMenu extends ERXStatelessComponent {
         super(context);
     }
 
+    @Override
     public void reset() {
         _level1Items=null;
         _level2Items=null;
@@ -74,14 +81,11 @@ public class ERXNavigationMenu extends ERXStatelessComponent {
                     if (navigationState != null && navigationState.count() > 0) {
                         navigationState().setState(navigationState);                    
                     } else {
-                        o = (NSArray)navigationContext().valueForKey("additionalNavigationState");
+                        o = navigationContext().valueForKey("additionalNavigationState");
                         o = (o == null ? NSArray.EmptyArray : o);
                         NSArray additionalNavigationState = (o instanceof NSArray ? (NSArray)o : NSArray.componentsSeparatedByString(o.toString(), "."));
                         if (additionalNavigationState != null && additionalNavigationState.count() > 0) {
-                            if (additionalNavigationState != null && additionalNavigationState.count() > 0)
-                                navigationState().setAdditionalState(additionalNavigationState);
-                            else
-                                navigationState().setAdditionalState(null);
+                            navigationState().setAdditionalState(additionalNavigationState);
                         } else if (ERXValueUtilities.booleanValue(navigationContext().valueForKey("shouldResetNavigationState"))) {
                             navigationState().setState(NSArray.EmptyArray);
                         }
@@ -126,16 +130,19 @@ public class ERXNavigationMenu extends ERXStatelessComponent {
         return children;
     }
 
+    @Override
     public void takeValuesFromRequest(WORequest r, WOContext c) {
         setUpMenu();
         super.takeValuesFromRequest(r,c);
     }
 
+    @Override
     public void appendToResponse(WOResponse r, WOContext c) {
         setUpMenu();
         super.appendToResponse(r,c);
     }
 
+    @Override
     public WOActionResults invokeAction(WORequest r, WOContext c) {
         WOActionResults results=null;
         setUpMenu();

@@ -73,7 +73,7 @@ public class WOHelperFunctionParser {
 
 	public void didParseClosingWebObjectTag(String s, WOHelperFunctionHTMLParser htmlParser) throws WOHelperFunctionDeclarationFormatException, WOHelperFunctionHTMLFormatException, ClassNotFoundException {
 		WOHTMLWebObjectTag webobjectTag = _currentWebObjectTag.parentTag();
-		if (_currentWebObjectTag == null || webobjectTag == null) {
+		if (webobjectTag == null) {
 			throw new WOHelperFunctionHTMLFormatException("<" + getClass().getName() + "> Unbalanced WebObject tags. Either there is an extra closing </WEBOBJECT> tag in the html template, or one of the opening <WEBOBJECT ...> tag has a typo (extra spaces between a < sign and a WEBOBJECT tag ?).");
 		}
 		try {
@@ -121,13 +121,13 @@ public class WOHelperFunctionParser {
 					currentBuffer.append("\"");
 				}
 				else if (tag.charAt(index) == 'n') {
-					currentBuffer.append("\n");
+					currentBuffer.append('\n');
 				}
 				else if (tag.charAt(index) == 'r') {
-					currentBuffer.append("\r");
+					currentBuffer.append('\r');
 				}
 				else if (tag.charAt(index) == 't') {
-					currentBuffer.append("\t");
+					currentBuffer.append('\t');
 				}
 				else {
 					currentBuffer.append('\\');
@@ -281,8 +281,8 @@ public class WOHelperFunctionParser {
 					frameworkName = helperFunctionName.substring(0, helperFunctionDotIndex);
 					helperFunctionName = helperFunctionName.substring(helperFunctionDotIndex + 1);
 				}
-				StringBuffer ognlKeyPath = new StringBuffer();
-				ognlKeyPath.append("~");
+				StringBuilder ognlKeyPath = new StringBuilder();
+				ognlKeyPath.append('~');
 				ognlKeyPath.append("@" + WOHelperFunctionRegistry.class.getName() + "@registry()._helperInstanceForFrameworkNamed(#this, \"");
 				ognlKeyPath.append(helperFunctionName);
 				ognlKeyPath.append("\", \"");
@@ -291,13 +291,13 @@ public class WOHelperFunctionParser {
 				ognlKeyPath.append(frameworkName);
 				ognlKeyPath.append("\").");
 				ognlKeyPath.append(helperFunctionName);
-				ognlKeyPath.append("(");
+				ognlKeyPath.append('(');
 				ognlKeyPath.append(targetKeyPath);
 				if (otherParams != null) {
-					ognlKeyPath.append(",");
+					ognlKeyPath.append(',');
 					ognlKeyPath.append(otherParams);
 				}
-				ognlKeyPath.append(")");
+				ognlKeyPath.append(')');
 				if (log.isDebugEnabled()) {
 					log.debug("Converted " + originalKeyPath + " into " + ognlKeyPath);
 				}
@@ -308,7 +308,7 @@ public class WOHelperFunctionParser {
 	}
 
 	protected String prettyDeclaration(WODeclaration declaration) {
-		StringBuffer declarationStr = new StringBuffer();
+		StringBuilder declarationStr = new StringBuilder();
 		if (declaration == null) {
 			declarationStr.append("[none]");
 		}

@@ -1,6 +1,7 @@
 package er.ajax.mootools;
 
 import com.webobjects.appserver.WOActionResults;
+import com.webobjects.appserver.WOAssociation;
 import com.webobjects.appserver.WOComponent;
 import com.webobjects.appserver.WOContext;
 import com.webobjects.appserver.WOElement;
@@ -14,7 +15,6 @@ import com.webobjects.foundation.NSMutableDictionary;
 import er.ajax.AjaxDynamicElement;
 import er.ajax.AjaxOption;
 import er.ajax.AjaxOptions;
-import er.ajax.AjaxSubmitButton;
 import er.ajax.AjaxUpdateContainer;
 import er.ajax.AjaxUtils;
 import er.ajax.IAjaxElement;
@@ -68,7 +68,7 @@ public class MTAjaxSubmitButton extends AjaxDynamicElement {
 	// MS: If you change this value, make sure to change it in ERXAjaxApplication and in wonder.js
 	public static final String KEY_PARTIAL_FORM_SENDER_ID = "_partialSenderID";
 
-	public MTAjaxSubmitButton(String name, NSDictionary associations, WOElement children) {
+	public MTAjaxSubmitButton(String name, NSDictionary<String, WOAssociation> associations, WOElement children) {
 		super(name, associations, children);
 	}
 
@@ -107,21 +107,22 @@ public class MTAjaxSubmitButton extends AjaxDynamicElement {
 
 	}
 
+	@Override
 	public void addRequiredWebResources(WOResponse response, WOContext context) {
 		MTAjaxUtils.addScriptResourceInHead(context, context.response(), "MooTools", MTAjaxUtils.MOOTOOLS_CORE_JS);
 		MTAjaxUtils.addScriptResourceInHead(context, context.response(), "MooTools", MTAjaxUtils.MOOTOOLS_MORE_JS);
 		Boolean useSpinner = (Boolean)valueForBinding("useSpinner", Boolean.FALSE, context.component());
-		if(useSpinner) {
+		if(useSpinner.booleanValue()) {
 			Boolean useDefaultSpinnerClass = (Boolean)valueForBinding("defaultSpinnerClass", Boolean.TRUE, context.component());
-			if(useDefaultSpinnerClass) {
-				MTAjaxUtils.addStylesheetResourceInHead(context, context.response(), "MooTools", "scripts/plugins/spinner/spinner.css");
+			if(useDefaultSpinnerClass.booleanValue()) {
+				AjaxUtils.addStylesheetResourceInHead(context, context.response(), "MooTools", "scripts/plugins/spinner/spinner.css");
 			}
 		}
 
 		MTAjaxUtils.addScriptResourceInHead(context, context.response(), "MooTools", MTAjaxUtils.MOOTOOLS_WONDER_JS);
 	}
 
-
+	@Override
 	@SuppressWarnings("rawtypes")
 	public void appendToResponse(WOResponse response, WOContext context) {
 
@@ -198,15 +199,15 @@ public class MTAjaxSubmitButton extends AjaxDynamicElement {
 				if(beforeEffectDuration != null || mode != null) {
 					onClickBuffer.append(", { ");
 					if(beforeEffectDuration != null) {
-						onClickBuffer.append("duration: '").append(beforeEffectDuration).append("'").append(mode != null || transition != null ? "," : "");
+						onClickBuffer.append("duration: '").append(beforeEffectDuration).append('\'').append(mode != null || transition != null ? "," : "");
 					}
 					if(mode != null) {
-						onClickBuffer.append("mode: '").append(mode).append("'").append(transition != null ? "," : "");
+						onClickBuffer.append("mode: '").append(mode).append('\'').append(transition != null ? "," : "");
 					}
 					if(transition != null) {
 						onClickBuffer.append("transition: ").append(transition);
 					}
-					onClickBuffer.append("}");
+					onClickBuffer.append('}');
 				}
 				onClickBuffer.append("); $('").append(beforeEffectID).append("').get('slide').slide").append(ERXStringUtilities.capitalize(beforeEffectProperty)).append("().chain(function() {");
 			} else if(beforeEffect.equals("highlight")) {
@@ -234,7 +235,7 @@ public class MTAjaxSubmitButton extends AjaxDynamicElement {
 			onClickBuffer.append(", null");
 		}
 
-		onClickBuffer.append(",");
+		onClickBuffer.append(',');
 		NSMutableDictionary options = createAjaxOptions(component);
 
 		String effect = (String) valueForBinding("effect", component);
@@ -260,7 +261,7 @@ public class MTAjaxSubmitButton extends AjaxDynamicElement {
 		}
 
 		AjaxOptions.appendToBuffer(options, onClickBuffer, context);
-		onClickBuffer.append(")");
+		onClickBuffer.append(')');
 		String onClick = (String)valueForBinding("onClick", component);
 		if(onClick != null) {
 			onClickBuffer.append("; ").append(onClick);
@@ -271,7 +272,7 @@ public class MTAjaxSubmitButton extends AjaxDynamicElement {
 		}
 
 		if(onClickBefore != null) {
-			onClickBuffer.append("}");
+			onClickBuffer.append('}');
 		}
 
 		if(functionName != null) {
@@ -356,25 +357,27 @@ public class MTAjaxSubmitButton extends AjaxDynamicElement {
 
 	}	
 
+	@Override
 	public WOActionResults invokeAction(WORequest worequest, WOContext wocontext) {
 
 		WOActionResults result = null;
 		WOComponent wocomponent = wocontext.component();
 
 		String nameInContext = nameInContext(wocontext, wocomponent);
-		boolean shouldHandleRequest = (!disabledInComponent(wocomponent) && wocontext._wasFormSubmitted()) && ((wocontext._isMultipleSubmitForm() && nameInContext.equals(worequest.formValueForKey(KEY_AJAX_SUBMIT_BUTTON_NAME))) || !wocontext._isMultipleSubmitForm());
+		boolean shouldHandleRequest = (!disabledInComponent(wocomponent) && wocontext.wasFormSubmitted()) && ((wocontext.isMultipleSubmitForm() && nameInContext.equals(worequest.formValueForKey(KEY_AJAX_SUBMIT_BUTTON_NAME))) || !wocontext.isMultipleSubmitForm());
 
 		if (shouldHandleRequest) {
 			String updateContainerID = MTAjaxUpdateContainer.updateContainerID(this, wocomponent);
 			MTAjaxUpdateContainer.setUpdateContainerID(worequest, updateContainerID);
-			wocontext._setActionInvoked(true);
+			wocontext.setActionInvoked(true);
 			result = handleRequest(worequest, wocontext);
-			AjaxUtils.updateMutableUserInfoWithAjaxInfo(wocontext);
+			ERXAjaxApplication.enableShouldNotStorePage();
 		}
 
 		return result;
 	}
 
+	@Override
 	public WOActionResults handleRequest(WORequest request, WOContext context) {
 
 		WOComponent component = context.component();
@@ -402,6 +405,5 @@ public class MTAjaxSubmitButton extends AjaxDynamicElement {
 
 		return result;
 	}
-
 
 }
