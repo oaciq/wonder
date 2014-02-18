@@ -44,27 +44,6 @@ public class ERXKeyValueQualifier extends EOKeyValueQualifier implements IERXCha
 		}
 	}
 	
-	@Override
-	public boolean evaluateWithObject(Object object){  
-		if(super.evaluateWithObject(object)){
-			return true;
-		}
-
-		if(PROPERTIES.shouldEvaluateManyToManyValueObject){
-			Object objectValue = NSKeyValueCodingAdditions.Utility.valueForKeyPath(object, _key);
-			if (objectValue instanceof NSMutableArray<?>) {
-				for (Object value : (NSMutableArray<?>) objectValue) {
-					NSDictionary<String, Object> newObject = new NSDictionary<String, Object>(value, _key);
-					if(evaluateWithObject(newObject)){
-						return true;
-					}
-				}
-			}
-		}
-		
-		return false;
-	}
-	
 	public ERXAndQualifier and(EOQualifier... qualifiers) {
 		return ERXChainedQualifierUtils.and(this, qualifiers);
 	}
@@ -110,6 +89,23 @@ public class ERXKeyValueQualifier extends EOKeyValueQualifier implements IERXCha
 		if (_value instanceof EOQualifierVariable) {
 			throw new IllegalStateException("Error evaluating qualifier with key " + _key + ", selector " + _selector + ", value " + _value + " - value must be substitued for variable before evaluating");
 		}
+
+		// Ajout par Mathieu pour corriger les évaluation en mémoire
+		if(super.evaluateWithObject(object)){
+			return true;
+		}
+		
+		if(PROPERTIES.shouldEvaluateManyToManyValueObject){
+			if (objectValue instanceof NSMutableArray<?>) {
+				for (Object value : (NSMutableArray<?>) objectValue) {
+					NSDictionary<String, Object> newObject = new NSDictionary<String, Object>(value, _key);
+					if(evaluateWithObject(newObject)){
+						return true;
+					}
+				}
+			}
+		}
+		// --- fin
 
 		if (_selector.equals(EOQualifier.QualifierOperatorCaseInsensitiveLike)) {
 			if (_lowercaseCache == null) {
