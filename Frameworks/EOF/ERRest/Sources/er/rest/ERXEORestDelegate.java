@@ -3,15 +3,13 @@ package er.rest;
 import com.webobjects.eoaccess.EOAttribute;
 import com.webobjects.eoaccess.EOEntity;
 import com.webobjects.eoaccess.EOEntityClassDescription;
-import com.webobjects.eoaccess.EOUtilities;
 import com.webobjects.eocontrol.EOClassDescription;
 import com.webobjects.eocontrol.EOEditingContext;
 import com.webobjects.eocontrol.EOEnterpriseObject;
 import com.webobjects.eocontrol.EOGlobalID;
 import com.webobjects.eocontrol.EOTemporaryGlobalID;
 import com.webobjects.foundation.NSArray;
-import com.webobjects.foundation.NSDictionary;
-import com.webobjects.foundation._NSStringUtilities;
+import com.webobjects.foundation.NSData;
 import com.webobjects.foundation._NSUtilities;
 
 import er.extensions.eof.ERXEOControlUtilities;
@@ -64,37 +62,33 @@ public class ERXEORestDelegate extends ERXAbstractRestDelegate {
 		else {
 			EOEnterpriseObject eo = (EOEnterpriseObject) obj;
 			EOEditingContext editingContext = eo.editingContext();
-			editingContext.lock();
-			try {
-				NSDictionary pkDict = EOUtilities.primaryKeyForObject(editingContext, eo);
-				if (pkDict == null) {
-//					EOGlobalID gid = editingContext.globalIDForObject(eo);
-//					if (gid instanceof EOTemporaryGlobalID) {
-//						pkValue = _NSStringUtilities.byteArrayToHexString(((EOTemporaryGlobalID)gid)._rawBytes());
-//					}
-//					else {
-//						pkValue = null;
-//					}
-					pkValue = null;
+			if (editingContext != null) {
+				editingContext.lock();
+				try {
+					pkValue = ERXEOControlUtilities.primaryKeyObjectForObject(eo);
+					if (pkValue == null) {
+						EOGlobalID gid = editingContext.globalIDForObject(eo);
+						if (gid instanceof EOTemporaryGlobalID) {
+							pkValue = new NSData(((EOTemporaryGlobalID) gid)._rawBytes());
+						}
+					}
 				}
-				else if (pkDict.count() == 1) {
-					pkValue = pkDict.allValues().lastObject();
-				}
-				else {
-					pkValue = pkDict;
+				finally {
+					editingContext.unlock();
 				}
 			}
-			finally {
-				editingContext.unlock();
+			else {
+				pkValue = ERXEOControlUtilities.primaryKeyObjectForObject(eo);
 			}
 		}
+
 		return pkValue;
 	}
 
 	public Object objectOfEntityWithID(EOClassDescription entity, Object id, ERXRestContext context) {
 		EOEntity eoEntity = ((EOEntityClassDescription) entity).entity();
 		String strPKValue = String.valueOf(id);
-		Object pkValue = ((EOAttribute) eoEntity.primaryKeyAttributes().objectAtIndex(0)).validateValue(strPKValue);
+		Object pkValue = eoEntity.primaryKeyAttributes().objectAtIndex(0).validateValue(strPKValue);
 		EOEditingContext editingContext = context.editingContext();
 		if (editingContext == null) {
 			throw new IllegalArgumentException("There was no editing context attached to this rest context.");
@@ -102,7 +96,8 @@ public class ERXEORestDelegate extends ERXAbstractRestDelegate {
 		editingContext.lock();
 		Object obj;
 		try {
-			return ERXEOControlUtilities.objectWithPrimaryKeyValue(editingContext, eoEntity.name(), pkValue, null, false);
+			EOGlobalID gid = ERXEOControlUtilities.globalIDForString(editingContext, entity.entityName(), strPKValue);
+			return editingContext.faultForGlobalID(gid, editingContext);
 		}
 		finally {
 			editingContext.unlock();

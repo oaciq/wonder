@@ -13,6 +13,10 @@ import er.extensions.eof.ERXKeyFilter;
 import er.rest.ERXRestContext;
 import er.rest.ERXRestRequestNode;
 
+/**
+ * The ERXRestFormat class encapsulates the details of message formatting. As such it encapsulates the request parser, response formatter, format name and response mime type.
+ *
+ */
 public class ERXRestFormat {
 	public static final String HTML_KEY = "html";
 	public static final String JSON_KEY = "json";
@@ -22,6 +26,7 @@ public class ERXRestFormat {
 	public static final String SPROUTCORE_KEY = "sc";
 	public static final String XML_KEY = "xml";
 	public static final String FORM_KEY = "form";
+	public static final String BINARY_PLIST_KEY = "bplist";
 
 	private static Map<String, ERXRestFormat> _formats = new ConcurrentHashMap<String, ERXRestFormat>();
 	
@@ -30,7 +35,7 @@ public class ERXRestFormat {
 		ERXRestFormat.registerFormatNamed(new ERXJSONRestParser(), new ERXJSONRestWriter(), new ERXRestFormatDelegate(), ERXRestFormat.JSON_KEY, "application/json");
 		ERXRestFormat.registerFormatNamed(new ERXJSONRestParser(), new ERXJSONRestWriter(), new ERXRestFormatDelegate(), ERXRestFormat.JS_KEY, "text/js");
 		ERXRestFormat.registerFormatNamed(new ERXPListRestParser(), new ERXPListRestWriter(), new ERXRestFormatDelegate(), ERXRestFormat.PLIST_KEY, "text/plist");
-		ERXRestFormat.registerFormatNamed(new ERXBinaryPListRestParser(), new ERXBinaryPListRestWriter(), new ERXRestFormatDelegate(), "bplist", "application/x-plist");
+		ERXRestFormat.registerFormatNamed(new ERXBinaryPListRestParser(), new ERXBinaryPListRestWriter(), new ERXRestFormatDelegate(), ERXRestFormat.BINARY_PLIST_KEY, "application/x-plist");
 		ERXRestFormat.registerFormatNamed(new ERXXmlRestParser(), new ERXXmlRestWriter(), new ERXRestFormatDelegate("id", "type", "nil", true, true, true, true), ERXRestFormat.RAILS_KEY, "application/xml", "text/xml");
 		ERXRestFormat.registerFormatNamed(new ERXXmlRestParser(), new ERXXmlRestWriter(), new ERXRestFormatDelegate(), ERXRestFormat.XML_KEY, "application/xml", "text/xml");
 		ERXRestFormat.registerFormatNamed(null, new ERXSimpleRestWriter(), new ERXRestFormatDelegate(), ERXRestFormat.HTML_KEY, "text/html");
@@ -39,10 +44,10 @@ public class ERXRestFormat {
 		ERXRestFormat.registerFormatNamed(new ERXFormRestParser(), new ERXJSONRestWriter(), new ERXRestFormatDelegate(), ERXRestFormat.FORM_KEY, "form-data");
 	}
 
-	private String _name;
-	private IERXRestParser _parser;
-	private IERXRestWriter _writer;
-	private ERXRestFormat.Delegate _delegate;
+	private final String _name;
+	private final IERXRestParser _parser;
+	private final IERXRestWriter _writer;
+	private final ERXRestFormat.Delegate _delegate;
 
 	// These are going to be killed soon ...
 	@Deprecated
@@ -109,6 +114,16 @@ public class ERXRestFormat {
 	public static ERXRestFormat xml() {
 		return formatNamed(ERXRestFormat.XML_KEY);
 	}
+	
+	/**
+	 * Returns the registered plist format.
+	 * 
+	 * @return the registered plist format
+	 */
+	public static ERXRestFormat bplist() {
+		return formatNamed(ERXRestFormat.BINARY_PLIST_KEY);
+	}
+	
 	
 	/**
 	 * Constructs a new ERXRestFormat.
@@ -276,6 +291,10 @@ public class ERXRestFormat {
 		return format;
 	}
 
+	/**
+	 * An ERXRestFormat.Delegate is one component of an ERXRestFormat and is used to customize an ERXRequestNode
+	 * after parsing in the context of reading a request or before writing in the context of a response generation.
+	 */
 	public static interface Delegate {
 		public void nodeDidParse(ERXRestRequestNode node);
 

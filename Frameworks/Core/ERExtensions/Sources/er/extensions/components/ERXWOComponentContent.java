@@ -102,7 +102,7 @@ ComponentContent3: ERXWOComponentContent {
  * So, the way this could work is to add functionality to WOComponentContent
  * which allows it to iterate through its elements and locate the named
  * templates. It also needs to be extended so that it takes the contents of its
- * refernce as a default if no named template is provided/found.
+ * reference as a default if no named template is provided/found.
  * 
  * <code><pre>
 &lt;webobject name=IfThenElse&gt;
@@ -196,6 +196,7 @@ public class ERXWOComponentContent extends WODynamicElement {
     	return result;
     }
 
+    @Override
     public void takeValuesFromRequest(WORequest worequest, WOContext wocontext) {
     	WOComponent component = wocontext.component();
     	WOElement template = template(component);
@@ -208,6 +209,7 @@ public class ERXWOComponentContent extends WODynamicElement {
     	}
     }
 
+    @Override
     public WOActionResults invokeAction(WORequest worequest, WOContext wocontext) {
     	WOComponent component = wocontext.component();
     	WOElement template = template(component);
@@ -222,6 +224,7 @@ public class ERXWOComponentContent extends WODynamicElement {
     	return result;
     }
 
+    @Override
     public void appendToResponse(WOResponse woresponse, WOContext wocontext) {
         WOComponent component = wocontext.component();
         WOElement template = template(component);
@@ -234,6 +237,7 @@ public class ERXWOComponentContent extends WODynamicElement {
         }
     }
 
+    @Override
     public String toString() {
         return "<" + getClass().getName() + "@" + System.identityHashCode(this) + " : " + _templateName  + ">";
     }

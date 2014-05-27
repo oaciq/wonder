@@ -21,11 +21,11 @@ import er.extensions.logging.ERXPatternLayout;
 
 /**
  * Very simple template parser.  For example if you have the delimiter:
- * @@, then a possible template might look like: "Hello, @@name@@.  How are
+ * {@literal @}{@literal @}, then a possible template might look like: "Hello, {@literal @}{@literal @}name{@literal @}{@literal @}.  How are
  * you feeling today?",  In this case the object will get asked for the
  * value name. This works with key-paths as well.
  * 
- * @property er.extensions.ERXSimpleTemplateParser.useOldDelimiter if false, only @@ delimeters are supported (defaults to true)
+ * @property er.extensions.ERXSimpleTemplateParser.useOldDelimiter if false, only {@literal @}{@literal @} delimeters are supported (defaults to true)
  */
 public class ERXSimpleTemplateParser {
 
@@ -163,6 +163,7 @@ public class ERXSimpleTemplateParser {
      * @param template to use to parse
      * @param delimiter to use to find keys
      * @param object to resolve keys
+     * @return parsed template with keys replaced
      */
     public String parseTemplateWithObject(String template, String delimiter, Object object) {
         return parseTemplateWithObject(template,
@@ -173,7 +174,7 @@ public class ERXSimpleTemplateParser {
     
     /**
      * This method replaces the keys enclosed between the
-     * delimeter with the values found in object and otherObject.
+     * delimiter with the values found in object and otherObject.
      * It first looks for a value in object, and then in otherObject
      * if the key is not found in object. Therefore, otherObject is
      * a good place to store default values while object is a
@@ -218,7 +219,13 @@ public class ERXSimpleTemplateParser {
             log.debug("Components: " + components);
         }
         boolean deriveElement = false; // if the template starts with delim, the first component will be a zero-length string
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
+        Object objects[];
+        if (otherObject != null) {
+            objects = new Object[] {object, otherObject};
+        } else {
+            objects = new Object[] {object};
+        }
         for (Enumeration e = components.objectEnumerator(); e.hasMoreElements();) {
             String element = (String)e.nextElement();
             if(!isLoggingDisabled) {
@@ -232,12 +239,6 @@ public class ERXSimpleTemplateParser {
                     throw new IllegalArgumentException("\"\" is not a valid keypath in template: " + template);
                 }
                 Object result = _undefinedKeyLabel;
-                Object objects[];
-                if(otherObject != null) {
-                    objects = new Object[] {object, otherObject};
-                } else {
-                    objects = new Object[] {object};
-                }
                 for (int i = 0; i < objects.length; i++) {
                     Object o = objects[i];
                     if(o != null && result == _undefinedKeyLabel) {
@@ -268,30 +269,49 @@ public class ERXSimpleTemplateParser {
                                 + "\" in either the object or extra data.");
                     }
                 }
-                buffer.append(result.toString());
+                sb.append(result.toString());
                 deriveElement = false;
             } else {
                 if(element.length() > 0) {
-                    buffer.append(element);
+                    sb.append(element);
                 }
                 deriveElement = true;
             }
             if(!isLoggingDisabled && log.isDebugEnabled()) {
-                log.debug("Buffer: " + buffer);
+                log.debug("Buffer: " + sb);
             }
         }
-        return buffer.toString();
+        return sb.toString();
     }
     
-    protected Object doGetValue(String aKeyPath, Object anObject) {
-        Object result;
-        if(anObject instanceof NSKeyValueCodingAdditions) {
-            result = ((NSKeyValueCodingAdditions)anObject).valueForKeyPath(aKeyPath);
-        } else {
-            result = NSKeyValueCodingAdditions.Utility.valueForKeyPath(anObject, aKeyPath);
-        }       
-        return result;
-    }
+	/**
+	 * To allow flexibility of the variable provider object type we use similar
+	 * logic to NSDictionary valueForKeyPath. Consequently
+	 * <code>java.util.Properties</code> objects that use keyPath separator (.)
+	 * in the property names (which is common) can be reliably used as object
+	 * providers.
+	 * 
+	 * @param aKeyPath
+	 * @param anObject
+	 * @return the value corresponding to either a key with value
+	 *         <code>aKeypath</code>, or when no key, a keyPath with value
+	 *         <code>aKeyPath</code>
+	 */
+	protected Object doGetValue(String aKeyPath, Object anObject) {
+		// Mimic NSDictionary valueForKeypath behavior which first checks for a
+		// "flattened" key before calling real valueForKeypath logic
+		Object result = null;
+		try {
+			result = NSKeyValueCoding.Utility.valueForKey(anObject, aKeyPath);
+		}
+		catch (NSKeyValueCoding.UnknownKeyException t) {
+		}
+
+		if (result == null) {
+			return NSKeyValueCodingAdditions.Utility.valueForKeyPath(anObject, aKeyPath);
+		}
+		return result;
+	}
     
     /**
      * Parses the given templateString with an ERXSimpleTemplateParser.

@@ -36,6 +36,7 @@ import er.extensions.foundation.ERXSelectorUtilities;
  * You can supply a timeout after which the cache is to get cleared and all the objects refetched. Note
  * that this implementation only caches the global IDs, not the actual data. 
  * @author ak
+ * @param <T> 
  */
 public class ERXEnterpriseObjectArrayCache<T extends EOEnterpriseObject> {
     private String _entityName;
@@ -44,6 +45,13 @@ public class ERXEnterpriseObjectArrayCache<T extends EOEnterpriseObject> {
     private long _fetchTime;
     
     public static class NotFoundArray extends NSArray {
+    	/**
+    	 * Do I need to update serialVersionUID?
+    	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+    	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+    	 */
+    	private static final long serialVersionUID = 1L;
+
     }
     
     protected static final NSArray NOT_FOUND_MARKER= new NotFoundArray();
@@ -204,7 +212,7 @@ public class ERXEnterpriseObjectArrayCache<T extends EOEnterpriseObject> {
                    return null;
                 }
             }
-            NSArray<T> eos = (NSArray<T>) ERXEOControlUtilities.faultsForGlobalIDs(ec, gids);
+            NSArray<T> eos = ERXEOControlUtilities.faultsForGlobalIDs(ec, gids);
             return eos;
 		}
     }

@@ -20,9 +20,7 @@ import com.webobjects.appserver.WOApplication;
 import com.webobjects.foundation.NSDictionary;
 import com.webobjects.foundation.NSForwardException;
 import com.webobjects.foundation.NSNotification;
-import com.webobjects.foundation.NSNotificationCenter;
 
-import er.extensions.eof.ERXObjectStoreCoordinatorSynchronizer.RemoteChange;
 import er.extensions.foundation.ERXProperties;
 import er.extensions.foundation.ERXRemoteNotificationCenter;
 import er.extensions.remoteSynchronizer.ERXRemoteSynchronizer.RefByteArrayOutputStream;
@@ -48,7 +46,7 @@ public class ERJGroupsNotificationCenter extends ERXRemoteNotificationCenter {
 
     private JChannel _channel;
 
-    private static ERJGroupsNotificationCenter _sharedInstance;
+    private static volatile ERJGroupsNotificationCenter _sharedInstance;
 
     protected ERJGroupsNotificationCenter() throws ChannelException {
         String jgroupsPropertiesFile = ERXProperties.stringForKey("er.extensions.jgroupsNotificationCenter.properties");
@@ -72,7 +70,8 @@ public class ERJGroupsNotificationCenter extends ERXRemoteNotificationCenter {
         _channel.setOpt(Channel.LOCAL, Boolean.FALSE);
         _channel.connect(_groupName);
         _channel.setReceiver(new ExtendedReceiverAdapter() {
-            // @Override
+
+            @Override
             public void receive(Message message) {
                 try {
                     byte[] buffer = message.getBuffer();
@@ -95,7 +94,7 @@ public class ERJGroupsNotificationCenter extends ERXRemoteNotificationCenter {
                 }
             }
 
-            // @Override
+            @Override
             public void viewAccepted(View view) {
                 // System.out.println(".viewAccepted: " + view);
             }
@@ -117,6 +116,7 @@ public class ERJGroupsNotificationCenter extends ERXRemoteNotificationCenter {
         }
     }
 
+    @Override
     public void postRemoteNotification(NSNotification notification) {
         try {
             writeNotification(notification);

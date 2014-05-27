@@ -25,8 +25,6 @@ import org.apache.lucene.util.NumericUtils;
 import com.webobjects.appserver.WOActionResults;
 import com.webobjects.appserver.WORequest;
 import com.webobjects.directtoweb.D2W;
-import com.webobjects.eoaccess.EOEntity;
-import com.webobjects.eoaccess.EOModelGroup;
 import com.webobjects.eoaccess.EOUtilities;
 import com.webobjects.eocontrol.EOAndQualifier;
 import com.webobjects.eocontrol.EOEditingContext;
@@ -105,6 +103,7 @@ public class DirectAction extends ERD2WDirectAction {
 	 * @param pageConfiguration
 	 * @return
 	 */
+	@Override
 	protected boolean allowPageConfiguration(String pageConfiguration) {
 		return true;
 	}

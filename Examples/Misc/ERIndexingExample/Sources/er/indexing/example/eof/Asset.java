@@ -2,8 +2,6 @@ package er.indexing.example.eof;
 
 import com.webobjects.eocontrol.EOEditingContext;
 import com.webobjects.foundation.NSArray;
-import com.webobjects.foundation.NSDictionary;
-import com.webobjects.foundation.NSKeyValueCoding;
 import com.webobjects.foundation.NSMutableDictionary;
 
 import er.extensions.foundation.ERXMutableDictionary;
@@ -28,6 +26,7 @@ public class Asset extends _Asset implements ERIExtensibleObject {
      * Initializes the EO. This is called when an EO is created, not when it is 
      * inserted into an EC.
      */
+    @Override
     public void init(EOEditingContext ec) {
         super.init(ec);
     }

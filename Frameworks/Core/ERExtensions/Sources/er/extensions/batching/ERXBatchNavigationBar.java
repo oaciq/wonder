@@ -52,6 +52,12 @@ import er.extensions.foundation.ERXThreadStorage;
  * @binding clearSelection boolean that indicates if the selection should be reset on paging (default false)
  */
 public class ERXBatchNavigationBar extends ERXStatelessComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     /** logging support */
     public static final Logger log = Logger.getLogger(ERXBatchNavigationBar.class);
@@ -67,18 +73,21 @@ public class ERXBatchNavigationBar extends ERXStatelessComponent {
         super(aContext);
     }
     
+    @Override
     public void awake() {
     	super.awake();
     	wasInForm = context().isInForm();
     	_threadStorageKey = "ERXBatchNavigationBar_numberOfObjectsPerBatch_" + context().elementID();
     }
 
+    @Override
     public void reset() {
         super.reset();
         _displayGroup = null;
         _threadStorageKey=null;
     }
     
+    @Override
     public void appendToResponse(WOResponse response, WOContext context) {
     	// set the numberOfObjectsPerBatch
         Number newNumberOfObjectsPerBatch = (Number) ERXThreadStorage.valueForKey(_threadStorageKey);

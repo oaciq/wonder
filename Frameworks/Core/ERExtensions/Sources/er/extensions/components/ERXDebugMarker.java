@@ -23,8 +23,13 @@ import er.extensions.eof.ERXEnterpriseObject;
  * @binding object An EOEditingContext or an EOEnterpriseObject object 
  * @binding debugPageProvider Page to display for showing up details about a EOEnterpriseObject
  */
-
 public class ERXDebugMarker extends WOComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     /** logging support */
     public static final Logger log = Logger.getLogger(ERXDebugMarker.class);
@@ -36,9 +41,9 @@ public class ERXDebugMarker extends WOComponent {
     public static interface DebugPageProvider {
         WOComponent debugPageForObject(EOEnterpriseObject o, WOSession s);
     }
-    
+
+    @Override
     public boolean isStateless() { return true; }
-    public boolean synchronizesVariablesWithBindings() { return false; }
 
     private DebugPageProvider _debugPageProvider;
     public DebugPageProvider debugPageProvider() {
@@ -55,6 +60,8 @@ public class ERXDebugMarker extends WOComponent {
         }
         return _object;
     }
+
+    @Override
     public void reset() {
         super.reset();
         _object=null;

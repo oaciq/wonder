@@ -26,6 +26,13 @@ import er.extensions.validation.ERXValidationFactory;
  */
 
 public class ERDEditDateJavascript extends ERDCustomEditComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
+
     static final Logger log = Logger.getLogger(ERDEditDateJavascript.class);
 
     public ERDEditDateJavascript(WOContext context) {super(context);}
@@ -34,6 +41,7 @@ public class ERDEditDateJavascript extends ERDCustomEditComponent {
     protected String _formatter;
     protected NSTimestampFormatter _dateFormatter;
     
+    @Override
     public void appendToResponse(WOResponse r, WOContext c){
         NSTimestamp date = (NSTimestamp)objectPropertyValue();
         if(date != null) {
@@ -52,6 +60,7 @@ public class ERDEditDateJavascript extends ERDCustomEditComponent {
     	return dateString;
     }
     
+    @Override
     public void takeValuesFromRequest (WORequest request, WOContext context) {
         super.takeValuesFromRequest (request,context);
         NSTimestamp date = null;

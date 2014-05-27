@@ -132,6 +132,7 @@ public class AjaxSubmitButton extends AjaxDynamicElement {
 	AjaxUpdateContainer.expandInsertionFromOptions(options, element, component);
   }
 
+  @Override
   public void appendToResponse(WOResponse response, WOContext context) {
     WOComponent component = context.component();
 
@@ -207,7 +208,7 @@ public class AjaxSubmitButton extends AjaxDynamicElement {
 	else {
 		onClickBuffer.append(",null");
 	}
-	onClickBuffer.append(",");
+	onClickBuffer.append(',');
 	
     NSMutableDictionary options = createAjaxOptions(component);
     if (replaceID != null) {
@@ -225,10 +226,10 @@ public class AjaxSubmitButton extends AjaxDynamicElement {
 	AjaxUpdateLink.addEffect(options, (String) valueForBinding("afterEffect", component), afterEffectID, (String) valueForBinding("afterEffectDuration", component));
 	
     AjaxOptions.appendToBuffer(options, onClickBuffer, context);
-    onClickBuffer.append(")");
+    onClickBuffer.append(')');
     String onClick = (String) valueForBinding("onClick", component);
     if (onClick != null) {
-      onClickBuffer.append(";");
+      onClickBuffer.append(';');
       onClickBuffer.append(onClick);
     }
 	
@@ -237,7 +238,7 @@ public class AjaxSubmitButton extends AjaxDynamicElement {
 	}
 
     if (onClickBefore != null) {
-    	onClickBuffer.append("}");
+    	onClickBuffer.append('}');
     }
 
     
@@ -298,29 +299,32 @@ public class AjaxSubmitButton extends AjaxDynamicElement {
     super.appendToResponse(response, context);
   }
 
+  @Override
   protected void addRequiredWebResources(WOResponse res, WOContext context) {
     addScriptResourceInHead(context, res, "prototype.js");
 	addScriptResourceInHead(context, res, "effects.js");
     addScriptResourceInHead(context, res, "wonder.js");
   }
 
+  @Override
   public WOActionResults invokeAction(WORequest worequest, WOContext wocontext) {
     WOActionResults result = null;
     WOComponent wocomponent = wocontext.component();
 
     String nameInContext = nameInContext(wocontext, wocomponent);
-    boolean shouldHandleRequest = (!disabledInComponent(wocomponent) && wocontext._wasFormSubmitted()) && ((wocontext._isMultipleSubmitForm() && nameInContext.equals(worequest.formValueForKey(KEY_AJAX_SUBMIT_BUTTON_NAME))) || !wocontext._isMultipleSubmitForm());
+    boolean shouldHandleRequest = (!disabledInComponent(wocomponent) && wocontext.wasFormSubmitted()) && ((wocontext.isMultipleSubmitForm() && nameInContext.equals(worequest.formValueForKey(KEY_AJAX_SUBMIT_BUTTON_NAME))) || !wocontext.isMultipleSubmitForm());
     if (shouldHandleRequest) {
     	String updateContainerID = AjaxUpdateContainer.updateContainerID(this, wocomponent);
       AjaxUpdateContainer.setUpdateContainerID(worequest, updateContainerID);
-      wocontext._setActionInvoked(true);
+      wocontext.setActionInvoked(true);
       result = handleRequest(worequest, wocontext);
-      AjaxUtils.updateMutableUserInfoWithAjaxInfo(wocontext);
+      ERXAjaxApplication.enableShouldNotStorePage();
     }
     
     return result;
   }
 
+  @Override
   public WOActionResults handleRequest(WORequest request, WOContext context) {
 	   WOComponent component = context.component();
 	   WOActionResults result = (WOActionResults) valueForBinding("action", component);

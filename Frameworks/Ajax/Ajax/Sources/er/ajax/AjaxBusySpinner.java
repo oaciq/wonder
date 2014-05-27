@@ -38,18 +38,23 @@ import com.webobjects.appserver.WOResponse;
  * @author qdolan
  */
 public class AjaxBusySpinner extends AjaxComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public AjaxBusySpinner(WOContext context) {
 		super(context);
 	}
 
+	@Override
 	public boolean isStateless() {
 		return true;
 	}
 
-	public boolean synchronizesVariablesWithBindings() {
-		return false;
-	}
-
+	@Override
 	protected void addRequiredWebResources(WOResponse res) {
 		addScriptResourceInHead(res, "prototype.js");
 		addScriptResourceInHead(res, "effects.js");
@@ -99,8 +104,8 @@ public class AjaxBusySpinner extends AjaxComponent {
 		return json.toString();
 	}
 
+	@Override
 	public WOActionResults handleRequest(WORequest request, WOContext context) {
 		return null;
 	}
-
 }

@@ -1,11 +1,6 @@
-//
-// ERDDHTMLComponent.java: Class file for WO Component 'ERDDHTMLComponent'
-// Project simple
-//
-// Created by ak on Wed Mar 20 2002
-//
 package er.directtoweb.components.strings;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.webobjects.appserver.WOContext;
@@ -17,10 +12,17 @@ import er.extensions.foundation.ERXStringUtilities;
 
 /**
  * Rich text edit component.<br />
- * @deprecated use ERDEditHTML instead
+ * @deprecated use {@link ERDEditHTML} instead
  */
-
+@Deprecated
 public class ERDDHTMLComponent extends ERDCustomEditComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
+
     static final Logger log = Logger.getLogger(ERDDHTMLComponent.class);
 
     String varName = null;
@@ -29,14 +31,17 @@ public class ERDDHTMLComponent extends ERDCustomEditComponent {
         super(context);
     }
 
+    @Override
     public boolean isStateless() {
 	return false;
     }
 
+    @Override
     public boolean synchronizesVariablesWithBindings() {
         return false;
     }
 
+    @Override
     public void reset() {
         super.reset();
         varName = null;
@@ -44,13 +49,14 @@ public class ERDDHTMLComponent extends ERDCustomEditComponent {
     
     public String varName()  {
 	if(varName == null) {
-	    varName = ERXStringUtilities.replaceStringByStringInString("-", "_", "dhtml-" + context().elementID().hashCode() + "-" + key());
-	    varName = ERXStringUtilities.replaceStringByStringInString(".", "_", varName);
+	    varName = StringUtils.replace("dhtml-" + context().elementID().hashCode() + "-" + key(), "-", "_");
+	    varName = StringUtils.replace(varName, ".", "_");
 	    log.debug(varName);
 	}
 	return varName;
     }
-    
+
+    @Override
     public void takeValuesFromRequest(WORequest q, WOContext c) throws NSValidation.ValidationException {
         super.takeValuesFromRequest(q,c);
         try {

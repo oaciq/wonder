@@ -318,18 +318,21 @@ public class ERXMigrator {
 	}
 
 	protected boolean canMigrateModel(EOModel model) {
-		boolean canMigrateModel = false;
 		String adaptorName = model.adaptorName();
 		if ("Memory".equals(adaptorName)) {
-			canMigrateModel = true;
+			return true;
 		}
-		else if ("JDBC".equals(adaptorName)) {
+		if ("JDBC".equals(adaptorName)) {
 			String url = (String)model.connectionDictionary().objectForKey(JDBCAdaptor.URLKey);
-			if (url != null && url.toLowerCase().startsWith("jdbc:")) {
-				canMigrateModel = true;
+			if ((url != null && url.toLowerCase().startsWith("jdbc:"))) {
+				return true;
+			}
+			String dataSourceJndiName = (String) model.connectionDictionary().objectForKey(JDBCAdaptor.DataSourceJndiNameKey);
+			if(dataSourceJndiName != null) {
+				return true;
 			}
 		}
-		return canMigrateModel;
+		return false;
 	}
 	
 	protected void _buildDependenciesForModel(EOModel model, int migrateToVersion, Map<String, Integer> versions, Map<IERXMigration, ERXModelVersion> migrations) throws InstantiationException, IllegalAccessException {
@@ -363,7 +366,7 @@ public class ERXMigrator {
 				}
 				if (erMigrationClass != null) {
 					IERXMigration migration = (IERXMigration) erMigrationClass.newInstance();
-					versions.put(modelName, new Integer(versionNum));
+					versions.put(modelName, Integer.valueOf(versionNum));
 					NSArray<ERXModelVersion> migrationDependencies = migration.modelDependencies();
 					if (migrationDependencies != null) {
 						Enumeration<ERXModelVersion> migrationDependenciesEnum = migrationDependencies.objectEnumerator();
@@ -382,7 +385,7 @@ public class ERXMigrator {
 					if (ERXMigrator.log.isDebugEnabled()) {
 						ERXMigrator.log.debug("  Migration " + erMigrationClassName + " and/or " + vendorMigrationClassName + " do not exist.");
 					}
-					versions.put(modelName, new Integer(ERXMigrator.LATEST_VERSION));
+					versions.put(modelName, Integer.valueOf(ERXMigrator.LATEST_VERSION));
 				}
 			}
 		}
@@ -401,7 +404,7 @@ public class ERXMigrator {
 	 * ModelVersion represents a particular version of an EOModel.
 	 * 
 	 * @author mschrag
-	 * @deprecated Use er.extensions.migration.ERXModelVersion instead
+	 * @deprecated use {@link er.extensions.migration.ERXModelVersion}
 	 */
 	@Deprecated
 	public static class ModelVersion extends ERXModelVersion {

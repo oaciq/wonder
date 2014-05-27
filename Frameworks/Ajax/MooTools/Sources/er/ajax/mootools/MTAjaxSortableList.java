@@ -21,6 +21,8 @@ import er.ajax.AjaxUtils;
 
 public class MTAjaxSortableList extends AjaxComponent {
     
+	private static final long serialVersionUID = 1L;
+
 	private String _id;
 	private String _actionUrl;
 	private String _sortOrderKeyName;
@@ -30,6 +32,7 @@ public class MTAjaxSortableList extends AjaxComponent {
         super(context);
     }
 
+	@Override
 	public void appendToResponse(WOResponse response, WOContext context) {
 
 		_actionUrl = AjaxUtils.ajaxComponentActionUrl(context);
@@ -82,10 +85,10 @@ public class MTAjaxSortableList extends AjaxComponent {
 
 		String listItemIDKeyPath = (String) valueForBinding("listItemIDKeyPath");
 		Object listItemIDArrayObj = request.formValues().objectForKey(_sortOrderKeyName + "[]");
-		NSArray listItemIDArray;
+		NSArray<String> listItemIDArray;
 
 		if (listItemIDArrayObj instanceof NSArray) {
-			listItemIDArray = (NSArray) listItemIDArrayObj;
+			listItemIDArray = (NSArray<String>) listItemIDArrayObj;
 		}
 		else if (listItemIDArrayObj instanceof String) {
 			String listItemIDStr = (String) listItemIDArrayObj;
@@ -120,7 +123,7 @@ public class MTAjaxSortableList extends AjaxComponent {
 		int listItemIDCount = listItemIDArray.count();
 		for(int listItemIDIndex = 0; listItemIDIndex < listItemIDCount; listItemIDIndex++) {
 
-			String itemID = (String) listItemIDArray.objectAtIndex(listItemIDIndex);
+			String itemID = listItemIDArray.objectAtIndex(listItemIDIndex);
 			NSRange itemPageRange;
 
 			if(mutableList) {
@@ -199,20 +202,21 @@ public class MTAjaxSortableList extends AjaxComponent {
 		if(canGetValueForBinding("onComplete")) {
 			String onComplete = (String) valueForBinding("onComplete");
 			onCompleteBuffer.append(" var parentOnComplete = ")
-			.append(onComplete).append(";").append("parentOnUpdate(container);");
+			.append(onComplete).append(';').append("parentOnUpdate(container);");
 		}
-		onCompleteBuffer.append("}");
+		onCompleteBuffer.append('}');
 
 		return onCompleteBuffer.toString();
 	}
 
 
+	@Override
 	public boolean synchronizesVariablesWithBindings() {
 		return false;
 	}
 
 	public void setId(String id) {
-		this._id = id;
+		_id = id;
 	}
 
 	public String getId() {
@@ -230,7 +234,7 @@ public class MTAjaxSortableList extends AjaxComponent {
 	 * @param var the var to set
 	 */
 	public void setVar(String var) {
-		this._var = var;
+		_var = var;
 	}	
 
 }
