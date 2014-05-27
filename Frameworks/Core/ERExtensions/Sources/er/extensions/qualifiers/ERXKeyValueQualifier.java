@@ -31,7 +31,7 @@ public class ERXKeyValueQualifier extends EOKeyValueQualifier implements IERXCha
 	// Lazy static initialization
 	private static class PROPERTIES {
 		static boolean shouldEvaluateManyToManyValueObject = ERXProperties.booleanForKeyWithDefault("er.extensions.ERXKeyValueQualifier.manyToMany", false);
-		static boolean shouldFlattenValueObject = ERXProperties.booleanForKeyWithDefault("er.extensions.ERXKeyValueQualifier.Contains.flatten", true);z
+		static boolean shouldFlattenValueObject = ERXProperties.booleanForKeyWithDefault("er.extensions.ERXKeyValueQualifier.Contains.flatten", true);
 	}
 
 	public ERXKeyValueQualifier(String key, NSSelector selector, Object value) {
@@ -102,7 +102,7 @@ public class ERXKeyValueQualifier extends EOKeyValueQualifier implements IERXCha
 			objectValue = ERXArrayUtilities.flatten((NSArray<?>) objectValue);
 		}
 		if(PROPERTIES.shouldEvaluateManyToManyValueObject){
-			Object objectValue = NSKeyValueCodingAdditions.Utility.valueForKeyPath(object, _key);
+			objectValue = NSKeyValueCodingAdditions.Utility.valueForKeyPath(object, _key);
 			if (objectValue instanceof NSMutableArray<?>) {
 				for (Object value : (NSMutableArray<?>) objectValue) {
 					NSDictionary<String, Object> newObject = new NSDictionary<String, Object>(value, _key);
