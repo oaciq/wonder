@@ -774,15 +774,14 @@
 
     <distributionManagement>
         <repository>
-            <id>wocommunity.deployment</id>
-            <name>WOCommunity Maven2 Releases Repository</name>
-            <url>http://maven.wocommunity.org/content/repositories/releases</url>
+            <id>archiva.internal</id>
+            <name>Internal Release Repository</name>
+            <url>http://staging.oaciq.com:8084/archiva/repository/internal/</url>
         </repository>
         <snapshotRepository>
-            <id>wocommunity.deployment</id>
-            <uniqueVersion>false</uniqueVersion>
-            <name>WOCommunity Maven2 Snapshots Repository</name>
-            <url>http://maven.wocommunity.org/content/repositories/snapshots/</url>
+            <id>archiva.snapshots</id>
+            <name>Internal Snapshot Repository</name>
+            <url>http://staging.oaciq.com:8084/archiva/repository/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
