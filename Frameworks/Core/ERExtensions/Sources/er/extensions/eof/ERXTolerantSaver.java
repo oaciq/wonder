@@ -26,10 +26,10 @@ import com.webobjects.foundation.NSValidation;
  * hvae the changes merged from the database or stomp all the changes
  * the database regardless of locking. The entry point for using this
  * class is the <code>save</code> method.
- * @deprecated use ERXEC
- * 
+ * @deprecated use {@link ERXEC}
  */
 // MOVEME: All of these methods could move to something like ERXEOFUtilities
+@Deprecated
 public class ERXTolerantSaver {
 
     /** logging support */
@@ -107,10 +107,9 @@ public class ERXTolerantSaver {
             re = _save(ec, writeAnyWay, merge);
             if (re == null || re.indexOf("deadlock") == -1) {
                 break;
-            } else {
-                try { Thread.sleep(100); } catch (InterruptedException e) {}
-                log.error("got deadlock, trying to save again");
             }
+            try { Thread.sleep(100); } catch (InterruptedException e) {}
+            log.error("got deadlock, trying to save again");
         }
         return re;
     }
@@ -120,8 +119,7 @@ public class ERXTolerantSaver {
         //this works for frontbase, add other indexOf statements for db's like oracle, ...
         if (stackTrace.indexOf("multiple transaction conflict detected") != -1) {
             return "deadlock";
-        } else {
-            return "";
         }
+        return "";
     }
 }

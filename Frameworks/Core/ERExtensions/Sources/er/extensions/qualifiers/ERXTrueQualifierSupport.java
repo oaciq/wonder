@@ -9,17 +9,19 @@ import com.webobjects.eocontrol.EOQualifier;
  * SQL generation support for {@link ERXTrueQualifier}.
  * 
  * @author kieran
- * 
  */
 public class ERXTrueQualifierSupport extends EOQualifierSQLGeneration.Support {
+	@Override
 	public String sqlStringForSQLExpression(EOQualifier qualifier, EOSQLExpression expression) {
 		return "1=1";
 	}
 
+	@Override
 	public EOQualifier schemaBasedQualifierWithRootEntity(EOQualifier qualifier, EOEntity entity) {
 		return qualifier;
 	}
 
+	@Override
 	public EOQualifier qualifierMigratedFromEntityRelationshipPath(EOQualifier qualifier, EOEntity entity, String relationshipPath) {
 		return qualifier;
 	}

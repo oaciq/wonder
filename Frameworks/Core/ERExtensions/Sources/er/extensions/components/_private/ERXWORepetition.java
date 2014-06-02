@@ -110,6 +110,13 @@ public class ERXWORepetition extends WODynamicGroup {
 	private static boolean _eoSupportDefault = ERXProperties.booleanForKeyWithDefault("er.extensions.ERXWORepetition.eoSupport", ERXProperties.booleanForKey(ERXWORepetition.class.getName() + ".eoSupport"));
 	
 	public static class UnmatchedObjectException extends RuntimeException {
+		/**
+		 * Do I need to update serialVersionUID?
+		 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+		 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+		 */
+		private static final long serialVersionUID = 1L;
+
 		public UnmatchedObjectException() {
 
 		}
@@ -228,16 +235,16 @@ public class ERXWORepetition extends WODynamicGroup {
 	 * @param message 
 	 **/
 	protected void _failCreation(String message) {
-		throw new WODynamicElementCreationException("<" + this.getClass().getName() + "> " + message);
+		throw new WODynamicElementCreationException("<" + getClass().getName() + "> " + message);
 	}
 
 	@Override
 	public String toString() {
-		return new StringBuilder().append("<").append(this.getClass().getName())
-				.append(" list: ").append(_list != null ? _list.toString() : "null")
-				.append(" item: ").append(_item != null ? _item.toString() : "null")
-				.append(" count: ").append(_count != null ? _count.toString() : "null")
-				.append(" index: ").append(_index != null ? _index.toString() : "null").append(">").toString();
+		return new StringBuilder().append('<').append(getClass().getName())
+				.append(" list: ").append(_list)
+				.append(" item: ").append(_item)
+				.append(" count: ").append(_count)
+				.append(" index: ").append(_index).append('>').toString();
 	}
 
 	private int hashCodeForObject(WOComponent component, Object object) {

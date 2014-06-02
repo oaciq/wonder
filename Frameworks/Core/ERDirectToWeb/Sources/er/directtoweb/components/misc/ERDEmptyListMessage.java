@@ -21,6 +21,12 @@ import er.extensions.foundation.ERXValueUtilities;
  * @d2wKey showCreateObjectLink
  */
 public class ERDEmptyListMessage extends ERDCustomComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public ERDEmptyListMessage(WOContext context) {
 		super(context);
@@ -38,10 +44,12 @@ public class ERDEmptyListMessage extends ERDCustomComponent {
 		};
 	}
 
+	@Override
 	public final boolean isStateless() {
 		return true;
 	}
 
+	@Override
 	public final boolean synchronizesVariablesWithBindings() {
 		return false;
 	}
@@ -52,8 +60,8 @@ public class ERDEmptyListMessage extends ERDCustomComponent {
      * 
      */
     public boolean showCreateObjectLink () {
-    	boolean enabledFromRule = ERXValueUtilities.booleanValue(this.d2wContext().valueForKey("showCreateObjectLink"));
-    	boolean entityExists = (this.d2wContext().entity() != null && this.d2wContext().entity().name() != null);
+    	boolean enabledFromRule = ERXValueUtilities.booleanValue(d2wContext().valueForKey("showCreateObjectLink"));
+    	boolean entityExists = (d2wContext().entity() != null && d2wContext().entity().name() != null);
     	
     	return entityExists && enabledFromRule;
     }
@@ -64,7 +72,7 @@ public class ERDEmptyListMessage extends ERDCustomComponent {
     public WOComponent createObject () {
         WOComponent nextPage = null;
         try {
-            EditPageInterface epi = D2W.factory().editPageForNewObjectWithEntityNamed(this.d2wContext().entity().name(), session());
+            EditPageInterface epi = D2W.factory().editPageForNewObjectWithEntityNamed(d2wContext().entity().name(), session());
             epi.setNextPage(context().page());
             nextPage = (WOComponent) epi;
         } catch (IllegalArgumentException e) {

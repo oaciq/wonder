@@ -31,11 +31,6 @@ public class jQueryLoadLink extends jQueryLoad {
     }
     
     @Override
-    public boolean synchronizesVariablesWithBindings() {
-    	return false;
-    }
-    
-    @Override
     public boolean isStateless() {
     	return true;
     }
@@ -63,7 +58,7 @@ public class jQueryLoadLink extends jQueryLoad {
 
 	// actions
 	public WOActionResults invokeAction() {
-		context()._setActionInvoked(true);
+		context().setActionInvoked(true);
 		if (hasBinding(Bindings.action))  {
 			WOActionResults action = action();
 			if (action instanceof WOComponent)  ((WOComponent) action)._setIsPage(true);	// cache is pageFrag cache

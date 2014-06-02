@@ -33,6 +33,12 @@ import er.extensions.eof.ERXEOAccessUtilities;
  * this is useful for pre-fetching type uses.
  */
 public class ERXPrimaryKeyListQualifier extends ERXInQualifier {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
     
     /** logging support */
     protected static final Logger log = Logger.getLogger(ERXPrimaryKeyListQualifier.class);
@@ -52,10 +58,12 @@ public class ERXPrimaryKeyListQualifier extends ERXInQualifier {
      */
     public static class Support extends EOQualifierSQLGeneration._KeyValueQualifierSupport {
 
+        @Override
         public String sqlStringForSQLExpression(EOQualifier eoqualifier, EOSQLExpression e) {
             return super.sqlStringForSQLExpression(eoqualifier, e);
         }
 
+        @Override
         public EOQualifier schemaBasedQualifierWithRootEntity(EOQualifier eoqualifier, EOEntity eoentity) {
             EOQualifier result = null;
             EOKeyValueQualifier qualifier = (EOKeyValueQualifier)eoqualifier;
@@ -78,6 +86,7 @@ public class ERXPrimaryKeyListQualifier extends ERXInQualifier {
             return result;
         }
 
+        @Override
         public EOQualifier qualifierMigratedFromEntityRelationshipPath(EOQualifier eoqualifier, EOEntity eoentity, String s) {
             return super.qualifierMigratedFromEntityRelationshipPath(eoqualifier, eoentity, s);
         }
@@ -129,6 +138,7 @@ public class ERXPrimaryKeyListQualifier extends ERXInQualifier {
      * Implementation of the Cloneable interface.
      * @return cloned primary key list qualifier.
      */
+    @Override
     public Object clone() {
         return new ERXPrimaryKeyListQualifier(key(), (NSArray)value(), true);
     }
@@ -148,7 +158,7 @@ public class ERXPrimaryKeyListQualifier extends ERXInQualifier {
         EOEntity entity = ((EOEntityClassDescription)eo.classDescription()).entity();
         if (entity.primaryKeyAttributeNames().count() != 1)
             throw new IllegalStateException("Attempting to construct a qualifier for an entity with a compound primary key: " + entity);
-        return (String)entity.primaryKeyAttributeNames().lastObject();
+        return entity.primaryKeyAttributeNames().lastObject();
     }
 
     /**

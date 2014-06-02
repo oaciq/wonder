@@ -12,10 +12,10 @@ import org.apache.log4j.Logger;
 
 import com.webobjects.appserver.WOApplication;
 import com.webobjects.appserver.WOContext;
+import com.webobjects.appserver.WODynamicURL;
 import com.webobjects.appserver.WORequest;
 import com.webobjects.appserver.WORequestHandler;
 import com.webobjects.appserver.WOResponse;
-import com.webobjects.appserver.WOSession;
 import com.webobjects.eocontrol.EOEditingContext;
 import com.webobjects.eocontrol.EOGlobalID;
 import com.webobjects.eocontrol.EOKeyGlobalID;
@@ -23,7 +23,6 @@ import com.webobjects.foundation.NSLog;
 
 import er.attachment.model.ERAttachment;
 import er.attachment.processors.ERAttachmentProcessor;
-import er.extensions.components.ERXDynamicURL;
 import er.extensions.eof.ERXEC;
 import er.extensions.eof.ERXEOGlobalIDUtilities;
 import er.extensions.foundation.ERXStringUtilities;
@@ -77,17 +76,17 @@ public class ERAttachmentRequestHandler extends WORequestHandler {
       WOContext context = application.createContextForRequest(request);
       WOResponse response = application.createResponseInContext(context);
 
-      String wosid = (String) request.formValueForKey("wosid");
-      if (wosid == null) {
-        wosid = request.cookieValueForKey("wosid");
+      String sessionIdKey = WOApplication.application().sessionIdKey();
+      String sessionId = (String) request.formValueForKey(sessionIdKey);
+      if (sessionId == null) {
+        sessionId = request.cookieValueForKey(sessionIdKey);
       }
-      context._setRequestSessionID(wosid);
-      WOSession session = null;
+      context._setRequestSessionID(sessionId);
       if (context._requestSessionID() != null) {
-        session = WOApplication.application().restoreSessionWithID(wosid, context);
+        WOApplication.application().restoreSessionWithID(sessionId, context);
       }
       try {
-        ERXDynamicURL url = new ERXDynamicURL(request._uriDecomposed());
+        WODynamicURL url = request._uriDecomposed();
         String requestHandlerPath = url.requestHandlerPath();
         Matcher idMatcher = Pattern.compile("^id/(\\d+)/").matcher(requestHandlerPath);
         String idStr;
@@ -153,7 +152,7 @@ public class ERAttachmentRequestHandler extends WORequestHandler {
           }
 
           response.setStatus(200);
-          response.setContentStream(attachmentInputStream, bufferSize, (int) length);
+          response.setContentStream(attachmentInputStream, bufferSize, length);
         }
         catch (SecurityException e) {
           NSLog.out.appendln(e);

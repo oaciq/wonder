@@ -19,10 +19,17 @@ import er.directtoweb.assignments.delayed.ERDDelayedObjectCreationAssignment;
  * Assignment used to create objects on the fly. You use this by
  * specifing the class name as a string, ie "foo.bar.MyClass". This
  * will create an instance of the MyClass object.
- * @deprecated use ERDDelayedObjectCreationAssignment instead.
+ * @deprecated use {@link er.directtoweb.assignments.delayed.ERDDelayedObjectCreationAssignment}
  */
-
+@Deprecated
 public class ERDInstanceCreationAssignment extends ERDDelayedAssignment {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
+
     /** logging support */
     public final static Logger log = Logger.getLogger(ERDDelayedAssignment.class);
     
@@ -59,7 +66,7 @@ public class ERDInstanceCreationAssignment extends ERDDelayedAssignment {
     public ERDInstanceCreationAssignment (String key, Object value) { super(key,value); }
 
     /**
-     * Implementation of the {@link ERDComputingAssignmentInterface}. This
+     * Implementation of the {@link er.directtoweb.assignments.ERDComputingAssignmentInterface}. This
      * assignment depends upon the context key: "entity.name". This array 
      * of keys is used when constructing the 
      * significant keys for the passed in keyPath.
@@ -68,6 +75,7 @@ public class ERDInstanceCreationAssignment extends ERDDelayedAssignment {
      */
     public NSArray dependentKeys(String keyPath) { return _DEPENDENT_KEYS; }
 
+    @Override
     public Object fireNow(D2WContext c) {
         Object o = null;
         Object value = value();

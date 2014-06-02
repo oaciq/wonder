@@ -28,7 +28,13 @@ import er.extensions.foundation.ERXValueUtilities;
  * @author davidleber
  */
 public class ERMODListPage extends ERD2WListPageTemplate implements ListPageInterface {
-	
+  /**
+   * Do I need to update serialVersionUID?
+   * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+   * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+   */
+  private static final long serialVersionUID = 1L;
+
 	public interface Keys extends ERD2WListPageTemplate.Keys {
 		public static final String useAjaxControlsWhenEmbedded = "useAjaxControlsWhenEmbedded";
 		public static final String parentPageConfiguration = "parentPageConfiguration";
@@ -71,7 +77,7 @@ public class ERMODListPage extends ERD2WListPageTemplate implements ListPageInte
 			}
 		}
 		if (useAjaxWhenEmbedded) {
-			if (this.parent() != null) {
+			if (parent() != null) {
 				D2WPage parent = (D2WPage)ERD2WUtilities.enclosingPageOfClass(this, D2WPage.class);
 				if (parent != null) 
 					parent.takeValueForKeyPath(null, "d2wContext.inlineTask");

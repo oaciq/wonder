@@ -2,9 +2,8 @@ package er.grouping;
 
 import org.apache.log4j.Logger;
 
-import com.webobjects.foundation.*;
-
-import er.extensions.*;
+import com.webobjects.foundation.NSKeyValueCoding;
+import com.webobjects.foundation.NSTimestamp;
 
 /**
  * Converts values. The main reason for this class is to provide a
@@ -29,7 +28,7 @@ public class DRValueConverter {
             return 0.0;
         } else if (v instanceof String) {
             try {
-                scr = (new Double((String)v)).doubleValue();
+                scr = Double.parseDouble((String)v);
             } catch(NumberFormatException e) {
                 log.error("Not a number: " + v);
                 scr = 0.0;
@@ -39,12 +38,12 @@ public class DRValueConverter {
             scr = vv.doubleValue();
         } else if (v instanceof NSTimestamp) {
             NSTimestamp vv = (NSTimestamp)v;
-            scr = (double)vv.getTime() / 1000.0;
+            scr = vv.getTime() / 1000.0;
         } else if(v == NSKeyValueCoding.NullValue) {
             scr = 0.0;
         } else {
             try {
-                scr = (new Double(v.toString())).doubleValue();
+                scr = Double.parseDouble(v.toString());
             } catch(NumberFormatException ex) {
                 log.error("Not a number: " + v);
                 scr = 0.0;
@@ -55,7 +54,7 @@ public class DRValueConverter {
    
     public Number numberForValue(Object v) {
         double vv = doubleForValue(v);
-        Number scr = new Double(vv);
+        Number scr = Double.valueOf(vv);
         return scr;
     }
     

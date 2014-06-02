@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <wodefinitions>
     <wo class="MTAjaxSubmitButton" wocomponentcontent="true">    <binding name="action"/>
         <binding name="afterEffect"/>
@@ -29,9 +29,7 @@
         <binding name="showUI"/>
         <binding name="style"/>
         <binding name="updateContainerID"/>
-        <validation message="'updateContainerID' is a required binding.">
-            <unbound name="updateContainerID"/>
-        </validation>
+        
         <binding name="value"/>
     <binding name="async"/>
     <binding name="afterEffectDuration"/>

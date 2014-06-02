@@ -39,8 +39,14 @@ import er.extensions.eof.ERXConstant;
  * (Back port from WO 5 WOExtensions)<br />
  * 
  */
-
+@Deprecated
 public class WOTable extends WOComponent {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public NSArray _list;
     public int _maxColumns;
@@ -55,6 +61,7 @@ public class WOTable extends WOComponent {
         _resetInternalCaches();
     }
 
+    @Override
     public boolean isStateless() {
         return true;
     }
@@ -153,11 +160,13 @@ public class WOTable extends WOComponent {
         _maxColumns = -1;
     }
 
+    @Override
     public void takeValuesFromRequest(WORequest aRequest, WOContext aContext)  {
         _resetInternalCaches();
         super.takeValuesFromRequest(aRequest, aContext);
     }
 
+    @Override
     public void reset() {
         _resetInternalCaches();
     }

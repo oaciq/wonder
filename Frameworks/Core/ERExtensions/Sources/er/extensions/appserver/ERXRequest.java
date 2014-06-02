@@ -1,11 +1,11 @@
 package er.extensions.appserver;
-import java.text.ParseException;
+
 import java.text.SimpleDateFormat;
 import java.util.Enumeration;
+import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
-
-import sun.misc.BASE64Encoder;
 
 import com.webobjects.appserver.WOApplication;
 import com.webobjects.appserver.WOContext;
@@ -25,10 +25,11 @@ import com.webobjects.foundation.NSTimestamp;
 import er.extensions.foundation.ERXProperties;
 import er.extensions.localization.ERXLocalizer;
 
-/** Subclass of WORequest that fixes several Bugs.
+/**
+ * Subclass of WORequest that fixes several Bugs.
  * The ID's are #2924761 and #2961017. It can also be extended to handle
  * #2957558 ("de-at" is converted to "German" instead of "German_Austria").
- * The request is created via {@link ERXApplication#createRequest(String,String,String, NSDictionary,NSData,NSDictionary)}.
+ * The request is created via {@link ERXApplication#createRequest(String, String, String, Map, NSData, Map)}.
  */
 public  class ERXRequest extends WORequest {
 
@@ -56,21 +57,26 @@ public  class ERXRequest extends WORequest {
 
     /**
      * Specifies whether https should be overridden to be enabled or disabled app-wide. This is 
-     * useful if you are developing with DirectConnect and you want to be able to specif secure 
+     * useful if you are developing with DirectConnect and you want to be able to specify secure 
      * forms and links, but you want to be able to continue testing them without setting up SSL.
      * 
-     * Defaults to false, set er.extensions.ERXRequest.secureDisabled=true to turn it off.
+     * Defaults to <code>false</code>, set er.extensions.ERXRequest.secureDisabled=true to turn it off.
      */
     protected boolean _secureDisabled;
     
-    
-    
-     /** Simply call superclass constructor */
-    public ERXRequest(String string, String string0, String string1,
-                      NSDictionary nsdictionary, NSData nsdata,
-                      NSDictionary nsdictionary2) {
-        super(string, string0, string1, nsdictionary,
-              nsdata, nsdictionary2);
+    /**
+     * Returns a ERXRequest object initialized with the specified parameters.
+     * 
+     * @param aMethod a "GET", "POST" or "HEAD", may not be <code>null</code>. If <code>null</code>, or not one of the allowed methods, an IllegalArgumentException will be thrown
+     * @param aURL a URL, may not be null or an IllegalArgumentException will be thrown
+     * @param anHTTPVersion  the version of HTTP used when sending the message, may not be <code>null</code> or an IllegalArgumentException will be thrown
+     * @param someHeaders  a dictionary whose String keys correspond to header names and whose values are arrays of one or more strings corresponding to the values of each header
+     * @param aContent the HTML content
+     * @param aUserInfoDictionary java.util.Map that contains any information that the WORequest object wants to pass along to other objects
+     */
+    public ERXRequest(String aMethod, String aURL, String anHTTPVersion,
+                      Map someHeaders, NSData aContent, Map aUserInfoDictionary) {
+        super(aMethod, aURL, anHTTPVersion, someHeaders, aContent, aUserInfoDictionary);
         if (isBrowserFormValueEncodingOverrideEnabled() && browser().formValueEncoding() != null) {
             setDefaultFormValueEncoding(browser().formValueEncoding());
         }
@@ -95,6 +101,7 @@ public  class ERXRequest extends WORequest {
      * @see WOContext#completeURLWithRequestHandlerKey(String, String, String, String, boolean, int)
      * @see WORequest#_completeURLPrefix(StringBuffer, boolean, int)
      */
+	@Override
 	public String _serverName() {
 		String serverName = headerForKey("x-webobjects-servlet-server-name");
 
@@ -114,18 +121,19 @@ public  class ERXRequest extends WORequest {
 	}
 
     /**
-     * Returns true if er.extensions.ERXRequest.secureDisabled is true.
+     * Returns <code>true</code> if er.extensions.ERXRequest.secureDisabled is true.
+     * Defaults to <code>false</code>.
      * 
-     * @return true if er.extensions.ERXRequest.secureDisabled is true
+     * @return <code>true</code> if er.extensions.ERXRequest.secureDisabled is true
      */
     public static boolean _isSecureDisabled() {
         return ERXProperties.booleanForKeyWithDefault("er.extensions.ERXRequest.secureDisabled", false);
     }
     
     /**
-     * Returns true if er.extensions.ERXRequest.secureDisabled is true.
+     * Returns <code>true</code> if er.extensions.ERXRequest.secureDisabled is true.
      * 
-     * @return true if er.extensions.ERXRequest.secureDisabled is true
+     * @return <code>true</code> if er.extensions.ERXRequest.secureDisabled is true
      */
     public boolean isSecureDisabled() {
     	return _secureDisabled;
@@ -138,12 +146,13 @@ public  class ERXRequest extends WORequest {
         return isBrowserFormValueEncodingOverrideEnabled.booleanValue();
     }
 
+    @Override
     public WOContext context() {
     	return _context();
     }
     
     /** Returns a cooked version of the languages the user has set in his Browser.
-     * Adds "Nonlocalized" and {@link ERXLocalizer#defaultLanguage()} if not
+     * Adds "Nonlocalized" and {@link er.extensions.localization.ERXLocalizer#defaultLanguage()} if not
      * already present. Transforms regionalized en_us to English_US as a key.
      * @return cooked version of user's languages
      */
@@ -153,19 +162,19 @@ public  class ERXRequest extends WORequest {
         if (_browserLanguages == null) {
         	NSMutableArray<String> languageKeys = new NSMutableArray<String>();
             NSArray<String> fixedLanguages = null;
-            String string = this.headerForKey("accept-language");
+            String string = headerForKey("accept-language");
             if (string != null) {
                 NSArray<String> rawLanguages = NSArray.componentsSeparatedByString(string, ",");
                 fixedLanguages = fixAbbreviationArray(rawLanguages);
                 for (Enumeration<String> e = fixedLanguages.objectEnumerator(); e.hasMoreElements();) {
 					String languageKey = e.nextElement();
-					String language = (String) WOProperties.TheLanguageDictionary.objectForKey(languageKey);
+					String language = WOProperties.TheLanguageDictionary.objectForKey(languageKey);
 					if(language == null) {
 						int index = languageKey.indexOf('_');
 						if(index > 0) {
 							String mainLanguageKey = languageKey.substring(0, index);
 							String region = languageKey.substring(index);
-							language = (String) WOProperties.TheLanguageDictionary.objectForKey(mainLanguageKey);
+							language = WOProperties.TheLanguageDictionary.objectForKey(mainLanguageKey);
 							if(language != null) {
 								language = language + region.toUpperCase();
 							}
@@ -249,6 +258,7 @@ public  class ERXRequest extends WORequest {
      * 
      * @return whether or not this request is secure
      */
+    @Override
     public boolean isSecure() {
     	return ERXRequest.isRequestSecure(this);
     }
@@ -273,7 +283,7 @@ public  class ERXRequest extends WORequest {
         	stringbuffer.append("http://");
         }
    		stringbuffer.append(serverName);
-   		if(portStr != null && ((secure && !"443".equals(portStr)) || (!secure && !"80".equals(portStr)))) {
+   		if(portStr != null && WOApplication.application().isDirectConnectEnabled() && ((secure && !"443".equals(portStr)) || (!secure && !"80".equals(portStr)))) {
    			stringbuffer.append(':');
    			stringbuffer.append(portStr);
         }
@@ -334,6 +344,7 @@ public  class ERXRequest extends WORequest {
     }
 
     private static class _LanguageComparator extends NSComparator {
+        public _LanguageComparator() {}
 
         private static float quality(String languageString) {
             float result=0f;
@@ -418,6 +429,8 @@ public  class ERXRequest extends WORequest {
      * content even if the request is supposed to be streaming and thus 
      * very large. Will now return <code>false</code> if the request
      * handler is streaming.
+     * 
+     * @return <code>true</code> if the session ID can be obtained from the form values or a cookie.
      */
     @Override
 	public boolean isSessionIDInRequest() {
@@ -425,10 +438,9 @@ public  class ERXRequest extends WORequest {
         
         if (app.isStreamingRequestHandlerKey(requestHandlerKey())) {
             return false;
-        } else {
+        }
             return super.isSessionIDInRequest();
         }
-    }
     
 
     /**
@@ -436,10 +448,14 @@ public  class ERXRequest extends WORequest {
      * content even if the request is supposed to be streaming and thus 
      * very large. Will now look for the session ID only in the cookie
      * values.
+     * 
+     * @param inCookiesFirst
+     *            define if session ID should be searched first in cookie
      */
     @Override
 	protected String _getSessionIDFromValuesOrCookie(boolean inCookiesFirst) {
         ERXApplication app = (ERXApplication)WOApplication.application();
+        String sessionIdKey = WOApplication.application().sessionIdKey();
 
         boolean wis = WOApplication.application().streamActionRequestHandlerKey().equals(requestHandlerKey());
         boolean alternateStreaming = app.isStreamingRequestHandlerKey(requestHandlerKey());
@@ -447,16 +463,16 @@ public  class ERXRequest extends WORequest {
         
         String sessionID = null;
         if(inCookiesFirst) {
-            sessionID = cookieValueForKey("wosid");
+            sessionID = cookieValueForKey(sessionIdKey);
             if(sessionID == null && !streaming) {
-                sessionID = stringFormValueForKey("wosid");
+                sessionID = stringFormValueForKey(sessionIdKey);
             }
         } else {
             if(!streaming) {
-                sessionID = stringFormValueForKey("wosid");
+                sessionID = stringFormValueForKey(sessionIdKey);
             }
             if(sessionID == null) {
-                sessionID = cookieValueForKey("wosid");
+                sessionID = cookieValueForKey(sessionIdKey);
             }
         }
         return sessionID;
@@ -465,17 +481,21 @@ public  class ERXRequest extends WORequest {
     /**
      * Utility method to set credentials for basic authorization.
      * 
+     * @param userName
+     *            the user name
+     * @param password
+     *            the password
      */
     public void setCredentials(String userName, String password) {
         String up = userName + ":" + password;
-        BASE64Encoder coder = new BASE64Encoder();
         byte[] bytes = up.getBytes();
-        String encodedString = coder.encode(bytes);
+        String encodedString = Base64.encodeBase64String(bytes);
         setHeader("Basic " +  encodedString, "authorization");
     }
     
     /**
-     * @deprecated Use remoteHostAddress() instead
+     * @return remote client host address
+     * @deprecated use {@link #remoteHostAddress()}
      */
     @Deprecated
 	public String remoteHost() {

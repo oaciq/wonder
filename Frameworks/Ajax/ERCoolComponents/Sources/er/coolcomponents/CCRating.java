@@ -1,10 +1,20 @@
 package er.coolcomponents;
 
-import com.webobjects.appserver.*;
-import com.webobjects.foundation.*;
+import com.webobjects.appserver.WOActionResults;
+import com.webobjects.appserver.WOContext;
+import com.webobjects.appserver.WOElement;
+import com.webobjects.appserver.WORequest;
+import com.webobjects.appserver.WOResponse;
+import com.webobjects.foundation.NSDictionary;
+import com.webobjects.foundation.NSMutableArray;
+import com.webobjects.foundation.NSMutableDictionary;
 
-import er.ajax.*;
-import er.extensions.appserver.*;
+import er.ajax.AjaxConstantOption;
+import er.ajax.AjaxDynamicElement;
+import er.ajax.AjaxOption;
+import er.ajax.AjaxOptions;
+import er.ajax.AjaxUtils;
+import er.extensions.appserver.ERXWOContext;
 
 
 /**
@@ -76,7 +86,7 @@ import er.extensions.appserver.*;
  * @author chill (WebObjects wrapper only, not LivePipe Rating)
  */
 public class CCRating extends AjaxDynamicElement {
-
+	
     public CCRating(String name, NSDictionary associations, WOElement children){
         super(name, associations, children);
     }
@@ -177,10 +187,10 @@ public class CCRating extends AjaxDynamicElement {
         // updateParameterName is renamed to formValueName to be more WO like
         ajaxOptionsArray.addObject(new AjaxConstantOption("updateParameterName", "formValueName", formValueName(context), AjaxOption.STRING));
 
-        // These parameters are mutually exclusive at present, but updateUrl could be used with an input if there is a reason for it.
+        // These parameters are mutually exclusive at present, but dataUpdateUrl could be used with an input if there is a reason for it.
         // I can't think of one right now
         if ( ! actAsInput(context)) {
-            ajaxOptionsArray.addObject(new AjaxConstantOption("updateUrl", AjaxUtils.ajaxComponentActionUrl(context), AjaxOption.STRING));
+            ajaxOptionsArray.addObject(new AjaxConstantOption("dataUpdateUrl", AjaxUtils.ajaxComponentActionUrl(context), AjaxOption.STRING));
             ajaxOptionsArray.addObject(new AjaxOption("updateOptions", AjaxOption.DICTIONARY));
         }
         else {
@@ -253,7 +263,8 @@ public class CCRating extends AjaxDynamicElement {
      * @param context WOContext used to determine component used in
      * @return optional value for id, or calculated value if unbound
      */
-    protected String id(WOContext context) {
+    @Override
+    public String id(WOContext context) {
         return (String) valueForBinding("id", ERXWOContext.safeIdentifierName(context, false), context.component());
     }
 

@@ -14,11 +14,9 @@ import com.webobjects.eocontrol.EOGlobalID;
 import com.webobjects.eocontrol.EOQualifier;
 import com.webobjects.foundation.NSArray;
 
-import er.bugtracker._Framework.Key;
 import er.corebusinesslogic.ERCoreBusinessLogic;
 import er.corebusinesslogic.ERCoreUserInterface;
 import er.extensions.eof.ERXQ;
-import er.extensions.eof.ERXS;
 
 public class People extends _People implements ERCoreUserInterface {
     static final Logger log = Logger.getLogger(People.class);
@@ -32,6 +30,7 @@ public class People extends _People implements ERCoreUserInterface {
         super();
     }
 
+    @Override
     public void init(EOEditingContext ec) {
         super.init(ec);
         setIsActive(true);
@@ -48,7 +47,7 @@ public class People extends _People implements ERCoreUserInterface {
         private EOGlobalID documenter;
 
         public People anyUser(EOEditingContext ec) {
-            return (People) allObjects(ec).lastObject();
+            return allObjects(ec).lastObject();
         }
 
         public People defaultDocumenter(EOEditingContext ec) {

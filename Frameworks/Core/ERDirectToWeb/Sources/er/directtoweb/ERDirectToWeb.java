@@ -57,8 +57,8 @@ import er.extensions.localization.ERXLocalizer;
  * Principle class of the ERDirectToWeb framework.
  * This class is loaded when the NSBundle of this 
  * framework is loaded. When loaded this class configures
- * the directtoweb runtime to use the {@link ERD2WModel} and 
- * {@link ERD2WFactory} subclasses instead of the default
+ * the directtoweb runtime to use the {@link er.directtoweb.ERD2WModel} and
+ * {@link er.directtoweb.ERD2WFactory} subclasses instead of the default
  * implementations. See each class for a description of the 
  * additions/improvements made to the base implementation.
  * This class also has a bunch of utility methods that are
@@ -84,6 +84,7 @@ public class ERDirectToWeb extends ERXFrameworkPrincipal {
     	setUpFrameworkPrincipalClass (ERDirectToWeb.class);
     }
 
+    @Override
     public void finishInitialization() {
         fixClasses();
         ERD2WModel model=ERD2WModel.erDefaultModel();        // force initialization
@@ -303,7 +304,9 @@ public class ERDirectToWeb extends ERXFrameworkPrincipal {
     	return ERXValueUtilities.booleanValue(context.valueForKey(key));
     }
 
-    // DELETEME: This is duplicated from ERExtensions
+    /**
+     * @deprecated This is duplicated from {link: er.extensions.ERXExtensions#userInfoUnit(EOEnterpriseObject, String)}
+     */
     public static String userInfoUnit(EOEnterpriseObject object, String key) {
         // return the unit stored in the userInfo dictionary of the appropriate EOAttribute
         EOEntity entity=null;
@@ -342,26 +345,31 @@ public class ERDirectToWeb extends ERXFrameworkPrincipal {
     }
 
     /** @deprecated use ERD2WFactory.erFactory().printerFriendlyPageForD2WContext(D2WContext context, WOSession session)*/
+    @Deprecated
     public static WOComponent printerFriendlyPageForD2WContext(D2WContext context, WOSession session) {
         return ERD2WFactory.erFactory().printerFriendlyPageForD2WContext(context, session);
     }
 
     /** @deprecated use ERD2WFactory.erFactory().csvExportPageForD2WContext(D2WContext context, WOSession session)*/
+    @Deprecated
     public static WOComponent csvExportPageForD2WContext(D2WContext context, WOSession session) {
         return ERD2WFactory.erFactory().csvExportPageForD2WContext(context, session);
     }
 
     /** @deprecated use ERD2WFactory.erFactory().pageForTaskSubTaskAndEntityNamed(String task, String subtask, String entityName, WOSession session)*/
+    @Deprecated
     public static WOComponent pageForTaskSubTaskAndEntityNamed(String task, String subtask, String entityName, WOSession session) {
         return ERD2WFactory.erFactory().pageForTaskSubTaskAndEntityNamed(task, subtask, entityName, session);
     }
 
     /** @deprecated use ERD2WFactory.erFactory().queryPageWithFetchSpecificationForEntityNamed(String fsName, String entityName, WOSession session)*/
+    @Deprecated
     public static QueryPageInterface queryPageWithFetchSpecificationForEntityNamed(String fsName, String entityName, WOSession session) {
         return ERD2WFactory.erFactory().queryPageWithFetchSpecificationForEntityNamed(fsName, entityName, session);
     }
 
     /** @deprecated use ERD2WFactory.erFactory().errorPageForException(Throwable e, WOSession session)*/
+    @Deprecated
     public static WOComponent errorPageForException(Throwable e, WOSession session) {
         return ERD2WFactory.erFactory().errorPageForException(e, session);
     }
@@ -373,7 +381,13 @@ public class ERDirectToWeb extends ERXFrameworkPrincipal {
      * @author ak
      */
     public static class D2WException extends NSForwardException {
-    	
+    	/**
+    	 * Do I need to update serialVersionUID?
+    	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+    	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+    	 */
+    	private static final long serialVersionUID = 1L;
+
 		private D2WContext _context;
 		
 		public D2WException(Exception ex, D2WContext context) {
@@ -614,6 +628,6 @@ public class ERDirectToWeb extends ERXFrameworkPrincipal {
     		String key = (String)e.nextElement();
     		result.addObject(new ERXKeyValuePair(key, ERDirectToWeb.displayNameForPropertyKey(key, entityForReportName)));
     	}
-    	return (NSArray)result;
+    	return result;
     }
 }

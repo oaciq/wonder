@@ -29,13 +29,20 @@ import er.directtoweb.assignments.defaults.ERDDefaultModelAssignment;
  * not find it is that it uses the Model to find out the EOAttribute 
  * and starts from A. Following the relationship b, gives a B, and 
  * asking B for an attribute named k returns nil and you lose.
- * @deprecated use ERDDefaultModelAssignment
+ * @deprecated use {@link er.directtoweb.assignments.defaults.ERDDefaultModelAssignment}
 */
 //	Note that these assignments require that the object is pushed into the context.  Look
 //	on some of the ERInspectPage setObject methods we push the object into the context.
 // MOVEME: Should combind with ERDSmartRelationship into a single class, maybe the defaults
 //		class.
+@Deprecated
 public class ERDSmartAttributeAssignment extends ERDAssignment {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     /** holds the array of keys this assignment depends on */
     public static final NSArray _DEPENDENT_KEYS=new NSArray(new String[] { "object.entityName", "propertyKey"  });
@@ -55,7 +62,7 @@ public class ERDSmartAttributeAssignment extends ERDAssignment {
     }
     
     /**
-     * Implementation of the {@link ERDComputingAssignmentInterface}. This
+     * Implementation of the {@link er.directtoweb.assignments.ERDComputingAssignmentInterface}. This
      * assignment depends upon the context keys: "object.entityName" and 
      * "propertyKey". This array of keys is used when constructing the 
      * significant keys for the passed in keyPath.

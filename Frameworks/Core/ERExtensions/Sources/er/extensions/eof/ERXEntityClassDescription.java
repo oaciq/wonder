@@ -186,6 +186,12 @@ import er.extensions.validation.ERXValidationFactory;
  */
 
 public class ERXEntityClassDescription extends EOEntityClassDescription {
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
 
     /** logging support */
     public static final Logger log = Logger.getLogger(ERXEntityClassDescription.class);
@@ -684,8 +690,9 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
      * {@link ERXValidationException} and that is
      * thrown.
      * @param obj enterprise object to be deleted
-     * @throws validation exception
+     * @throws NSValidation.ValidationException validation exception
      */
+    @Override
     public void validateObjectForDelete(EOEnterpriseObject obj) throws NSValidation.ValidationException {
         try {
             if (useValidity()) {
@@ -707,6 +714,7 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
      * Overridden to perform a check if the entity is still in a model group.
      * This can happen if you remove the entity, clone it to change things and re-add it afterwards.
      */
+    @Override
     public EOEntity entity() {
         checkEntity();
         return super.entity();
@@ -723,7 +731,7 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
                 } else {
                     EOModel model = _entity.model();
                     if(model == null) {
-                        model = (EOModel)ERXEOAccessUtilities.modelGroup(null).models().lastObject();
+                        model = ERXEOAccessUtilities.modelGroup(null).models().lastObject();
                     }
                     model.addEntity(_entity);
                     log.warn("Added <" + _entity.name() + "> to default model group.");
@@ -734,6 +742,7 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
         }
     }
     
+    @Override
     public EOEnterpriseObject createInstanceWithEditingContext(EOEditingContext ec, EOGlobalID gid) {
         checkEntity();
         return super.createInstanceWithEditingContext(ec, gid);
@@ -746,7 +755,7 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
      * {@link ERXValidationException} and that is
      * thrown.
      * @param obj enterprise object to be deleted
-     * @throws validation exception
+     * @throws NSValidation.ValidationException validation exception
      */
     public void validateObjectForUpdate(EOEnterpriseObject obj) throws NSValidation.ValidationException {
         try {
@@ -771,7 +780,7 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
      * {@link ERXValidationException} and that is
      * thrown.
      * @param obj enterprise object to be deleted
-     * @throws validation exception
+     * @throws NSValidation.ValidationException validation exception
      */
     public void validateObjectForInsert(EOEnterpriseObject obj) throws NSValidation.ValidationException {
         try {
@@ -801,8 +810,9 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
      * @param obj value to be validated
      * @param s property key to validate the value
      *		against.
-     * @throws validation exception
+     * @throws NSValidation.ValidationException validation exception
      */
+    @Override
     public Object validateValueForKey(Object obj, String s) throws NSValidation.ValidationException {
         Object validated = null;
         if (log.isDebugEnabled())
@@ -833,9 +843,10 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
      * {@link ERXValidationException} and that is
      * thrown. 
      * @param obj enterprise object to be saved
-     * @throws validation exception
+     * @throws NSValidation.ValidationException validation exception
      */
 
+    @Override
     public void validateObjectForSave(EOEnterpriseObject obj) throws NSValidation.ValidationException {
         try {
             if (useValidity()) {
@@ -949,6 +960,7 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
      * @param key to be converted
      * @return pretty display name
      */
+    @Override
     public String displayNameForKey(String key) {
     	if (ERXLocalizer.isLocalizationEnabled()) {
     		return ERXLocalizer.currentLocalizer().localizedDisplayNameForKey(this, key);
@@ -993,7 +1005,7 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
         }
 
         public void setValueInObject(EOEnterpriseObject eo) {
-            Object defaultValue = this.stringValue;
+            Object defaultValue = stringValue;
             if(stringValue.startsWith("@threadStorage.")) {
                 String keyPath = stringValue.substring("@threadStorage.".length());
                 defaultValue = ERXThreadStorage.valueForKeyPath(keyPath);
@@ -1035,7 +1047,7 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
         }
 
         public void setValueInObject(EOEnterpriseObject eo) {
-            Object defaultValue = this.stringValue;
+            Object defaultValue = stringValue;
             EOEditingContext ec = eo.editingContext();
 
             if(stringValue.charAt(0) == '@') { // computed key
@@ -1066,7 +1078,7 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
                 }
             } else {
                 if (adaptorType == AdaptorNumberType) {
-                    defaultValue = new Integer(Integer.parseInt(stringValue));
+                    defaultValue = Integer.valueOf(stringValue);
                 }
                 EOGlobalID gid = EOKeyGlobalID.globalIDWithEntityName(relationshipEntityName, new Object[] {defaultValue});
                 EOEnterpriseObject fault = ec.faultForGlobalID(gid,ec);
@@ -1150,6 +1162,7 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
         }
     }
 
+    @Override
     public void awakeObjectFromInsertion(EOEnterpriseObject eo, EOEditingContext ec) {
         super.awakeObjectFromInsertion(eo, ec);
         setDefaultValuesInObject(eo, ec);
@@ -1163,6 +1176,7 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
     	return key;
     }
 
+    @Override
     public String inverseForRelationshipKey(String relationshipKey) {
         String result = null;
         EORelationship relationship = entity().relationshipNamed(relationshipKey);
@@ -1198,9 +1212,8 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
             Throwable targetException = e4.getTargetException();
             if (targetException instanceof NSValidation.ValidationException) {
                 throw (NSValidation.ValidationException)targetException;
-            } else {
-                log.error("an exception occured in validityValidateEOObjectOnSave", e4);
             }
+            log.error("an exception occured in validityValidateEOObjectOnSave", e4);
         }
     }
 
@@ -1254,6 +1267,7 @@ public class ERXEntityClassDescription extends EOEntityClassDescription {
         return sharedGSVEngineInstance;
     }
 
+	@Override
 	public Class _enforcedKVCNumberClassForKey(String key) {
 		EOAttribute attribute = entity().attributeNamed(key);
 		if(attribute != null && attribute.userInfo() != null) {

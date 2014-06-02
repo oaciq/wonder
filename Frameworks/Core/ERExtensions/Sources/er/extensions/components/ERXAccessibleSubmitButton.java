@@ -62,8 +62,8 @@ public class ERXAccessibleSubmitButton  extends ERXSubmitButton {
 	public ERXAccessibleSubmitButton(String name, NSDictionary<String, WOAssociation> associations, WOElement template) {
 		super(name, associations, template);
 
-        _accesskey = (WOAssociation)_associations.removeObjectForKey("accesskey");
-        _accesskeyElement = (WOAssociation)_associations.removeObjectForKey("accesskeyElement");
+        _accesskey = _associations.removeObjectForKey("accesskey");
+        _accesskeyElement = _associations.removeObjectForKey("accesskeyElement");
         if(_accesskeyElement == null) {
         	_accesskeyElement = new WOConstantValueAssociation("u");
         }
@@ -141,16 +141,16 @@ public class ERXAccessibleSubmitButton  extends ERXSubmitButton {
 		String accesskeyElement = accesskeyElement(component);
 		int index = value.indexOf(accessKey);
 		if (index != -1) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append(value.substring(0, index));
-			sb.append("<");
+			sb.append('<');
 			sb.append(accesskeyElement);
-			sb.append(">");
+			sb.append('>');
 			sb.append(accessKey);
 			sb.append("</");
 			int coIndex = accesskeyElement.indexOf(' ');
 			sb.append(coIndex == -1 ? accesskeyElement : accesskeyElement.substring(0, coIndex));
-			sb.append(">");
+			sb.append('>');
 			sb.append(value.substring(index + 1));
 			value = sb.toString();
 		}
@@ -162,6 +162,7 @@ public class ERXAccessibleSubmitButton  extends ERXSubmitButton {
 	 *
 	 * @see er.extensions.components._private.ERXSubmitButton#appendToResponse(com.webobjects.appserver.WOResponse, com.webobjects.appserver.WOContext)
 	 */
+	@Override
 	public void appendToResponse(WOResponse response, WOContext context) {
 		super.appendToResponse(response, context);
 		if (accesskey(context.component()) != null) {
@@ -174,6 +175,7 @@ public class ERXAccessibleSubmitButton  extends ERXSubmitButton {
 	 *
 	 * @see er.extensions.components._private.ERXSubmitButton#appendAttributesToResponse(com.webobjects.appserver.WOResponse, com.webobjects.appserver.WOContext)
 	 */
+    @Override
     public void appendAttributesToResponse(WOResponse response, WOContext context) {
     	super.appendAttributesToResponse(response, context);
     	response._appendTagAttributeAndValue("accesskey", accesskey(context.component()), false);
@@ -184,6 +186,7 @@ public class ERXAccessibleSubmitButton  extends ERXSubmitButton {
      *
      * @see er.extensions.components._private.ERXSubmitButton#appendChildrenToResponse(com.webobjects.appserver.WOResponse, com.webobjects.appserver.WOContext)
      */
+    @Override
     public void appendChildrenToResponse(WOResponse response, WOContext context) {
         if(hasChildrenElements()) {
             super.appendChildrenToResponse(response, context);

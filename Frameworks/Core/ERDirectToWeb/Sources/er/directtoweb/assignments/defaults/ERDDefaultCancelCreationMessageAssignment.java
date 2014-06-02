@@ -11,18 +11,23 @@ import com.webobjects.eocontrol.EOKeyValueUnarchiver;
 import com.webobjects.foundation.NSArray;
 
 import er.directtoweb.assignments.ERDAssignment;
-import er.directtoweb.assignments.ERDComputingAssignmentInterface;
 import er.directtoweb.assignments.ERDLocalizableAssignmentInterface;
 import er.directtoweb.assignments.ERDLocalizedAssignment;
 
 // FIXME: Should be renamed ERDDefaultLocalizedMessageAssignment.
 /**
  * Message assignment used when hitting a cancel button, just a little "Are you sure?" kind of thing.<br />
- * @deprecated use ERDLocalizedAssignment
+ * @deprecated use {@link er.directtoweb.assignments.ERDLocalizedAssignment}
  */
-
+@Deprecated
 public class ERDDefaultCancelCreationMessageAssignment extends ERDAssignment implements ERDLocalizableAssignmentInterface {
-    
+	/**
+	 * Do I need to update serialVersionUID?
+	 * See section 5.6 <cite>Type Changes Affecting Serialization</cite> on page 51 of the 
+	 * <a href="http://java.sun.com/j2se/1.4/pdf/serial-spec.pdf">Java Object Serialization Spec</a>
+	 */
+	private static final long serialVersionUID = 1L;
+
     /** holds the array of keys this assignment depends upon */
     public static final NSArray _DEPENDENT_KEYS=new NSArray("entity.name");
 
@@ -54,7 +59,7 @@ public class ERDDefaultCancelCreationMessageAssignment extends ERDAssignment imp
     public ERDDefaultCancelCreationMessageAssignment (String key, Object value) { super(key,value); }
 
     /**
-     * Implementation of the {@link ERDComputingAssignmentInterface}. This
+     * Implementation of the {@link er.directtoweb.assignments.ERDComputingAssignmentInterface}. This
      * assignment depends upon the context key: "entity.name". This array 
      * of keys is used when constructing the 
      * significant keys for the passed in keyPath.
