@@ -786,9 +786,9 @@
     </distributionManagement>
 
     <scm>
-        <connection>scm:git:git@github.com:wocommunity/wonder.git</connection>
-        <url>scm:git:git@github.com:wocommunity/wonder.git</url>
-        <developerConnection>scm:git:git@github.com:wocommunity/wonder.git</developerConnection>
+        <connection>scm:git:oaciq@github.com/oaciq/wonder.git</connection>
+        <url>scm:git:oaciq@github.com/oaciq/wonder.git</url>
+        <developerConnection>scm:git:oaciq@github.com/oaciq/wonder.git</developerConnection>
       <tag>wonder-6.1.1</tag>
   </scm>
 </project>
