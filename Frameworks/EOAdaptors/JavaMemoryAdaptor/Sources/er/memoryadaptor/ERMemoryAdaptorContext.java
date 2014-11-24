@@ -102,6 +102,8 @@ public class ERMemoryAdaptorContext extends EOAdaptorContext {
       }
       else if ("c".equals(valueType) && "NSString".equals(pkAttribute.valueClassName())) { // hack for bugtracker test cases
         pkValue = String.valueOf(nextSequence);
+			} else if ("S".equals(valueType) && "NSString".equals(pkAttribute.valueClassName())) {
+				pkValue = String.valueOf(nextSequence);
       }
       else {
         throw new IllegalArgumentException("Unknown value type '" + valueType + "' for '" + object + "' of entity '" + entity.name() + "'.");
