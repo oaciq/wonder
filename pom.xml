@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>wonder</groupId>
     <artifactId>wonder</artifactId>
-    <version>6.1.4-OACIQ-Wonder-SNAPSHOT</version>
+    <version>6.1.4-OACIQ-Wonder</version>
     <packaging>pom</packaging>
     <name>Project Wonder</name>
     <url>http://wiki.objectstyle.org/confluence/display/WONDER/Home</url>
@@ -801,6 +801,6 @@
         <connection>scm:git:git@github.com:oaciq/wonder.git</connection>
         <url>scm:git:git@github.com:oaciq/wonder.git</url>
         <developerConnection>scm:git:git@github.com:oaciq/wonder.git</developerConnection>
-      	<tag>6.1-SNAPSHOT</tag>
+      	<tag>6.1.4-OACIQ-Wonder</tag>
   </scm>
 </project>
