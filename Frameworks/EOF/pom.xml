@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>wonder.frameworks</groupId>
 		<artifactId>frameworks</artifactId>
-		<version>6.1.4-OACIQ-Wonder</version>
+		<version>6.1.5-OACIQ-Wonder-SNAPSHOT</version>
 	</parent>
 	<artifactId>eof</artifactId>
 	<packaging>pom</packaging>
