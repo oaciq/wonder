@@ -1,5 +1,5 @@
-<webobject name="NavPage">
+<wo:NavigationPage currentPage="$APP_PAGE">
 <div class="Box PathWizardPage2Box">
-	<webobject name="FileBrowser" />
+	<wo:FileBrowser startingPath="$aPath" host="$host" callbackUpdateAction="updateClicked" callbackSelectionAction="selectionClicked" showFiles="$showFiles" />
 </div>
-</webobject>
+</wo:NavigationPage>

@@ -1,4 +1,4 @@
-<webobject name = "NavPage">
+<wo:NavigationPage currentPage="$APP_PAGE" title="Applications" pageId="Applications">
 <div class="Box ApplicationsListBox">
 <h2 class="SectionHeading">Applications</h2>
 <table>
@@ -11,28 +11,28 @@
     <th>&nbsp;</th>
     <th>&nbsp;</th>
   </tr>
-  <webobject name = "ApplicationsRepetition">
+  <wo:loop list="$applications" item="$currentApplication">
     <tr class="application">
       <td class="applicationName">
-        <webobject name = "AppIsRunning">
-          <webobject name = "ApplicationNameLink" />
-        </webobject>
-        <webobject name = "AppIsNOTRunning">
-          <webobject name = "ApplicationName" />
-        </webobject>
+        <wo:if condition="$currentApplication.isRunning">
+          <wo:link string="$currentApplication.name" href="$hrefToApp" target="new"/>
+        </wo:if>
+        <wo:if condition="$currentApplication.isRunning" negate="$YES">
+          <wo:str value="$currentApplication.name" />
+        </wo:if>
       </td>
-      <td class="RunningInstanceCount"><webobject name = "RunningInstancesCount" /></td>
-      <td class="ConfiguredInstanceCount"><webobject name = "ConfiguredInstanceCount" /></td>
-      <td><webobject name = "AppDetailsLink"><span>View Details</span></webobject></td>
-      <td><webobject name = "ConfigureLink"><span>Configure</span></webobject></td>
-      <td><webobject name = "DeleteLink"><span>Delete</span></webobject></td>
-      <td><webobject name = "BounceLink"><span>Bounce</span></webobject></td>
+      <td class="RunningInstanceCount"><wo:str value="$currentApplication.runningInstancesCount" /></td>
+      <td class="ConfiguredInstanceCount"><wo:str value="$currentApplication.instanceArray.count" /></td>
+      <td><wo:link action="$appDetailsClicked" class="Button ViewDetailsButton"><span>View Details</span></wo:link></td>
+      <td><wo:link action="$configureClicked" class="Button ConfigureButton"><span>Configure</span></wo:link></td>
+      <td><wo:link action="$deleteClicked" class="Button DeleteButton"><span>Delete</span></wo:link></td>
+      <td><wo:link action="$bounceClicked" class="Button BounceButton"><span>Bounce</span></wo:link></td>
     </tr>
-  </webobject>
+  </wo:loop>
   <tr class="Totals">
       <td class="applicationName">Totals</td>
-      <td class="RunningInstanceCount"><webobject name = "TotalsRunningInstanceCount"></webobject></td>
-      <td class="ConfiguredInstanceCount"><webobject name = "TotalsConfiguredInstanceCount"></webobject></td>
+      <td class="RunningInstanceCount"><wo:str value="$totalInstancesRunning" numberformat="#,##0" /></td>
+      <td class="ConfiguredInstanceCount"><wo:str value="$totalInstancesConfigured" numberformat="#,##0" /></td>
       <td></td>
       <td></td>
       <td></td>
@@ -41,11 +41,11 @@
 </table>
 </div>
 <div class="Box AddApplicationBox">
-<webobject name = "AddApplicationForm">
+<wo:form action="$addApplicationClicked" id="ApplicationsPageAddApplicationForm">
   Add Application Named:
-  <webobject name = "ApplicationNameTextField" />
-  <webobject name = "AddApplicationSubmitButton" />
-</webobject>
+  <wo:textfield size="40" value="$newApplicationName" id="ApplicationsPageApplicationNameTextField"/>
+  <wo:submit action="$addApplicationClicked" value="Add Application" id="ApplicationsPageAddApplicationSubmitButton"/>
+</wo:form>
 <div class="Notes">
 	<h4>Notes:</h4>
 	<ul>
@@ -55,4 +55,4 @@
     </ul>
 </div>
 </div>
-</webobject>
+</wo:NavigationPage>

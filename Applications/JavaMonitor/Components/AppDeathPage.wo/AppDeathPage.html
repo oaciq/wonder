@@ -1,18 +1,18 @@
-<webobject name="NavPage" />
+<wo:NavigationPage currentPage="$APP_PAGE" />
 <b>Application Deaths</b>
 <br />
 <br />
-<webobject name="ClearDeaths">Clear History</webobject> | <webobject name="ReturnLink">Back to App Detail View</webobject>
+<wo:link action="$clearDeathsClicked" id="AppDeathPageClearDeaths">Clear History</wo:link> | <wo:link action="$returnClicked" id="AppDeathPageReturnLink">Back to App Detail View</wo:link>
 <br />
 <br />
 <table border="1" cellpadding="3" cellspacing="1">
   <tr>
     <th colspan="2"> Date/Time Occurred </th>
   </tr>
-  <webobject name="DeathRepetition">
+  <wo:loop list="$myInstance.deaths" item="$aDeath" index="$anIndex">
     <tr>
-      <td> <webobject name="DeathIndex" /> </td>
-      <td> <webobject name="DeathDescription" /> </td>
+      <td> <wo:str value="$anIndexPlusOne" /> </td>
+      <td> <wo:str value="$aDeath" //dateformat="%m/%d/%Y %H:%M:%S %Z" /> </td>
     </tr>
-  </webobject>
+  </wo:loop>
 </table>

@@ -1,11 +1,11 @@
-<webobject name="NavPage">
+<wo:NavigationPage currentPage="$SITE_PAGE" title="Configure" pageId="Site">
 <div class="Box AdapterConfigBox">
 <h2 class="SectionHeading">HTTP Adaptor URL</h2>
-<webobject name="AdaptorSettingsForm">
+<wo:form id="ConfigurePageAdaptorSettingsForm">
 <p>Enter the complete URL to the WebObjects HTTP adaptor.<br /></p>
 <p>Example: <code>http://store.apple.com/cgi-bin/WebObjects</code></p>
-<p>URL to Adaptor: <webobject name="AdaptorURLField" /> <webobject name="SubmitAdaptorButton" /></p>
-</webobject>
+<p>URL to Adaptor: <wo:textfield value="$theApplication.siteConfig.woAdaptor" size="60" id="ConfigurePageAdaptorURLField"/> <wo:submit value="Update HTTP Adaptor URL" action="$HTTPServerUpdateClicked" id="ConfigurePageSubmitAdaptorButton"/></p>
+</wo:form>
 </div>
 
 <div class="Box AdapterInfo">
@@ -13,103 +13,103 @@
 <p class="AdaptorLoginHelp">The username and password are set in the WOAdaptor configuration file, typically 
 "/System/Library/WebObjects/Adaptors/Apache2.2/apache.conf"
 using the directives WebObjectsAdminUsername and WebObjectsAdminPassword.</p>
-<webobject name="AdaptorInfoForm">
+<wo:form target="_blank" id="ConfigurePageAdaptorInfoForm">
 <table class="FormFieldTable">
 	<tr>
 		<th>Username:</th>
-		<td><webobject name = "AdaptorInfoUsername"/></td>
+		<td><wo:textfield value="$adaptorInfoUsername" id="ConfigurePageAdaptorInfoUsername"/></td>
 	</tr>
 	<tr>
 		<th>Password:</th>
-		<td><webobject name = "AdaptorInfoPassword"/></td>
+		<td><wo:textfield value="$adaptorInfoPassword" id="ConfigurePageAdaptorInfoPassword"/></td>
 	</tr>
 	<tr>
 		<th></th>
-		<td><webobject name = "AdaptorInfoSubmit"/></td>
+		<td><wo:submit action="$adaptorInfoLoginClicked" value="Log In" id="ConfigurePageAdaptorInfoSubmit"/></td>
 	</tr>
 </table>
-</webobject>
+</wo:form>
 </div>
 
 <div class="Box AdaptorSettingsBox">
-  <webobject name="AdaptorSettingsAjaxExpansion">
-    <webobject name="AdaptorSettingsForm">
+  <wo:AjaxExpansion id="AdaptorSettingsExpansion" insertion="Effect.blind" insertionDuration="0.1" string="HTTP Adaptor Settings" expanded="$isAdaptorSettingsSectionVisible">
+    <wo:form id="ConfigurePageAdaptorSettingsForm">
       <table class="FormFieldTable">
         <tr>
           <th>Load balancing scheme:</th>
-          <td><webobject name="LoadBalancingScheme" /><br />
-                  Custom Scheduler Name: <webobject name="TextField8" /> (Optional)</td>
+          <td><wo:select item="$loadSchedulerItem" list="$loadSchedulerList" selection="$loadSchedulerSelection" id="ConfigurePageLoadBalancingScheme"/><br />
+                  Custom Scheduler Name: <wo:textfield value="$customSchedulerName" id="ConfigurePageTextField8"/> (Optional)</td>
         </tr>
         <tr>
           <th>Retries:</th>
-          <td><webobject name="RetriesField" /></td>
+          <td><wo:textfield value="$theApplication.siteConfig.retries" size="4" numberformat="0" id="ConfigurePageRetriesField"/></td>
         </tr>
         <tr>
           <th>Redirection URL:</th>
-          <td><webobject name="RedirectionURLField" /></td>
+          <td><wo:textfield size="60" value="$theApplication.siteConfig.redir" id="ConfigurePageRedirectionURLField"/></td>
         </tr>
         <tr>
           <th>Dormant:</th>
-          <td><webobject name="TimeoutField" /></td>
+          <td><wo:textfield numberformat="0" size="4" value="$theApplication.siteConfig.dormant" id="ConfigurePageTimeoutField"/></td>
         </tr>
         <tr>
           <th>Send Timeout:</th>
-          <td><webobject name="SendTimeoutField" /></td>
+          <td><wo:textfield numberformat="0" size="4" value="$theApplication.siteConfig.sendTimeout" id="ConfigurePageSendTimeoutField"/></td>
         </tr>
         <tr>
           <th>Receive Timeout:</th>
-          <td><webobject name="ReceiveTimeoutField" /></td>
+          <td><wo:textfield numberformat="0" size="4" value="$theApplication.siteConfig.recvTimeout" id="ConfigurePageReceiveTimeoutField"/></td>
         </tr>
         <tr>
           <th>Connect Timeout:</th>
-          <td><webobject name="ConnectTimeoutField" /></td>
+          <td><wo:textfield numberformat="0" size="4" value="$theApplication.siteConfig.cnctTimeout" id="ConfigurePageConnectTimeoutField"/></td>
         </tr>
         <tr>
           <th>Send Buffer Size:</th>
-          <td><webobject name="ConnectTimeoutField2" /></td>
+          <td><wo:textfield numberformat="0" size=4 value="$theApplication.siteConfig.sendBufSize" id="ConfigurePageConnectTimeoutField2"/></td>
         </tr>
         <tr>
           <th>Receive Buffer Size:</th>
-          <td><webobject name="ConnectTimeoutField3" /></td>
+          <td><wo:textfield numberformat="0" size=4 value="$theApplication.siteConfig.recvBufSize" id="ConfigurePageConnectTimeoutField3"/></td>
         </tr>
         <tr>
           <th>Connection Pool Size:</th>
-          <td><webobject name="PoolsizeField" /></td>
+          <td><wo:textfield numberformat="0" size="4" value="$theApplication.siteConfig.poolsize" id="ConfigurePagePoolsizeField"/></td>
         </tr>
         <tr>
           <th>URL Version:</th>
-          <td><webobject name="PopUpButton1" /></td>
+          <td><wo:select item="$urlVersionItem" list="$urlVersionList" selection="$urlVersionSelection" id="ConfigurePagePopUpButton1"/></td>
         </tr>
       </table>
-	  <p><webobject name="UpdateAdaptorButton" /></p>
-	</webobject>
-  </webobject>
+	  <p><wo:submit action="$adaptorUpdateClicked" value="Update Adaptor Settings" id="ConfigurePageUpdateAdaptorButton"/></p>
+	</wo:form>
+  </wo:AjaxExpansion>
 </div>
 <div class="Box EmailNotificationBox">
-  <webobject name="EmailNotificationAjaxExpansion">
+  <wo:AjaxExpansion id="EmailNotificationExpansion" insertion="Effect.blind" insertionDuration="0.1" string="Email Notifications" expanded="$isEmailSectionVisible">
 	<p>Monitor can send email notifications if an SMTP host is supplied.<br />
 	To use email notifications, go to the application configuration page to set email addresses for each of your applications.</p>
-    <webobject name="EmailForm">
+    <wo:form id="ConfigurePageEmailForm">
       <table class="FormFieldTable">
         <tr>
           <th>SMTP host:</th>
-          <td> <webobject name="SMTPHostField3" /></td>
+          <td> <wo:textfield size="40" value="$theApplication.siteConfig.SMTPhost" id="ConfigurePageSMTPHostField3"/></td>
         </tr>
         <tr>
           <th>Return address:</th>
-          <td><webobject name="SMTPHostField4" /></td>
+          <td><wo:textfield size="40" value="$theApplication.siteConfig.emailReturnAddr" id="ConfigurePageSMTPHostField4"/></td>
         </tr>
       </table>
-      <p><webobject name="UpdateEmailButton" /></p>
-    </webobject>
-  </webobject>
+      <p><wo:submit action="$emailUpdateClicked" value="Update Email Notification Settings" id="ConfigurePageUpdateEmailButton"/></p>
+    </wo:form>
+  </wo:AjaxExpansion>
 </div>
 <div class="Box BackupBox">
-  <webobject name="BackupAjaxExpansion">
+  <wo:AjaxExpansion id="BackupExpansion" insertion="Effect.blind" insertionDuration="0.1" string="Backup Site Configuration" expanded="$isBackupSectionVisible">
 	<p>Makes a timestamped backup of SiteConfig.xml and appends an optional short note to the file name.</p>
-    <webobject name="BackupForm">
-      <p>Note: <webobject name="BackupNote" /> (optional) <webobject name="BackupButton" /></p>
-    </webobject>
-  </webobject>
+    <wo:form id="ConfigurePageBackupForm">
+      <p>Note: <wo:textfield value="$backupNote" id="ConfigurePageBackupNote"/> (optional) <wo:submit action="$backupConfiguration" value="Backup Now" id="ConfigurePageBackupButton"/></p>
+    </wo:form>
+  </wo:AjaxExpansion>
 </div>
-</webobject>
+</wo:NavigationPage>

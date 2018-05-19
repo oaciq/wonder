@@ -1,132 +1,132 @@
-<webobject name="NavPage">
+<wo:NavigationPage currentPage="$APP_PAGE" title="$appDefaults.name" pageId="Applications">
 <div class="Box ApplicationNameBox">
-  <h1>Configuring Application &quot;<webobject name="AppName" />&quot;</h1>
+  <h1>Configuring Application &quot;<wo:str value="$appDefaults.name" />&quot;</h1>
   <div class="DetailViewButtonWrapper">
-  	<webobject name="ReturnLink">Detail View</webobject>
+  	<wo:link action="$detailPageClicked" class="Button DetailButton" id="AppConfigurePageReturnLink">Detail View</wo:link>
   </div>
 </div>
 <div class="Box NewInstanceSettingsBox">
-  <webobject name = "NewInstanceConfigAjaxExpansion">
+  <wo:AjaxExpansion id="NewInstanceConfigExpansion" insertion="Effect.blind" insertionDuration="0.1" string="New Instance Defaults" expanded="$isNewInstanceSectionVisible">
 	<p>New Instances will be automatically configured to have the following settings. Defaults may be pushed individually (or together) to existing instances using the &quot;Push&quot; buttons in the far right column. To only set defaults for new instances (existing instances remain unchanged), use the &quot;Update for New Instances Only&quot; button at the bottom.</p>
-           <webobject name="InstDefaultsForm">
+           <wo:form multipleSubmit="$true" id="AppConfigurePageInstDefaultsForm">
               <table class="FormFieldTable">
                 <tr><th> Path*: </th>
                   <td class="PathPickWrapper">
-                    <div class="PathPicker"><div class="PathPickInner"><label>MacOSX</label><webobject name="TextField12" /></div><webobject name="PathPickerWizard5"><span>Pick...</span></webobject></div>
-                    <div class="PathPicker"><div class="PathPickInner"><label>Windows:</label><webobject name="TextField11" /></div><webobject name="PathPickerWizard4"><span>Pick...</span></webobject></div>
-                    <div class="PathPicker"><div class="PathPickInner"><label>Unix:</label><webobject name="PathField" /></div><webobject name="PathPickerWizard"><span>Pick...</span></webobject></div>
+                    <div class="PathPicker"><div class="PathPickInner"><label>MacOSX</label><wo:textfield size=50 value="$appDefaults.macPath" id="AppConfigurePageTextField12"/></div><wo:link action="$pathPickerWizardClickedMac" class="Button PickPathButton" id="AppConfigurePagePathPickerWizard5"><span>Pick...</span></wo:link></div>
+                    <div class="PathPicker"><div class="PathPickInner"><label>Windows:</label><wo:textfield size=50 value="$appDefaults.winPath" id="AppConfigurePageTextField11"/></div><wo:link action="$pathPickerWizardClickedWindows" class="Button PickPathButton" id="AppConfigurePagePathPickerWizard4"><span>Pick...</span></wo:link></div>
+                    <div class="PathPicker"><div class="PathPickInner"><label>Unix:</label><wo:textfield size="50" value="$appDefaults.unixPath" id="AppConfigurePagePathField"/></div><wo:link action="$pathPickerWizardClickedUnix" class="Button PickPathButton" id="AppConfigurePagePathPickerWizard"><span>Pick...</span></wo:link></div>
                   </td>
-                  <td class="PushButtonWrapper"><webobject name="PathOnlyButton" /></td>
+                  <td class="PushButtonWrapper"><wo:submit action="$updatePathOnly" value="Push" id="AppConfigurePagePathOnlyButton"/></td>
                 </tr>
                 <tr><th>Auto Recover:</th>
-                  <td><webobject name="AutoRecoverCheckbox" /> <span class="Comment">(Does not apply to scheduled instances)</span></td>
-                  <td class="PushButtonWrapper"><webobject name="AutoRecoverOnlyButton" /></td>
+                  <td><wo:checkbox checked="$appDefaults.autoRecover" /> <span class="Comment">(Does not apply to scheduled instances)</span></td>
+                  <td class="PushButtonWrapper"><wo:submit action="$updateAutoRecoverOnly" value="Push" id="AppConfigurePageAutoRecoverOnlyButton"/></td>
                 </tr>
                 <tr>
                   <th>Minimum Active Sessions: </th>
-                  <td><webobject name="MinimumActiveSessionField" /></td>
-                  <td class="PushButtonWrapper"><webobject name="MinimumOnlyButton" /></td>
+                  <td><wo:textfield size="5" value="$appDefaults.minimumActiveSessionsCount" numberformat="0" id="AppConfigurePageMinimumActiveSessionField"/></td>
+                  <td class="PushButtonWrapper"><wo:submit action="$updateMinimumOnly" value="Push" id="AppConfigurePageMinimumOnlyButton"/></td>
                 </tr>
                 <tr>
                   <th>Caching enabled: </th>
-                  <td><webobject name="CachingEnabledCheckbox" /></td>
-                  <td class="PushButtonWrapper"><webobject name="CachingOnlyButton" /></td>
+                  <td><wo:checkbox checked="$appDefaults.cachingEnabled" /></td>
+                  <td class="PushButtonWrapper"><wo:submit action="$updateCachingOnly" value="Push" id="AppConfigurePageCachingOnlyButton"/></td>
                 </tr>
                 <tr>
                   <th>Debugging enabled: </th>
-                  <td><webobject name="DebuggingLogsCheckbox" /></td>
-                  <td class="PushButtonWrapper"><webobject name="DebuggingOnlyButton" /></td>
+                  <td><wo:checkbox checked="$appDefaults.debuggingEnabled" /></td>
+                  <td class="PushButtonWrapper"><wo:submit action="$updateDebuggingOnly" value="Push" id="AppConfigurePageDebuggingOnlyButton"/></td>
                 </tr>
                 <tr>
                   <th>Output Path**:</th>
                   <td class="PathPickWrapper">
-                  	<div class="PathPicker"><div class="PathPickInner"><label>MacOSX</label><webobject name="TextField10" /></div><webobject name="PathPickerWizard6"><span>Pick...</span></webobject></div>
-                    <div class="PathPicker"><div class="PathPickInner"><label>Windows:</label><webobject name="TextField6" /></div><webobject name="PathPickerWizard3"><span>Pick...</span></webobject></div>
-                    <div class="PathPicker"><div class="PathPickInner"><label>Unix:</label><webobject name="TextField3" /></div><webobject name="PathPickerWizard2"><span>Pick...</span></webobject></div>
+                  	<div class="PathPicker"><div class="PathPickInner"><label>MacOSX</label><wo:textfield size=50 value="$appDefaults.macOutputPath" id="AppConfigurePageTextField10"/></div><wo:link action="$pathPickerWizardClickedMacOutput" class="Button PickPathButton" id="AppConfigurePagePathPickerWizard6"><span>Pick...</span></wo:link></div>
+                    <div class="PathPicker"><div class="PathPickInner"><label>Windows:</label><wo:textfield size=50 value="$appDefaults.winOutputPath" id="AppConfigurePageTextField6"/></div><wo:link action="$pathPickerWizardClickedWindowsOutput" class="Button PickPathButton" id="AppConfigurePagePathPickerWizard3"><span>Pick...</span></wo:link></div>
+                    <div class="PathPicker"><div class="PathPickInner"><label>Unix:</label><wo:textfield size=50 value="$appDefaults.unixOutputPath" id="AppConfigurePageTextField3"/></div><wo:link action="$pathPickerWizardClickedUnixOutput" class="Button PickPathButton" id="AppConfigurePagePathPickerWizard2"><span>Pick...</span></wo:link></div>
                   </td>
-                  <td class="PushButtonWrapper"><webobject name="OutputOnlyButton" /></td>
+                  <td class="PushButtonWrapper"><wo:submit action="$updateOutputOnly" value="Push" id="AppConfigurePageOutputOnlyButton"/></td>
                 </tr>
                 <tr>
                   <th>Auto Open In Browser<br />Auto Open Client Application:</th>
-                  <td><webobject name="CheckBox6" /></td>
-                  <td class="PushButtonWrapper"><webobject name="AutoOpenOnlyButton" /></td>
+                  <td><wo:checkbox checked="$appDefaults.autoOpenInBrowser" /></td>
+                  <td class="PushButtonWrapper"><wo:submit action="$updateAutoOpenOnly" value="Push" id="AppConfigurePageAutoOpenOnlyButton"/></td>
                 </tr>
                 <tr>
                   <th>Lifebeat Interval:</th>
-                  <td><webobject name="TextField7" /></td>
-                  <td class="PushButtonWrapper"><webobject name="LifebeatOnlyButton" /></td>
+                  <td><wo:textfield value="$appDefaults.lifebeatInterval" numberformat="0" id="AppConfigurePageTextField7"/></td>
+                  <td class="PushButtonWrapper"><wo:submit action="$updateLifebeatOnly" value="Push" id="AppConfigurePageLifebeatOnlyButton"/></td>
                 </tr>
                 <tr>
                   <th>Additional<br />Arguments: 
                   </th>
-                  <td><webobject name="ArgsField" /></td>
-                  <td class="PushButtonWrapper"><webobject name="AddArgsOnlyButton" /></td>
+                  <td><wo:text cols="65" rows="3" value="$appDefaults.additionalArgs" wrap="virtual" id="AppConfigurePageArgsField"/></td>
+                  <td class="PushButtonWrapper"><wo:submit action="$updateAddArgsOnly" value="Push" id="AppConfigurePageAddArgsOnlyButton"/></td>
                 </tr>
                 <tr>
-                  <td colspan="2"><webobject name="SaveChangesSubmitButton" /></td>
-                  <td class="PushButtonWrapper"><webobject name="PushSubmitButton" /></td>
+                  <td colspan="2"><wo:submit action="$defaultsUpdateClicked" value="Update for New Instances Only" id="AppConfigurePageSaveChangesSubmitButton"/></td>
+                  <td class="PushButtonWrapper"><wo:submit action="$defaultsPushClicked" value="Push All" id="AppConfigurePagePushSubmitButton"/></td>
                 </tr>
               </table>
             <p>* The path of the executable (inside the '.woa' directory).</p>
             <p>** This should be a directory - the path should end with a file separator (instance logs will be saved as &lt;ApplicationName&gt;-&lt;ID&gt;)</p>
-          </webobject>
-  </webobject>
+          </wo:form>
+  </wo:AjaxExpansion>
 </div>
 <div class="Box ApplicationConfigBox">
-  <webobject name="ApplicationConfigAjaxExpansion">
+  <wo:AjaxExpansion id="ApplicationConfigExpansion" insertion="Effect.blind" insertionDuration="0.1" string="Application Settings" expanded="$isAppConfigureSectionVisible">
   <p>&nbsp;</p>
-          <webobject name="AppSettingsForm">
+          <wo:form multipleSubmit="$true" id="appSettingsForm">
               <table class="FormFieldTable">
                 <tr><th>Name: </th>
-                  <td><webobject name="RealNameField" /> <span class="Comment">(All instances of this application must be off to change the name)</span></td>
+                  <td><wo:textfield size="25" value="$appDefaults.name" id="AppConfigurePageRealNameField"/> <span class="Comment">(All instances of this application must be off to change the name)</span></td>
                 </tr>
                 <tr><th>Starting Port: </th>
-                  <td><webobject name="TextField4" /></td>
+                  <td><wo:textfield size="5" value="$appDefaults.startingPort" numberformat="0" id="AppConfigurePageTextField4"/></td>
                 </tr>
                 <tr><th>Time Allowed For Startup: </th>
-                  <td><webobject name="TextField5" /></td>
+                  <td><wo:textfield size="5" value="$appDefaults.timeForStartup" numberformat="0" id="AppConfigurePageTextField5"/></td>
                 </tr>
                 <tr><th>Phased Startup: </th>
-                  <td><webobject name="CheckBox1" /></td>
+                  <td><wo:checkbox checked="$appDefaults.phasedStartup" /></td>
                 </tr>
                 <tr><th>Adaptor: </th>
-                  <td><webobject name="AdaptorField" /> <span class="Comment">('WODefaultAdaptor' is the default)</span></td>
+                  <td><wo:textfield size="25" value="$myApplication.adaptor" id="AppConfigurePageAdaptorField"/> <span class="Comment">('WODefaultAdaptor' is the default)</span></td>
                 </tr>
                 <tr><th>Minimum Adaptor threads: </th>
-                  <td><webobject name="AdaptorThreadsMinField" /> <span class="Comment">(Applies only to the WODefaultAdaptor for WO 5.x)</span></td>
+                  <td><wo:textfield size="5" value="$appDefaults.adaptorThreadsMin" numberformat="0" id="AppConfigurePageAdaptorThreadsMinField"/> <span class="Comment">(Applies only to the WODefaultAdaptor for WO 5.x)</span></td>
                 </tr>
                 <tr><th>Maximum Adaptor threads: </th>
-                  <td><webobject name="AdaptorThreadsMaxField" /> <span class="Comment">(Applies only to the WODefaultAdaptor for WO 5.x)</span></td>
+                  <td><wo:textfield size="5" value="$appDefaults.adaptorThreadsMax" numberformat="0" id="AppConfigurePageAdaptorThreadsMaxField"/> <span class="Comment">(Applies only to the WODefaultAdaptor for WO 5.x)</span></td>
                 </tr>
                 <tr><th>Adaptor threads: </th>
-                  <td><webobject name="AdaptorThreadsField" /> <span class="Comment">(Applies only to the WODefaultAdaptor for WO 4.5.x)</span></td>
+                  <td><wo:textfield size="5" value="$appDefaults.adaptorThreads" numberformat="0" id="AppConfigurePageAdaptorThreadsField"/> <span class="Comment">(Applies only to the WODefaultAdaptor for WO 4.5.x)</span></td>
                 </tr>
                 <tr><th>Listen Queue Size: </th>
-                  <td><webobject name="ListenQueueSizeField" /></td>
+                  <td><wo:textfield size="5" value="$appDefaults.listenQueueSize" numberformat="0" id="AppConfigurePageListenQueueSizeField"/></td>
                 </tr>
                 <tr><th>Project Search Path: </th>
-                  <td><webobject name="ProjectSearchPathField" /></td>
+                  <td><wo:textfield size="40" value="$appDefaults.projectSearchPath" id="AppConfigurePageProjectSearchPathField"/></td>
                 </tr>
                 <tr><th>Session TimeOut (sec): </th>
-                  <td><webobject name="SessionTimeOutField" /></td>
+                  <td><wo:textfield size="5" value="$appDefaults.sessionTimeOut" numberformat="0" id="AppConfigurePageSessionTimeOutField"/></td>
                 </tr>
                 <tr><th>Statistics Page Password: </th>
-                  <td><webobject name="StatisticsPasswordField" /></td>
+                  <td><wo:textfield size="20" value="$appDefaults.statisticsPassword" id="statsPassword" /></td>
                 </tr>
               </table>
-              <p><webobject name="AppDefaultsOnlyButton" /></p>
-          </webobject>
-  </webobject>
+              <p><wo:submit action="$updateAppDefaultsOnly" value="Update Application Settings" id="AppConfigurePageAppDefaultsOnlyButton"/></p>
+          </wo:form>
+  </wo:AjaxExpansion>
 </div>
 <div class="Box SchedulingSettingsBox">
-  <webobject name="SchedulingConfigAjaxExpansion">
+  <wo:AjaxExpansion id="SchedulingConfigExpansion" insertion="Effect.blind" insertionDuration="0.1" string="Scheduling" expanded="$isSchedulingSectionVisible">
           <p>With this feature you can have Monitor schedule your instances to restart instances at regular intervals.</p>
           <p>Note that all scheduled instances automatically act as if they are AutoRecovering.</p>
-          <webobject name="Conditional1">
+          <wo:not condition="$shouldSchedule">
           	<p>There are no Instances configured for this Application.</p>
-          </webobject>
-          <webobject name="Conditional2">
-            <webobject name="Option3Form">
+          </wo:not>
+          <wo:if condition="$shouldSchedule">
+            <wo:form multipleSubmit="$true" id="AppConfigurePageOption3Form">
               <table cellpadding="1" cellspacing="1" border="1">
                 <tr>
                   <th>ID</th>
@@ -135,88 +135,88 @@
                   <th>Graceful<br />Scheduling</th>
                   <th colspan="3">Scheduling Type</th>
                 </tr>
-                <webobject name="Repetition1">
+                <wo:loop item="$currentScheduledInstance" list="$myApplication.instanceArray">
                   <tr>
-                    <td><webobject name="String1" /></td>
-                    <td><webobject name="String2" /></td>
-                    <td><webobject name="CheckBox2" /></td>
-                    <td><webobject name="CheckBox7" /></td>
+                    <td><wo:str value="$currentScheduledInstance.id" /></td>
+                    <td><wo:str value="$currentScheduledInstance.displayHostAndPort" /></td>
+                    <td><wo:checkbox checked="$currentScheduledInstance.schedulingEnabled" /></td>
+                    <td><wo:checkbox checked="$currentScheduledInstance.gracefulScheduling" /></td>
                     <td>
-                    	<div class="ControlColOne"><webobject name="RadioButton1" /></div><div class="ControlColTwo">Every <webobject name="PopUpButton6" /> hours,<br />
-                      starting at <webobject name="PopUpButtonH" /> hours.</div></td>
-                    <td><webobject name="RadioButton2" /> Every day at <webobject name="PopUpButtonD" /> hours.</td>
-                    <td><div class="ControlColOne"><webobject name="RadioButton3" /></div><div class="ControlColTwo">Every week on  <webobject name="PopUpButton8" />,<br />
-                      at <webobject name="PopUpButtonW" /> hours.</div></td>
+                    	<div class="ControlColOne"><wo:radio name="$currentScheduledInstance.id" value="HOURLY" selection="$currentScheduledInstance.schedulingType"/></div><div class="ControlColTwo">Every <wo:select list="$schedulingIntervalList" selection="$currentScheduledInstance.schedulingInterval"/> hours,<br />
+                      starting at <wo:select list="$timeOfDayList" selection="$timeHourlySelection"/> hours.</div></td>
+                    <td><wo:radio name="$currentScheduledInstance.id" value="DAILY" selection="$currentScheduledInstance.schedulingType"/> Every day at <wo:select list="$timeOfDayList" selection="$timeDailySelection"/> hours.</td>
+                    <td><div class="ControlColOne"><wo:radio name="$currentScheduledInstance.id" value="WEEKLY" selection="$currentScheduledInstance.schedulingType"/></div><div class="ControlColTwo">Every week on  <wo:select list="$weekList" selection="$weekSelection"/>,<br />
+                      at <wo:select list="$timeOfDayList" selection="$timeWeeklySelection"/> hours.</div></td>
                   </tr>
-                </webobject>
+                </wo:loop>
               </table>
               <br />
-              <webobject name="SubmitButton2" />
-            </webobject>
-          </webobject>
-  </webobject>
+              <wo:submit action="$schedulingUpdateClicked" value="Update Scheduling" id="AppConfigurePageSubmitButton2"/>
+              </wo:form>
+          </wo:if>
+  </wo:AjaxExpansion>
 </div>
 <div class="Box EmailSettingsBox">
-  <webobject name="EmailConfigAjaxExpansion">
-          <webobject name="NOSmtpHostConfigured">
+  <wo:AjaxExpansion id="EmailConfigExpansion" insertion="Effect.blind" insertionDuration="0.1" string="Email Notifications" expanded="$isEmailSectionVisible">
+          <wo:not condition="$isMailingConfigured">
             <p>Monitor needs an SMTP host and a Return Address configured in order to send email notifications.</p>
-            <p>Go to the <webobject name="ConfigurePageLink">Configure Page</webobject> to setup an SMTP host and specify a Return Address.</p>
-          </webobject>
-          <webobject name="SmtpHostConfigured">
+            <p>Go to the <wo:link action="$configurePageClicked" id="AppConfigurePageConfigurePageLink">Configure Page</wo:link> to setup an SMTP host and specify a Return Address.</p>
+          </wo:not>
+          <wo:if condition="$isMailingConfigured">
             <p>When instances of this application terminate unexpectedly, Monitor will send an email notification to the email addresses below.</p>
             <p>Instance terminations from manual shutdowns (through Monitor) or scheduling are not counted as unexpected terminations.</p>
-            <webobject name="EmailForm">
-                <p><webobject name="CheckBox3" /> <strong>Email Notifications are Enabled</strong></p>
-                <p>Enter multiple email addresses separated by commas: <webobject name="EmailAddressesField" /></p>
+            <wo:form id="AppConfigurePageEmailForm">
+                <p><wo:checkbox checked="$myApplication.notificationEmailEnabled" /> <strong>Email Notifications are Enabled</strong></p>
+                <p>Enter multiple email addresses separated by commas: <wo:textfield size="60" value="$myApplication.notificationEmailAddr" id="AppConfigurePageEmailAddressesField"/></p>
                 <br />
-                <p><webobject name="SubmitButton1" /></p>
-            </webobject>
-          </webobject>
-  </webobject>
+                <p><wo:submit action="$emailUpdateClicked" value="Update Settings" id="AppConfigurePageSubmitButton1"/></p>
+            </wo:form>
+          </wo:if>
+  </wo:AjaxExpansion>
 </div>
 <div class="Box AdapterSpecificSettingsBox">
-  <webobject name="AdaptorSpecificConfigAjaxExpansion">
+  <wo:AjaxExpansion id="AdaptorSpecificConfigExpansion" insertion="Effect.blind" insertionDuration="0.1" string="Load Balancing and Adaptor Settings" expanded="$isAdaptorSettingsSectionVisible">
   <p>&nbsp;</p>
-          <webobject name="AdaptorSettingsForm">
+          <wo:form id="AppConfigurePageAdaptorSettingsForm">
               <table class="FormFieldTable">
                 <tr><th>Load balancing scheme:</th>
-                  <td><webobject name="LoadBalancingScheme" /><br />
-                    Custom Scheduler Name: <webobject name="TextField8" />(optional)</td>
+                  <td><wo:select item="$loadSchedulerItem" list="$loadSchedulerList" selection="$loadSchedulerSelection" id="AppConfigurePageLoadBalancingScheme"/><br />
+                    Custom Scheduler Name: <wo:textfield value="$customSchedulerName" id="AppConfigurePageTextField8"/>(optional)</td>
                 </tr>
                 <tr><th>Retries:</th>
-                  <td><webobject name="RetriesField" /></td>
+                  <td><wo:textfield value="$myApplication.retries" size="4" numberformat="0" id="AppConfigurePageRetriesField"/></td>
                 </tr>
                 <tr><th>Redirection URL:</th>
-                  <td><webobject name="RedirectionURLField" /></td>
+                  <td><wo:textfield size="60" value="$myApplication.redir" id="AppConfigurePageRedirectionURLField"/></td>
                 </tr>
                 <tr><th>Dormant:</th>
-                  <td><webobject name="TimeoutField" /></td>
+                  <td><wo:textfield numberformat="0" size="4" value="$myApplication.dormant" id="AppConfigurePageTimeoutField"/></td>
                 </tr>
                 <tr><th>Send timeout:</th>
-                  <td><webobject name="SendTimeoutField" /></td>
+                  <td><wo:textfield numberformat="0" size="4" value="$myApplication.sendTimeout" id="AppConfigurePageSendTimeoutField"/></td>
                 </tr>
                 <tr><th>Receive timeout:</th>
-                  <td><webobject name="ReceiveTimeoutField" /></td>
+                  <td><wo:textfield numberformat="0" size="4" value="$myApplication.recvTimeout" id="AppConfigurePageReceiveTimeoutField"/></td>
                 </tr>
                 <tr><th>Connect timeout:</th>
-                  <td><webobject name="ConnectTimeoutField" /></td>
+                  <td><wo:textfield numberformat="0" size="4" value="$myApplication.cnctTimeout" id="AppConfigurePageConnectTimeoutField"/></td>
                 </tr>
                 <tr><th>Send Buffer Size:</th>
-                  <td><webobject name="ConnectTimeoutField2" /></td>
+                  <td><wo:textfield numberformat="0" size=4 value="$myApplication.sendBufSize" id="AppConfigurePageConnectTimeoutField2"/></td>
                 </tr>
                 <tr><th>Receive Buffer Size:</th>
-                  <td><webobject name="ConnectTimeoutField3" /></td>
+                  <td><wo:textfield numberformat="0" size=4 value="$myApplication.recvBufSize" id="AppConfigurePageConnectTimeoutField3"/></td>
                 </tr>
                 <tr><th>Connection pool size:</th>
-                  <td><webobject name="PoolsizeField" /></td>
+                  <td><wo:textfield numberformat="0" size="4" value="$myApplication.poolsize" id="AppConfigurePagePoolsizeField"/></td>
                 </tr>
                 <tr><th>URL Version:</th>
-                  <td><webobject name="PopUpButton1" /></td>
+                  <td><wo:select item="$urlVersionItem" list="$urlVersionList" selection="$urlVersionSelection" id="AppConfigurePagePopUpButton1"/></td>
                 </tr>
               </table>
-              <p><webobject name="UpdateAdaptorButton" /></p>
-          </webobject>
-  </webobject>
+              <p><wo:submit action="$adaptorUpdateClicked" value="Change Adaptor Settings" id="AppConfigurePageUpdateAdaptorButton"/></p>
+          </wo:form>
+  </wo:AjaxExpansion>
 </div>
 <script type="text/javascript">
 document.getElementById('appSettingsForm').onsubmit = function(event) {
@@ -233,4 +233,4 @@ document.getElementById('appSettingsForm').onsubmit = function(event) {
 	return true;
 }
 </script>
-</webobject>
+</wo:NavigationPage>

@@ -1,25 +1,25 @@
-<webobject name="NavPage">
+<wo:NavigationPage currentPage="$MOD_PROXY_PAGE" title="ModProxy" pageId="ModProxy">
   <div class="Box ModProxyBox">
     <h2 class="SectionHeader">Parameter settings</h2>
     <br />
-    <webobject name="ParamForm">
+    <wo:form action="$reload" id="ModProxyPageParamForm">
       <table class="FormFieldTable">
         <tr>
           <th>Timeout</th>
-          <td><webobject name="TFTimeout" /></td>
+          <td><wo:textfield value="$timeout" numberformat="0" id="ModProxyPageTFTimeout"/></td>
         </tr>
         <tr>
           <th>Load Balancer</th>
-          <td><webobject name="PBLoadBalancer" /></td>
+          <td><wo:select list="$loadBalencers" item="$loadBalancerItem" selection="$loadBalancer" id="ModProxyPagePBLoadBalancer"/></td>
         </tr>
       </table>
-      <p><webobject name="BtnSubmit" /></p>
-    </webobject>
+      <p><wo:submit action="$reload" value="Update Settings" id="ModProxyPageBtnSubmit"/></p>
+    </wo:form>
   </div>
   <div class="Box ModProxyBox">
     <h2 class="SectionHeader">Apache mod_proxy and proxy_balancer_module settings</h2>
     <p>Copy this in your proxy-webobjects.conf file for your Apache 2.x WebServer:</p>
-    <pre><code><webobject name="adaptorProxyContent"></webobject></code></pre>
+    <pre><code><wo:str value="$modProxyContent" /></code></pre>
     <p>More proxy pass parameters are described 
       <a href="http://httpd.apache.org/docs/current/mod/mod_proxy.html#proxypass" target="_blank">here.</a>
     </p>
@@ -140,7 +140,7 @@ ProxyVia Full
     <pre>
     public static String clientIP(WORequest request) {
         Object ipAddress = request.headerForKey("x-forwarded-for");
-        if (ipAddress != null && ipAddress.toString().length() > 0) {
+        if (ipAddress != null && ipAddress.toString().length()> 0) {
             ipAddress = StringUtils.split(ipAddress.toString(), ',')[0];
         }
         if (ipAddress == null) {
@@ -165,7 +165,7 @@ ProxyVia Full
   <div class="Box ModProxyBox">
     <h2 class="SectionHeader">URL rewrite rules</h2>
     <p>If you want to rewrite your application URLs from /cgi-bin/WebObjects/YourApp.woa to /yourapp, you can set the following properties and add the apache rewrite rule</p>
-<pre><code><webobject name="adaptorRewriteContent"></webobject></code></pre>
+<pre><code><wo:str value="$modRewriteContent" /></code></pre>
   </div>
   <div class="Box ModProxyBox">
     <h2 class="SectionHeader">Error handling</h2>
@@ -206,4 +206,4 @@ ProxyVia Full
     <br />
     <a target="_blank" href="http://httpd.apache.org/docs/current/mod/mod_lbmethod_heartbeat.html">heartbeat</a>
   </div>
-</webobject>
+</wo:NavigationPage>

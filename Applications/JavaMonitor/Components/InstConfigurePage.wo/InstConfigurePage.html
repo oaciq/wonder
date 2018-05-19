@@ -1,111 +1,111 @@
-<webobject name = "NavPage">
+<wo:NavigationPage currentPage="$APP_PAGE" title="$displayName" pageId="Applications">
 <div class="Box ApplicationNameBox">
-    <h1>Configuring Instance "<webobject name = "InstName" />" on <webobject name = "String1" /></h1>
+    <h1>Configuring Instance "<wo:str value="$myInstance.id" numberformat="0" />" on <wo:str value="$myInstance.hostName" /></h1>
     <div class="DetailViewButtonWrapper">
-  		<webobject name="ReturnLink">Detail View</webobject>
+  		<wo:link action="$returnClicked" class="Button DetailButton" id="InstConfigurePageReturnLink">Detail View</wo:link>
   	</div>
   	<div class="TextBox">
 	<p>The Instance must be restarted for changes to take effect.</p>
-	<p class="Comment">(Changes to these settings only affect this instance; for all instances, use the <webobject name = "AppConfigureLink">Application Configure Page</webobject>)</p>
+	<p class="Comment">(Changes to these settings only affect this instance; for all instances, use the <wo:link action="$appConfigLinkClicked" id="InstConfigurePageAppConfigureLink">Application Configure Page</wo:link>)</p>
 	</div>
 </div>
 <div class="Box InstanceSettingsBox">
 	<h2 class="SectionHeading">Instance Settings</h2>
-        <webobject name = "ArgumentsForm">
+        <wo:form id="InstConfigurePageArgumentsForm">
           <table class="FormFieldTable">
             <tr><th>Port:</th>
-              <td><webobject name = "Port" /> <span class="Comment">(The instance must be off to change this setting)</span></td>
+              <td><wo:textfield //value="$myInstance.port" value="$port" size="8" numberformat="0" id="InstConfigurePagePort"/> <span class="Comment">(The instance must be off to change this setting)</span></td>
             </tr>
             <tr><th>ID:</th>
-              <td><webobject name = "TextField1" /></td>
+              <td><wo:textfield numberformat="0" value="$id" id="InstConfigurePageTextField1"/></td>
             </tr>
-            <webobject name = "isWindowsHost">
+            <wo:if condition="$isWindowsHost">
               <tr><th>&nbsp;</th>
                 <td><p class="Comment"><b>Note:</b> This instance is on a Microsoft Windows host. A drive letter (e.g. "D:") may be required to create a valid path.</p></td>
               </tr>
-            </webobject>
+            </wo:if>
             <tr>
-              <th><webobject name = "pathDiff" />Path*:</th>
-              <td><div class="PathPicker"><div class="PathPickInner"><webobject name = "Path" /></div><webobject name = "PathPickerWizardLink"><span>Pick...</span></webobject></div></td>
+              <th><wo:str value="$pathDiff" escapeHTML="$false" />Path*:</th>
+              <td><div class="PathPicker"><div class="PathPickInner"><wo:textfield value="$myInstance.path" size="50" id="InstConfigurePagePath"/></div><wo:link action="$pathPickerWizardClicked" class="Button PickPathButton" id="InstConfigurePagePathPickerWizardLink"><span>Pick...</span></wo:link></div></td>
             </tr>
             <tr>
-              <th><webobject name = "minDiff" />Minimum Active Sessions:</th>
-              <td><webobject name = "TextField2" /></td>
+              <th><wo:str value="$minDiff" escapeHTML="$false" />Minimum Active Sessions:</th>
+              <td><wo:textfield numberformat="0" value="$myInstance.minimumActiveSessionsCount" id="InstConfigurePageTextField2"/></td>
             </tr>
             <tr>
-              <th><webobject name = "cachingDiff" />Caching enabled:</th>
-              <td><webobject name = "Caching" /></td>
+              <th><wo:str value="$cachingDiff" escapeHTML="$false" />Caching enabled:</th>
+              <td><wo:checkbox checked="$myInstance.cachingEnabled" /></td>
             </tr>
             <tr>
-              <th><webobject name = "outputDiff" />Output Path:</th>
-              <td><div class="PathPicker"><div class="PathPickInner"><webobject name = "OutputPath" /></div><webobject name = "PathPickerWizardLink2"><span>Pick...</span></webobject></div></td>
+              <th><wo:str value="$outputDiff" escapeHTML="$false" />Output Path:</th>
+              <td><div class="PathPicker"><div class="PathPickInner"><wo:textfield value="$myInstance.outputPath" size="50" id="InstConfigurePageOutputPath"/></div><wo:link action="$pathPickerWizardClickedOutput" class="Button PickPathButton" id="InstConfigurePagePathPickerWizardLink2"><span>Pick...</span></wo:link></div></td>
             </tr>
             <tr>
-              <th><webobject name = "browserDiff" />Auto Open In Browser:</th>
-              <td><webobject name = "CheckBox2" /></td>
+              <th><wo:str value="$browserDiff" escapeHTML="$false" />Auto Open In Browser:</th>
+              <td><wo:checkbox checked="$myInstance.autoOpenInBrowser" /></td>
             </tr>
             <tr>
-              <th><webobject name = "debugDiff" />Debugging enabled:</th>
-              <td><webobject name = "DebuggingEnabled" /></td>
+              <th><wo:str value="$debugDiff" escapeHTML="$false" />Debugging enabled:</th>
+              <td><wo:checkbox checked="$myInstance.debuggingEnabled" /></td>
             </tr>
             <tr>
-              <th><webobject name = "lifebeatDiff" />Lifebeat Interval:</th>
-              <td><webobject name = "TextField3" /></td>
+              <th><wo:str value="$lifebeatDiff" escapeHTML="$false" />Lifebeat Interval:</th>
+              <td><wo:textfield value="$myInstance.lifebeatInterval" numberformat="0" id="InstConfigurePageTextField3"/></td>
             </tr>
             <tr>
               <th valign = "TOP">
-                <webobject name = "argsDiff" />
+                <wo:str value="$argsDiff" escapeHTML="$false" />
                 Additional
                 <br />
                 Arguments:
               </th>
               <td>
-                <webobject name = "AdditionalArguments" />
+                <wo:text value="$myInstance.additionalArgs" cols="50" rows="3" wrap="virtual" id="InstConfigurePageAdditionalArguments"/>
               </td>
             </tr>
           </table>
           <p>* The path of the executable (inside the '.woa' directory). <span  class = "Warning">**</span> Setting differs from the Application level setting.</p>
-          <p><webobject name = "InstanceSettingsSubmit" /></p>
+          <p><wo:submit action="$startupUpdateClicked" value="Update Instance Settings" id="InstConfigurePageInstanceSettingsSubmit"/></p>
           <p>With the current settings, this instance will be started with the following arguments:</p>
-		  <div class="CurrentParameters"><code><webobject name = "CommandLineString" /></code></div>
-        </webobject>
+		  <div class="CurrentParameters"><code><wo:str value="$myInstance.commandLineArguments" /></code></div>
+        </wo:form>
 </div>
 <div class="Box AdaptorSettingsBox">
 	<h2 class="SectionHeading">Adaptor Settings</h2>
-        <webobject name = "AdaptorSettingsForm">
+        <wo:form id="InstConfigurePageAdaptorSettingsForm">
           <table class="FormFieldTable">
             <tr>
             	<th>Send timeout:</th>
-              <td><webobject name = "SendTimeoutField" /></td>
+              <td><wo:textfield value="$myInstance.sendTimeout" size="4" numberformat="0" id="InstConfigurePageSendTimeoutField"/></td>
             </tr>
             <tr>
               <th>Receive timeout:</th>
-              <td><webobject name = "ReceiveTimeoutField" /></td>
+              <td><wo:textfield value="$myInstance.recvTimeout" size="4" numberformat="0" id="InstConfigurePageReceiveTimeoutField"/></td>
             </tr>
             <tr>
               <th>Connect timeout:</th>
-              <td><webobject name = "ConnectTimeoutField" /></td>
+              <td><wo:textfield value="$myInstance.cnctTimeout" size="4" numberformat="0" id="InstConfigurePageConnectTimeoutField"/></td>
             </tr>
             <tr>
               <th>Send Buffer Size:</th>
-              <td><webobject name = "PoolsizeField" /></td>
+              <td><wo:textfield value="$myInstance.sendBufSize" size="4" numberformat="0" id="InstConfigurePagePoolsizeField"/></td>
             </tr>
             <tr>
               <th>Receive Buffer Size:</th>
-              <td><webobject name = "TextField4" /></td>
+              <td><wo:textfield size="4" value="$myInstance.recvBufSize" numberformat="0" id="InstConfigurePageTextField4"/></td>
             </tr>
           </table>
-          <p><webobject name = "UpdateAdaptorButton" /></p>
-        </webobject>
+          <p><wo:submit action="$adaptorSettingsUpdateClicked" value="Update Adaptor Settings" id="InstConfigurePageUpdateAdaptorButton"/></p>
+        </wo:form>
 </div>
 <div class="Box ForceQuitBox">
 <h2 class="SectionHeading">Force Quit</h2>
           <p>Clicking this button will force quit this instance.</p>
           <p>The instance will do no error handling, nor will it attempt to finish processing requests in progress.</p>
-          <p>The instance should exit within <webobject name = "lifebeatIntervalString" /> seconds.</p>
-        <webobject name = "ForceQuitForm">
-          <p><webobject name = "ForceQuitButton" /></p>
-        </webobject>
+          <p>The instance should exit within <wo:str value="$instanceLifebeatInterval" /> seconds.</p>
+        <wo:form id="InstConfigurePageForceQuitForm">
+          <p><wo:submit action="$forceQuitClicked" value="Force Quit This Instance" id="InstConfigurePageForceQuitButton"/></p>
+        </wo:form>
         <p class="Comment">This only works on 5.2 applications or above.</p>
 </div>
-</webobject>
+</wo:NavigationPage>

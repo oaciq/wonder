@@ -5,6 +5,10 @@
 
 WOAutoOpenInBrowser=true
 
+# OGNL
+ognl.helperFunctions=true
+ognl.inlineBindings=true
+
 WODebuggingEnabled=false
 WODirectConnectEnabled=true
 WOCachingEnabled=true

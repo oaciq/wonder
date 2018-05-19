@@ -1,18 +1,18 @@
-<webobject name="SingleHostConditional"><webobject name="Refresh" /></webobject>
-<webobject name="NavPage">
+<wo:if condition="$onlyOneHost"><wo:WOMetaRefresh action="$onlyHostClicked" seconds=0 /></wo:if>
+<wo:NavigationPage currentPage="$APP_PAGE">
 <div class="Box PathWizardPage1Box">
-<webobject name="SingleHostConditional">
+<wo:if condition="$onlyOneHost">
 	<p>Please wait while we fetch the file listing...</p>
-</webobject>
-<webobject name="MultipleHostsConditional">
+</wo:if>
+<wo:if condition="$multipleHosts">
   <p>Choose the host on which you would like to select a path:</p>
   <ul>
-  <webobject name="HostRepetition"><li><webobject name="HostLink"><webobject name="HostName" /></webobject></li></webobject>
+  <wo:loop list="$hostList" item="$aCurrentHost"><li><wo:link action="$hostClicked"><wo:str value="$aCurrentHost.name" /></wo:link></li></wo:loop>
   </ul>
-</webobject>
-<webobject name="NoHostsConditional">
+</wo:if>
+<wo:if condition="$noHosts">
   <p>There are no hosts configured.</p>
-  <p>Please <webobject name="AddHostsLink">add hosts</webobject> before using the PathWizard.</p>
-</webobject>
+  <p>Please <wo:link pageName="HostsPage" id="PathWizardPage1AddHostsLink">add hosts</wo:link> before using the PathWizard.</p>
+</wo:if>
 </div>
-</webobject>
+</wo:NavigationPage>

@@ -1,4 +1,4 @@
-<webobject name = "NavPage">
+<wo:NavigationPage currentPage="$HOST_PAGE" title="Hosts" pageId="Hosts">
 <div class="Box HostListBox">
 <h2 class="SectionHeading">Hosts</h2>
   <table>
@@ -12,38 +12,38 @@
       <th>&nbsp;</th>
       <th>&nbsp;</th>
     </tr>
-    <webobject name = "HostsRepetition">
+    <wo:loop list="$theApplication.siteConfig.hostArray" item="$currentHost">
       <tr>
         <td>
-               <webobject name = "HostName" /> /
-             <webobject name = "HostAddress" />
+               <wo:str value="$currentHost.name" /> /
+             <wo:str value="$currentHost.addressAsString" />
         </td>
         <td class="HostAvailability">
-          <webobject name = "HostIsAvailable">
-              YES | <webobject name = "wotaskdLink">View Config</webobject>
-          </webobject>
-          <webobject name = "HostIsNOTAvailable">
+          <wo:if condition="$currentHost.isAvailable">
+              YES | <wo:link action="$displayWotaskdInfoClicked" target="_blank">View Config</wo:link>
+          </wo:if>
+          <wo:not condition="$currentHost.isAvailable">
             <span class="HostNotAvailable">NO</span>
-          </webobject>
+          </wo:not>
         </td>
-        <td><webobject name = "HostType" /></td>
-        <td><webobject name = "InstanceCount" /></td>
-        <td><webobject name = "ProcessorDescription" /></td>
-        <td><webobject name = "HostOSName" /></td>
+        <td><wo:str value="$currentHost.osType" /></td>
+        <td><wo:str value="$currentHost.runningInstances" /></td>
+        <td><wo:str value="$currentHost.processorType" /></td>
+        <td><wo:str value="$currentHost.operatingSystem" /></td>
         <td>
-          <webobject name = "ConfigureHostLink"><span>Configure</span></webobject>
+          <wo:link action="$configureHostClicked" class="Button ConfigureButton"><span>Configure</span></wo:link>
         </td>
         <td>
-          <webobject name = "RemoveHostLink"><span>Delete</span></webobject>
+          <wo:link action="$removeHostClicked" class="Button DeleteButton"><span>Delete</span></wo:link>
         </td>
       </tr>
-    </webobject>
+    </wo:loop>
   </table>
 </div>
 <div class="Box AddHostBox">
-  <webobject name = "AddHostForm">
-    Add Host: <webobject name = "HostNameTextField" /> of type: <webobject name = "PopUpButton1" /> <webobject name = "AddHostSubmitButton" /> 
-  </webobject>
+  <wo:form id="HostsPageAddHostForm">
+    Add Host: <wo:textfield size="40" value="$newHostName" id="HostsPageHostNameTextField"/> of type: <wo:select list="$hostTypeList" selection="$hostTypeSelection" id="HostsPagePopUpButton1"/> <wo:submit action="$addHostClicked" value="Add Host" id="HostsPageAddHostSubmitButton"/> 
+  </wo:form>
   <div class="Notes">
   	<h4>Notes</h4>
     <ul>
@@ -53,4 +53,4 @@
     </ul>
   </div>
 </div>
-</webobject>
+</wo:NavigationPage>
